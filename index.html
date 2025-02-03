@@ -1,44 +1,121 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Simple PeerJS Video Chat</title>
-    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P2P Video Call</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    video {
+      width: 300px;
+      height: 225px;
+      border: 1px solid #ccc;
+      background-color: #000;
+      margin: 10px;
+    }
+    #startCall {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-    <h2>Simple Video Chat</h2>
+  <h1>P2P Video Call</h1>
+  <div>
     <video id="localVideo" autoplay muted></video>
     <video id="remoteVideo" autoplay></video>
-    <input type="text" id="peerIdInput" placeholder="Enter Peer ID">
-    <button onclick="startCall()">Call</button>
+  </div>
+  <button id="startCall">Start Call</button>
 
-    <script>
-        var peer = new Peer({host:'video-call-uylq.onrender.com',port:443 ,path:'/myapp'});
-        var localStream;
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script>
+    const localVideo = document.getElementById('localVideo');
+    const remoteVideo = document.getElementById('remoteVideo');
+    const startCallButton = document.getElementById('startCall');
 
-        peer.on('open', function(id) {
-            console.log('My peer ID is: ' + id);
-        });
+    const socket = io('https://video-call-uylq.onrender.com'); // Connect to NestJS WebSocket server
+    let localStream;
+    let peerConnection;
 
-        peer.on('call', function(call) {
-            call.answer(localStream);
-            call.on('stream', function(remoteStream) {
-                document.getElementById('remoteVideo').srcObject = remoteStream;
-            });
-        });
+    // Get user media (camera and microphone)
+    async function startLocalStream() {
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        localVideo.srcObject = localStream;
+      } catch (error) {
+        console.error('Error accessing media devices:', error);
+      }
+    }
 
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-            .then(function(stream) {
-                localStream = stream;
-                document.getElementById('localVideo').srcObject = stream;
-            });
+    // Create RTCPeerConnection
+    function createPeerConnection() {
+      const configuration = {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' }, // Free STUN server
+          // Add TURN server credentials if needed
+        ],
+      };
+      peerConnection = new RTCPeerConnection(configuration);
 
-        function startCall() {
-            var peerId = document.getElementById('peerIdInput').value;
-            var call = peer.call(peerId, localStream);
-            call.on('stream', function(remoteStream) {
-                document.getElementById('remoteVideo').srcObject = remoteStream;
-            });
+      // Add local stream to peer connection
+      localStream.getTracks().forEach((track) => peerConnection.addTrack(track, localStream));
+
+      // Handle remote stream
+      peerConnection.ontrack = (event) => {
+        remoteVideo.srcObject = event.streams[0];
+      };
+
+      // Handle ICE candidates
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+          socket.emit('ice-candidate', event.candidate); // Send ICE candidate to the other peer
         }
-    </script>
+      };
+    }
+
+    // Start the call
+    startCallButton.addEventListener('click', async () => {
+      await startLocalStream();
+      createPeerConnection();
+
+      // Create and send an offer
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      socket.emit('offer', offer); // Send offer to the other peer
+    });
+
+    // Handle signaling messages
+    socket.on('offer', async (offer) => {
+      if (!peerConnection) createPeerConnection();
+
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+      socket.emit('answer', answer); // Send answer to the other peer
+    });
+
+    socket.on('answer', async (answer) => {
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+    });
+
+    socket.on('ice-candidate', async (candidate) => {
+      try {
+        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+      } catch (error) {
+        console.error('Error adding ICE candidate:', error);
+      }
+    });
+  </script>
 </body>
 </html>
