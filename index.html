@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>P2P Video Call</title>
+  <title>Callee</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -22,27 +22,19 @@
       background-color: #000;
       margin: 10px;
     }
-    #startCall {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 20px;
-    }
   </style>
 </head>
 <body>
-  <h1>P2P Video Call</h1>
+  <h1>Callee</h1>
   <div>
     <video id="localVideo" autoplay muted></video>
     <video id="remoteVideo" autoplay></video>
   </div>
-  <button id="startCall">Start Call</button>
 
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
   <script>
     const localVideo = document.getElementById('localVideo');
     const remoteVideo = document.getElementById('remoteVideo');
-    const startCallButton = document.getElementById('startCall');
 
     const socket = io('https://video-call-uylq.onrender.com'); // Connect to NestJS WebSocket server
     let localStream;
@@ -63,7 +55,6 @@
       const configuration = {
         iceServers: [
           { urls: 'stun:stun.l.google.com:19302' }, // Free STUN server
-          // Add TURN server credentials if needed
         ],
       };
       peerConnection = new RTCPeerConnection(configuration);
@@ -84,29 +75,15 @@
       };
     }
 
-    // Start the call
-    startCallButton.addEventListener('click', async () => {
-      await startLocalStream();
-      createPeerConnection();
-
-      // Create and send an offer
-      const offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(offer);
-      socket.emit('offer', offer); // Send offer to the other peer
-    });
-
     // Handle signaling messages
     socket.on('offer', async (offer) => {
-      if (!peerConnection) createPeerConnection();
+      await startLocalStream();
+      createPeerConnection();
 
       await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
       const answer = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(answer);
       socket.emit('answer', answer); // Send answer to the other peer
-    });
-
-    socket.on('answer', async (answer) => {
-      await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
     });
 
     socket.on('ice-candidate', async (candidate) => {
