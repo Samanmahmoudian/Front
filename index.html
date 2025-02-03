@@ -12,7 +12,7 @@
     <button onclick="startCall()">Call</button>
 
     <script>
-        var peer = new Peer({host:'video-call-uylq.onrender.com',port:443 ,secure:true});
+        var peer = new Peer({host:'video-call-uylq.onrender.com',port:443 ,path:'/myapp'});
         var localStream;
 
         peer.on('open', function(id) {
