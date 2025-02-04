@@ -1,46 +1,93 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>PeerJS Video Call - Caller</title>
-    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeerJS Video Call</title>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <style>
+        video {
+            width: 45%;
+            margin: 2%;
+            border: 1px solid black;
+        }
+    </style>
 </head>
 <body>
-    <h1>Caller</h1>
-    <video id="local-video" autoplay playsinline></video>
-    <video id="remote-video" autoplay playsinline></video>
-    <input type="text" id="callee-id" placeholder="Enter callee ID"/>
-    <button onclick="startCall()">Start Call</button>
+    <h1>PeerJS Video Call</h1>
+    <input type="text" id="peerId" placeholder="Enter Peer ID" />
+    <button id="callButton">Call</button>
+    <button id="hangupButton" disabled>Hang Up</button>
+    <div>
+        <video id="localVideo" autoplay muted></video>
+        <video id="remoteVideo" autoplay></video>
+    </div>
 
     <script>
-        const peer = new Peer('',{host:'video-call-uylq.onrender.com'});
-        let localStream;
+        const peer = new Peer({
+            host: 'video-call-uylq.onrender.com',
+            port:443,
+            secure: true // Use HTTPS
 
+        });
+
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const callButton = document.getElementById('callButton');
+        const hangupButton = document.getElementById('hangupButton');
+        let currentCall;
+
+        // Get access to the user's webcam
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then(stream => {
+                localVideo.srcObject = stream;
+
+                // Listen for incoming calls
+                peer.on('call', call => {
+                    call.answer(stream); // Answer the call with the local stream
+                    call.on('stream', remoteStream => {
+                        remoteVideo.srcObject = remoteStream; // Show the remote video stream
+                    });
+                    currentCall = call;
+                });
+            })
+            .catch(err => {
+                console.error('Failed to get local stream', err);
+            });
+
+        // Call another peer
+        callButton.onclick = () => {
+            const peerId = document.getElementById('peerId').value;
+            if (peerId) {
+                navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                    .then(stream => {
+                        const call = peer.call(peerId, stream);
+                        call.on('stream', remoteStream => {
+                            remoteVideo.srcObject = remoteStream; // Show the remote video stream
+                        });
+                        currentCall = call;
+                    })
+                    .catch(err => {
+                        console.error('Failed to get local stream', err);
+                    });
+            } else {
+                alert('Please enter a Peer ID to call.');
+            }
+        };
+
+        // Hang up the call
+        hangupButton.onclick = () => {
+            if (currentCall) {
+                currentCall.close();
+                currentCall = null;
+                remoteVideo.srcObject = null; // Clear the remote video
+            }
+        };
+
+        // Display the peer ID
         peer.on('open', id => {
-            console.log(id)
+            document.getElementById('peerId').value = id; // Show the Peer ID in the input field
         });
-
-        peer.on('call', call => {
-            call.answer(localStream);
-            call.on('stream', remoteStream => {
-                const remoteVideo = document.getElementById('remote-video');
-                remoteVideo.srcObject = remoteStream;
-            });
-        });
-
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
-            localStream = stream;
-            const localVideo = document.getElementById('local-video');
-            localVideo.srcObject = stream;
-        });
-
-        function startCall() {
-            const calleeID = document.getElementById('callee-id').value;
-            const call = peer.call(calleeID, localStream);
-            call.on('stream', remoteStream => {
-                const remoteVideo = document.getElementById('remote-video');
-                remoteVideo.srcObject = remoteStream;
-            });
-        }
     </script>
 </body>
 </html>
