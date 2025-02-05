@@ -21,10 +21,10 @@
     const socket = io('https://video-call-uylq.onrender.com');
     const localVideo = document.getElementById('local-video');
     const remoteVideo = document.getElementById('remote-video');
-  
-
     let localStream;
     let peerConnection;
+
+    const tabId = socket.id;  // Unique identifier for this tab
 
     // Get user's media
     async function startCall() {
@@ -33,61 +33,15 @@
         localVideo.srcObject = localStream;
 
         const peerConnectionConfig = {
-  iceServers: [
-    // STUN servers (multiple for redundancy)
-    {
-      urls: 'stun:stun.l.google.com:19302' // Google's STUN server
-    },
-    {
-      urls: 'stun:stun1.l.google.com:19302' // Google's STUN server (second one)
-    },
-    {
-      urls: 'stun:stun2.l.google.com:19302' // Google's STUN server (third one)
-    },
-    {
-      urls: 'stun:stun3.l.google.com:19302' // Another Google STUN server
-    },
-    {
-      urls: 'stun:stun4.l.google.com:19302' // Additional Google STUN server
-    },
-    {
-      urls: 'stun:stun.services.mozilla.com' // Mozilla's STUN server
-    },
-
-  
-
-    {
-      urls: 'turn:openrelay.metered.ca:80', // Public TURN server (for testing)
-      username: 'openrelayproject',         // Username for public TURN
-      credential: 'openrelayproject'        // Password for public TURN
-    },{
-    url: 'turn:numb.viagenie.ca',
-    credential: 'muazkh',
-    username: 'webrtc@live.com'
-},
-{
-    url: 'turn:192.158.29.39:3478?transport=udp',
-    credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
-    username: '28224511:1379330808'
-},
-{
-    url: 'turn:192.158.29.39:3478?transport=tcp',
-    credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
-    username: '28224511:1379330808'
-},
-{
-    url: 'turn:turn.bistri.com:80',
-    credential: 'homeo',
-    username: 'homeo'
- },
- {
-    url: 'turn:turn.anyfirewall.com:443?transport=tcp',
-    credential: 'webrtc',
-    username: 'webrtc'
-}
-  ]
-};
-
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            {
+              urls: 'turn:openrelay.metered.ca:80',
+              username: 'openrelayproject',
+              credential: 'openrelayproject',
+            },
+          ],
+        };
 
         peerConnection = new RTCPeerConnection(peerConnectionConfig);
 
@@ -99,7 +53,7 @@
         // Listen for ICE candidates
         peerConnection.onicecandidate = function(event) {
           if (event.candidate) {
-            socket.emit('candidate', event.candidate);
+            socket.emit('candidate', { candidate: event.candidate, targetTabId: tabId });
           }
         };
 
@@ -112,35 +66,52 @@
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
 
-        socket.emit('offer', offer);
+        // Send offer to a specific tab (using the target tab's unique ID)
+        const targetTabId = 'target-tab-id';  // The ID of the tab you want to call
+        socket.emit('offer', { offer: offer, targetTabId: targetTabId });
       } catch (err) {
         console.error('Error accessing media devices:', err);
       }
     }
 
-    socket.on('offer', async (offer) => {
+    socket.on('offer', async (data) => {
       if (!peerConnection) {
         await startCall();
       }
-      await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-      const answer = await peerConnection.createAnswer();
-      await peerConnection.setLocalDescription(answer);
-      socket.emit('answer', answer);
+
+      const { offer, targetTabId } = data;
+
+      // Check if this tab is the target tab
+      if (tabId === targetTabId) {
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+
+        // Send the answer back to the caller
+        socket.emit('answer', { answer: answer, targetTabId: tabId });
+      }
     });
 
-    socket.on('answer', (answer) => {
-      peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+    socket.on('answer', (data) => {
+      const { answer, targetTabId } = data;
+
+      // Make sure we only set the remote description if it's the correct tab
+      if (tabId === targetTabId) {
+        peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+      }
     });
 
-    socket.on('candidate', (candidate) => {
-      peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+    socket.on('candidate', (data) => {
+      const { candidate, targetTabId } = data;
+
+      // Add candidate if it's for the correct tab
+      if (tabId === targetTabId) {
+        peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+      }
     });
 
     // Start call when ready
     window.onload = startCall;
   </script>
-
-
-
 </body>
 </html>
