@@ -32,6 +32,39 @@
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         localVideo.srcObject = localStream;
 
+        const peerConnectionConfig = {
+  iceServers: [
+    // STUN servers (multiple for redundancy)
+    {
+      urls: 'stun:stun.l.google.com:19302' // Google's STUN server
+    },
+    {
+      urls: 'stun:stun1.l.google.com:19302' // Google's STUN server (second one)
+    },
+    {
+      urls: 'stun:stun2.l.google.com:19302' // Google's STUN server (third one)
+    },
+    {
+      urls: 'stun:stun3.l.google.com:19302' // Another Google STUN server
+    },
+    {
+      urls: 'stun:stun4.l.google.com:19302' // Additional Google STUN server
+    },
+    {
+      urls: 'stun:stun.services.mozilla.com' // Mozilla's STUN server
+    },
+
+  
+
+    {
+      urls: 'turn:openrelay.metered.ca:80', // Public TURN server (for testing)
+      username: 'openrelayproject',         // Username for public TURN
+      credential: 'openrelayproject'        // Password for public TURN
+    }
+  ]
+};
+
+
         peerConnection = new RTCPeerConnection();
 
         // Add local stream to peer connection
