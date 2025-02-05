@@ -119,7 +119,8 @@
         // Handle answer from another client
         socket.on('answer', (answer) => {
             peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-            console.log('done')
+           socket.emit('meow' , 'meow')
+           alert('meow')
         });
 
         // Handle ICE candidates
