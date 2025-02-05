@@ -1,117 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebRTC Video Call</title>
-  <style>
-    #local-video, #remote-video {
-      width: 45%;
-      border: 2px solid black;
-      margin: 5px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Call</title>
+    <style>
+        video {
+            width: 45%;
+            margin: 10px;
+        }
+        #localVideo {
+            transform: rotateY(180deg); /* Mirror the local video feed */
+        }
+    </style>
 </head>
 <body>
-  <h2>WebRTC Video Call</h2>
-  <video id="local-video" autoplay muted></video>
-  <video id="remote-video" autoplay></video>
-  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-  <script>
-    const socket = io('https://video-call-uylq.onrender.com');
-    const localVideo = document.getElementById('local-video');
-    const remoteVideo = document.getElementById('remote-video');
-    let localStream;
-    let peerConnection;
+    <h1>WebRTC Video Call</h1>
+    <video id="localVideo" autoplay muted></video>
+    <video id="remoteVideo" autoplay></video>
+    <br>
+    <button id="startCallBtn">Start Call</button>
 
-    const tabId = socket.id;  // Unique identifier for this tab
+    <script src="https://cdn.socket.io/4.4.0/socket.io.min.js"></script>
+    <script>
+        const socket = io('http://localhost:3000'); // Connect to your NestJS WebSocket server
+        const startCallBtn = document.getElementById('startCallBtn');
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
 
-    // Get user's media
-    async function startCall() {
-      try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        localVideo.srcObject = localStream;
-
-        const peerConnectionConfig = {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            {
-              urls: 'turn:openrelay.metered.ca:80',
-              username: 'openrelayproject',
-              credential: 'openrelayproject',
-            },
-          ],
+        let localStream;
+        let peerConnection;
+        const iceServers = {
+            iceServers: [
+                {
+                    urls: 'stun:stun.l.google.com:19302', // Google's public STUN server
+                },
+            ],
         };
 
-        peerConnection = new RTCPeerConnection(peerConnectionConfig);
+        // Get local media (video and audio)
+        async function getLocalStream() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                localVideo.srcObject = localStream;
+            } catch (err) {
+                console.error('Error accessing media devices.', err);
+            }
+        }
 
-        // Add local stream to peer connection
-        localStream.getTracks().forEach(track => {
-          peerConnection.addTrack(track, localStream);
+        // Set up the peer connection and start the call
+        async function startCall() {
+            await getLocalStream();
+
+            peerConnection = new RTCPeerConnection(iceServers);
+
+            // Add tracks to the peer connection
+            localStream.getTracks().forEach(track => {
+                peerConnection.addTrack(track, localStream);
+            });
+
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    socket.emit('ice-candidate', event.candidate);
+                }
+            };
+
+            peerConnection.ontrack = (event) => {
+                remoteVideo.srcObject = event.streams[0];
+            };
+
+            // Create an offer and send it to the signaling server
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            socket.emit('offer', offer);
+        }
+
+        // Handle offer from another client
+        socket.on('offer', async (offer) => {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+
+            // Create an answer and send it back
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            socket.emit('answer', answer);
         });
 
-        // Listen for ICE candidates
-        peerConnection.onicecandidate = function(event) {
-          if (event.candidate) {
-            socket.emit('candidate', { candidate: event.candidate, targetTabId: tabId });
-          }
-        };
+        // Handle answer from another client
+        socket.on('answer', (answer) => {
+            peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        });
 
-        // Listen for remote stream
-        peerConnection.ontrack = function(event) {
-          remoteVideo.srcObject = event.streams[0];
-        };
+        // Handle ICE candidates
+        socket.on('ice-candidate', (candidate) => {
+            peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+        });
 
-        // Create an offer if it's the first tab
-        const offer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(offer);
-
-        // Send offer to a specific tab (using the target tab's unique ID)
-        const targetTabId = 'target-tab-id';  // The ID of the tab you want to call
-        socket.emit('offer', { offer: offer, targetTabId: targetTabId });
-      } catch (err) {
-        console.error('Error accessing media devices:', err);
-      }
-    }
-
-    socket.on('offer', async (data) => {
-      if (!peerConnection) {
-        await startCall();
-      }
-
-      const { offer, targetTabId } = data;
-
-      // Check if this tab is the target tab
-      if (tabId === targetTabId) {
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-
-        // Send the answer back to the caller
-        socket.emit('answer', { answer: answer, targetTabId: tabId });
-      }
-    });
-
-    socket.on('answer', (data) => {
-      const { answer, targetTabId } = data;
-
-      // Make sure we only set the remote description if it's the correct tab
-      if (tabId === targetTabId) {
-        peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-      }
-    });
-
-    socket.on('candidate', (data) => {
-      const { candidate, targetTabId } = data;
-
-      // Add candidate if it's for the correct tab
-      if (tabId === targetTabId) {
-        peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-      }
-    });
-
-    // Start call when ready
-    window.onload = startCall;
-  </script>
+        // Start the call when the button is clicked
+        startCallBtn.addEventListener('click', () => {
+            startCall();
+        });
+    </script>
 </body>
 </html>
