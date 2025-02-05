@@ -89,7 +89,7 @@
 };
 
 
-        peerConnection = new RTCPeerConnection();
+        peerConnection = new RTCPeerConnection(peerConnectionConfig);
 
         // Add local stream to peer connection
         localStream.getTracks().forEach(track => {
