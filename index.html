@@ -3,47 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Streaming with WebSockets</title>
+    <title>WebRTC Video Call</title>
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
 </head>
 <body>
-    <h1>Live Streaming</h1>
-    <video id="video" autoplay playsinline></video>
-    <img id="videoFrame" style="max-width: 100%;" />
-
-    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <h1>WebRTC Video Call</h1>
+    <video id="localVideo" autoplay playsinline></video>
+    <video id="remoteVideo" autoplay playsinline></video>
     <script>
-        const socket = io("https://video-call-uylq.onrender.com"); // Change to your backend URL
-        const video = document.getElementById("video");
-        const videoFrame = document.getElementById("videoFrame");
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const iceServers = [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:stun2.l.google.com:19302' },
+    { urls: 'stun:stun3.l.google.com:19302' },
+    { urls: 'stun:stun4.l.google.com:19302' },
+    { urls: 'stun:stun.ekiga.net' },
+    { urls: 'stun:stun.ideasip.com' },
+    { urls: 'stun:stun.rixtelecom.se' },
+    { urls: 'stun:stun.schlund.de' },
+    { urls: 'stun:stun.stunprotocol.org:3478' },
+    { urls: 'stun:stun.voiparound.com' },
+    { urls: 'stun:stun.voipbuster.com' },
+    { urls: 'stun:stun.voipstunt.com' },
+    { urls: 'stun:stun.voxgratia.org' },
+    { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' }
+];
 
-        // Check if the tab should act as sender or receiver
-        const isSender = !localStorage.getItem("sender");
-        if (isSender) localStorage.setItem("sender", "true");
+        const peerConnection = new RTCPeerConnection({iceServers:iceServers});
+        const socket = io('https://video-call-uylq.onrender.com');
 
-        if (isSender) {
-            // Capture webcam and send frames to WebSocket
-            navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-                .then(stream => {
-                    video.srcObject = stream;
-                    const canvas = document.createElement("canvas");
-                    const ctx = canvas.getContext("2d");
-
-                    setInterval(() => {
-                        canvas.width = video.videoWidth;
-                        canvas.height = video.videoHeight;
-                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                        const frame = canvas.toDataURL("image/webp");
-                        socket.emit("stream", { frame });
-                    }, 100); // Send a frame every 100ms
-                })
-                .catch(console.error);
-        } else {
-            // Receiver: Display incoming video frames
-            video.style.display = "none";
-            socket.on("receiveStream", (data) => {
-                videoFrame.src = data.frame;
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                localVideo.srcObject = stream;
+                stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
             });
+
+        socket.on('offer', async (offer) => {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            socket.emit('answer', answer);
+        });
+
+        socket.on('answer', async (answer) => {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        });
+
+        socket.on('candidate', async (candidate) => {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+        });
+
+        peerConnection.onicecandidate = (event) => {
+            if (event.candidate) {
+                socket.emit('candidate', event.candidate);
+            }
+        };
+
+        peerConnection.ontrack = (event) => {
+            remoteVideo.srcObject = event.streams[0];
+        };
+
+        async function createOffer() {
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            socket.emit('offer', offer);
         }
+
+        peerConnection.onnegotiationneeded = createOffer;
     </script>
 </body>
 </html>
