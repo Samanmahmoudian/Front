@@ -3,133 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Call</title>
-    <style>
-        video {
-            width: 45%;
-            margin: 10px;
-        }
-        #localVideo {
-            transform: rotateY(180deg); /* Mirror the local video feed */
-        }
-    </style>
+    <title>Live Streaming with WebSockets</title>
 </head>
 <body>
-    <h1>WebRTC Video Call</h1>
-    <video id="localVideo" autoplay muted></video>
-    <video id="remoteVideo" autoplay></video>
-    <br>
+    <h1>Live Streaming</h1>
+    <video id="video" autoplay playsinline></video>
+    <img id="videoFrame" style="max-width: 100%;" />
 
-
-    <script src="https://cdn.socket.io/4.4.0/socket.io.min.js"></script>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
     <script>
-        const socket = io('wss://video-call-uylq.onrender.com'); // Connect to your NestJS WebSocket server
+        const socket = io("https://video-call-uylq.onrender.com"); // Change to your backend URL
+        const video = document.getElementById("video");
+        const videoFrame = document.getElementById("videoFrame");
 
-        const localVideo = document.getElementById('localVideo');
-        const remoteVideo = document.getElementById('remoteVideo');
+        // Check if the tab should act as sender or receiver
+        const isSender = !localStorage.getItem("sender");
+        if (isSender) localStorage.setItem("sender", "true");
 
-        let localStream;
-        let peerConnection;
-        const peerConnectionConfig = {
-  iceServers: [
-    // ✅ Free STUN Servers
-    { urls: "stun:stun.l.google.com:19302" },
-    { urls: "stun:stun1.l.google.com:19302" },
-    { urls: "stun:stun2.l.google.com:19302" },
-    { urls: "stun:stun3.l.google.com:19302" },
-    { urls: "stun:stun4.l.google.com:19302" },
-    { urls: "stun:stun.services.mozilla.com" },
+        if (isSender) {
+            // Capture webcam and send frames to WebSocket
+            navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                .then(stream => {
+                    video.srcObject = stream;
+                    const canvas = document.createElement("canvas");
+                    const ctx = canvas.getContext("2d");
 
-    // ✅ Free TURN Servers (Limited Usage)
-    {
-      urls: "turn:relay.metered.ca:80",
-      username: "free",
-      credential: "free"
-    },
-    {
-      urls: "turn:relay.metered.ca:443",
-      username: "free",
-      credential: "free"
-    },
-    {
-      urls: "turn:global.relay.metered.ca:80",
-      username: "free",
-      credential: "free"
-    },
-    {
-      urls: "turn:global.relay.metered.ca:443",
-      username: "free",
-      credential: "free"
-    }
-  ]
-};
-
-
-
-        // Get local media (video and audio)
-        async function getLocalStream() {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                localVideo.srcObject = localStream;
-            } catch (err) {
-                console.error('Error accessing media devices.', err);
-            }
-        }
-
-        // Set up the peer connection and start the call
-        async function startCall() {
-            await getLocalStream();
-
-            peerConnection = new RTCPeerConnection(peerConnectionConfig);
-
-            // Add tracks to the peer connection
-            localStream.getTracks().forEach(track => {
-                peerConnection.addTrack(track, localStream);
+                    setInterval(() => {
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const frame = canvas.toDataURL("image/webp");
+                        socket.emit("stream", { frame });
+                    }, 100); // Send a frame every 100ms
+                })
+                .catch(console.error);
+        } else {
+            // Receiver: Display incoming video frames
+            video.style.display = "none";
+            socket.on("receiveStream", (data) => {
+                videoFrame.src = data.frame;
             });
-            peerConnection.onicecandidate = (event) => {
-    if (event.candidate) {
-        console.log("ICE Candidate:", event.candidate);
-        socket.emit('ice-candidate' , event.candidate)
-    } else {
-        console.log("ICE Gathering Complete");
-    }
-};
-
-
-            peerConnection.ontrack = (event) => {
-                remoteVideo.srcObject = event.streams[0];
-            };
-
-            // Create an offer and send it to the signaling server
-            const offer = await peerConnection.createOffer();
-            await peerConnection.setLocalDescription(offer);
-            socket.emit('offer', offer);
         }
-
-        // Handle offer from another client
-        socket.on('offer', async (offer) => {
-            await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-
-            // Create an answer and send it back
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
-            socket.emit('answer', answer);
-        });
-
-        // Handle answer from another client
-        socket.on('answer', (answer) => {
-            peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-           socket.emit('meow' , 'meow')
-           alert('meow')
-        });
-
-        // Handle ICE candidates
-        socket.on('ice-candidate', (candidate) => {
-            peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-        });
-
-        // Start the call when the button is clicked
-        window.onload = startCall()
     </script>
 </body>
 </html>
