@@ -30,44 +30,40 @@
 
         let localStream;
         let peerConnection;
-        const iceServers = {
-            iceServers: [
-                {
-                    urls: 'stun:stun.l.google.com:19302', // Google's public STUN server
-                },
-                {
-                  urls: 'stun:stun3.l.google.com:19302'
-                },
-                {
-                  urls: 'stun:stun4.l.google.com:19302'
-                },
-                {
-    url: 'turn:numb.viagenie.ca',
-    credential: 'muazkh',
-    username: 'webrtc@live.com'
-},
-{
-    url: 'turn:192.158.29.39:3478?transport=udp',
-    credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
-    username: '28224511:1379330808'
-},
-{
-    url: 'turn:192.158.29.39:3478?transport=tcp',
-    credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
-    username: '28224511:1379330808'
-},
-{
-    url: 'turn:turn.bistri.com:80',
-    credential: 'homeo',
-    username: 'homeo'
- },
- {
-    url: 'turn:relay1.expressturn.com:3478',
-    credential: 'eGhrX7JJa94R5y71',
-    username: 'efI25VREKCGWXFIFOT'
-}
-            ],
-        };
+        const peerConnectionConfig = {
+  iceServers: [
+    // ✅ Free STUN Servers
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" },
+    { urls: "stun:stun2.l.google.com:19302" },
+    { urls: "stun:stun3.l.google.com:19302" },
+    { urls: "stun:stun4.l.google.com:19302" },
+    { urls: "stun:stun.services.mozilla.com" },
+
+    // ✅ Free TURN Servers (Limited Usage)
+    {
+      urls: "turn:relay.metered.ca:80",
+      username: "free",
+      credential: "free"
+    },
+    {
+      urls: "turn:relay.metered.ca:443",
+      username: "free",
+      credential: "free"
+    },
+    {
+      urls: "turn:global.relay.metered.ca:80",
+      username: "free",
+      credential: "free"
+    },
+    {
+      urls: "turn:global.relay.metered.ca:443",
+      username: "free",
+      credential: "free"
+    }
+  ]
+};
+
 
         // Get local media (video and audio)
         async function getLocalStream() {
@@ -83,18 +79,21 @@
         async function startCall() {
             await getLocalStream();
 
-            peerConnection = new RTCPeerConnection(iceServers);
+            peerConnection = new RTCPeerConnection(peerConnectionConfig);
 
             // Add tracks to the peer connection
             localStream.getTracks().forEach(track => {
                 peerConnection.addTrack(track, localStream);
             });
-
             peerConnection.onicecandidate = (event) => {
-                if (event.candidate) {
-                    socket.emit('ice-candidate', event.candidate);
-                }
-            };
+    if (event.candidate) {
+        console.log("ICE Candidate:", event.candidate);
+        socket.emit('ice-candidate' , event.candidate)
+    } else {
+        console.log("ICE Gathering Complete");
+    }
+};
+
 
             peerConnection.ontrack = (event) => {
                 remoteVideo.srcObject = event.streams[0];
