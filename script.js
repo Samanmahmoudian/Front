@@ -2,7 +2,7 @@
 const localstream = document.getElementById('localstream')
 const remotestream = document.getElementById('remotestream')
 
-const socket = io('http://localhost:3000');
+const socket = io('https://miniapp-videocall-server.onrender.com');
 
 const peerConnection = new RTCPeerConnection({
     iceServers: [
