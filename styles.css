@@ -134,6 +134,14 @@ body {
     .app-container {
         flex-direction: column;
     }
+    .main-video,
+    .small-video {
+        height: 70%;
+    }
+
+    #localstream, #remotestream {
+        object-fit: contain; 
+    }
 
 }
 @media (min-width: 601px) {
