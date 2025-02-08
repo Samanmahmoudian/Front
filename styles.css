@@ -140,7 +140,8 @@ body {
     }
 
     #localstream, #remotestream {
-        object-fit: contain; 
+        object-fit: cover; 
+        height: 100%;
     }
 
 }
