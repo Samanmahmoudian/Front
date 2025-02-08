@@ -4,7 +4,7 @@ const mutebtn = document.getElementById('mutebtn');
 const hidebtn = document.getElementById('hidebtn');
 const endbtn = document.getElementById('endbtn');
 
-const socket = io('');
+const socket = io('https://miniapp-videocall-server.onrender.com');
 
 const peerConnection = new RTCPeerConnection({
     iceServers: [
