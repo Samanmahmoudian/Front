@@ -7,7 +7,7 @@ const remotestream = document.getElementById('remotestream');
 const mutebtn = document.getElementById('mutebtn');
 const hidebtn = document.getElementById('hidebtn');
 const endbtn = document.getElementById('endbtn');
-
+const logs = document.getElementById('logs')
 
 var peerConnection = new RTCPeerConnection({
     iceServers: [
@@ -71,7 +71,7 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) 
     });
     localstream.srcObject = stream;
 }).catch((error) => {
-
+    logs.innerHTML = error
     socket.emit('error' , error)
     console.error('Error accessing media devices:', error);
     alert('Could not access media devices. Please ensure permissions are granted.');
@@ -91,6 +91,7 @@ socket.on('offer', async (offer) => {
         await peerConnection.setLocalDescription(answer);
         socket.emit('answer', answer);
     } catch (error) {
+        logs.innerHTML = error
         socket.emit('error' , error)
         console.error('Error handling offer:', error);
     }
@@ -101,6 +102,7 @@ socket.on('answer', async (answer) => {
         await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
         console.log("Connected successfully");
     } catch (error) {
+        logs.innerHTML = error
         socket.emit('error' , error)
         console.error('Error handling answer:', error);
     }
@@ -116,6 +118,7 @@ peerConnection.ontrack = async (event) => {
             }
         };
     } catch (error) {
+        logs.innerHTML = error
         socket.emit('error' , error)
         console.error('Error handling track event:', error);
     }
@@ -123,8 +126,10 @@ peerConnection.ontrack = async (event) => {
 peerConnection.onicecandidate = async (event) => {
     if (event.candidate) {
         try {
+            logs.innerHTML = event.candidate
             socket.emit('ice', event.candidate);
         } catch (error) {
+            logs.innerHTML = error
             socket.emit('error' , error)
             console.error('Error sending ICE candidate:', error);
         }
@@ -135,6 +140,7 @@ socket.on('ice', async (ice) => {
     try {
         await peerConnection.addIceCandidate(new RTCIceCandidate(ice));
     } catch (error) {
+        logs.innerHTML = error
         socket.emit('error' , error)
         console.error('Error adding ICE candidate:', error);
     }
@@ -146,6 +152,7 @@ async function sendOffer() {
         await peerConnection.setLocalDescription(offer);
         socket.emit('offer', offer);
     } catch (error) {
+        logs.innerHTML = error
         socket.emit('error' , error)
         console.error('Error sending offer:', error);
     }
@@ -193,6 +200,7 @@ peerConnection.oniceconnectionstatechange = () => {
         case 'failed':
         case 'disconnected':
         case 'closed':
+            logs.innerHTML = 'Peer connection failed or disconnected.'
             console.error('Peer connection failed or disconnected.');
             break;
         case 'connected':
@@ -205,6 +213,7 @@ peerConnection.oniceconnectionstatechange = () => {
 
 peerConnection.onconnectionstatechange = () => {
     if (peerConnection.connectionState === 'failed') {
+        logs.innerHTML = 'failed'
         socket.emit('error' , 'connection failed')
         console.error('Connection failed.');
     }
