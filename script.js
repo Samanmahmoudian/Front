@@ -1,10 +1,18 @@
+
+const socket = io('https://miniapp-videocall-server.onrender.com');
+
+import { WebApp } from "https://cdn.jsdelivr.net/npm/@twa-dev/sdk/+esm";
+
 const localstream = document.getElementById('localstream');
 const remotestream = document.getElementById('remotestream');
 const mutebtn = document.getElementById('mutebtn');
 const hidebtn = document.getElementById('hidebtn');
 const endbtn = document.getElementById('endbtn');
 
-const socket = io('https://miniapp-videocall-server.onrender.com');
+WebApp.ready()
+WebApp.expand()
+WebApp.showAlert('meow')
+
 
 var peerConnection = new RTCPeerConnection({
     iceServers: [
@@ -68,6 +76,7 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) 
     });
     localstream.srcObject = stream;
 }).catch((error) => {
+
     socket.emit('error' , error)
     console.error('Error accessing media devices:', error);
     alert('Could not access media devices. Please ensure permissions are granted.');
@@ -120,6 +129,7 @@ peerConnection.ontrack = async (event) => {
 peerConnection.onicecandidate = async (event) => {
     if (event.candidate) {
         try {
+            WebApp.showAlert(event.candidate)
             socket.emit('ice', event.candidate);
         } catch (error) {
             socket.emit('error' , error)
