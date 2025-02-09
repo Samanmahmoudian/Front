@@ -6,8 +6,6 @@ const mutebtn = document.getElementById('mutebtn');
 const hidebtn = document.getElementById('hidebtn');
 const endbtn = document.getElementById('endbtn');
 
-Telegram.WebApp.init();
-Telegram.WebApp.ready();
 const socket = io('https://miniapp-videocall-server.onrender.com');
 
 var peerConnection = new RTCPeerConnection({
@@ -76,36 +74,41 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) 
     console.error('Error accessing media devices:', error);
     alert('Could not access media devices. Please ensure permissions are granted.');
 });
-async function switchCamera() {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert("Camera switching is not supported on this device.");
-        return;
-    }
+// let currentFacingMode = "user"; // شروع با دوربین جلو
+// const switchbtn = document.getElementById('switchbtn');
 
-  
-    localstream.srcObject.getTracks().forEach(track => track.stop());
+// async function switchCamera() {
+//     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+//         alert("Camera switching is not supported on this device.");
+//         return;
+//     }
 
-    currentFacingMode = currentFacingMode === "user" ? "environment" : "user";
+//     // متوقف کردن استریم فعلی
+//     localstream.srcObject.getTracks().forEach(track => track.stop());
 
-    try {
-        const newStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: currentFacingMode },
-            audio: true
-        });
+//     // تغییر بین دوربین جلو و عقب
+//     currentFacingMode = currentFacingMode === "user" ? "environment" : "user";
 
-        localstream.srcObject = newStream;
+//     try {
+//         const newStream = await navigator.mediaDevices.getUserMedia({
+//             video: { facingMode: currentFacingMode },
+//             audio: true
+//         });
 
-    
-        const videoTrack = newStream.getVideoTracks()[0];
-        const sender = peerConnection.getSenders().find(s => s.track.kind === videoTrack.kind);
-        if (sender) sender.replaceTrack(videoTrack);
-    } catch (error) {
-        console.error("Error switching camera:", error);
-        alert("Could not switch camera.");
-    }
-}
+//         localstream.srcObject = newStream;
 
-switchbtn.addEventListener('click', switchCamera);
+//         // اضافه کردن استریم جدید به peerConnection
+//         const videoTrack = newStream.getVideoTracks()[0];
+//         const sender = peerConnection.getSenders().find(s => s.track.kind === videoTrack.kind);
+//         if (sender) sender.replaceTrack(videoTrack);
+//     } catch (error) {
+//         console.error("Error switching camera:", error);
+//         alert("Could not switch camera.");
+//     }
+// }
+
+// switchbtn.addEventListener('click', switchCamera);
+
 
 localstream.onplaying = function () {
     const loader = localstream.nextElementSibling;
