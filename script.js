@@ -1,17 +1,13 @@
 
 const socket = io('https://miniapp-videocall-server.onrender.com');
 
-import webApp from 'https://cdn.jsdelivr.net/npm/@twa-dev/sdk@latest/+esm';
-
 
 const localstream = document.getElementById('localstream');
 const remotestream = document.getElementById('remotestream');
 const mutebtn = document.getElementById('mutebtn');
 const hidebtn = document.getElementById('hidebtn');
 const endbtn = document.getElementById('endbtn');
-webApp.default.ready()
-webApp.default.expand()
-
+window.Telegram.WebApp.showAlert('salaammmm')
 
 var peerConnection = new RTCPeerConnection({
     iceServers: [
