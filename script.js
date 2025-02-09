@@ -120,7 +120,6 @@ peerConnection.ontrack = async (event) => {
         console.error('Error handling track event:', error);
     }
 };
-
 peerConnection.onicecandidate = async (event) => {
     if (event.candidate) {
         try {
