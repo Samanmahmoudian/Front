@@ -95,7 +95,7 @@ async function switchCamera() {
 
         localstream.srcObject = newStream;
 
-        // اضافه کردن استریم جدید به peerConnection
+    
         const videoTrack = newStream.getVideoTracks()[0];
         const sender = peerConnection.getSenders().find(s => s.track.kind === videoTrack.kind);
         if (sender) sender.replaceTrack(videoTrack);
