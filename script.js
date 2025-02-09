@@ -6,9 +6,7 @@ const mutebtn = document.getElementById('mutebtn');
 const hidebtn = document.getElementById('hidebtn');
 const endbtn = document.getElementById('endbtn');
 
-Telegram.WebApp.init();
-Telegram.WebApp.ready();
-const socket = io('https://front-n04k.onrender.com');
+const socket = io('https://miniapp-videocall-server.onrender.com');
 
 var peerConnection = new RTCPeerConnection({
     iceServers: [
