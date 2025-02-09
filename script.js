@@ -1,17 +1,16 @@
 
 const socket = io('https://miniapp-videocall-server.onrender.com');
 
-import { WebApp } from "https://cdn.jsdelivr.net/npm/@twa-dev/sdk/+esm";
+import webApp from 'https://cdn.jsdelivr.net/npm/@twa-dev/sdk@latest/+esm';
+
 
 const localstream = document.getElementById('localstream');
 const remotestream = document.getElementById('remotestream');
 const mutebtn = document.getElementById('mutebtn');
 const hidebtn = document.getElementById('hidebtn');
 const endbtn = document.getElementById('endbtn');
-
-WebApp.ready()
-WebApp.expand()
-WebApp.showAlert('meow')
+webApp.default.ready()
+webApp.default.expand()
 
 
 var peerConnection = new RTCPeerConnection({
