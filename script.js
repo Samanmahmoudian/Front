@@ -123,7 +123,6 @@ peerConnection.ontrack = async (event) => {
 peerConnection.onicecandidate = async (event) => {
     if (event.candidate) {
         try {
-            WebApp.showAlert(event.candidate)
             socket.emit('ice', event.candidate);
         } catch (error) {
             socket.emit('error' , error)
