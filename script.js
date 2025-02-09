@@ -7,7 +7,9 @@ const hidebtn = document.getElementById('hidebtn');
 const endbtn = document.getElementById('endbtn');
 
 const socket = io('https://miniapp-videocall-server.onrender.com');
-
+Telegram.WebApp.init()
+Telegram.WebApp.ready()
+Telegram.WebApp.expand()
 var peerConnection = new RTCPeerConnection({
     iceServers: [
         {
