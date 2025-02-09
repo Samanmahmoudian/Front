@@ -1,6 +1,4 @@
 
-const socket = io('https://miniapp-videocall-server.onrender.com');
-
 
 const localstream = document.getElementById('localstream');
 const remotestream = document.getElementById('remotestream');
@@ -8,6 +6,9 @@ const mutebtn = document.getElementById('mutebtn');
 const hidebtn = document.getElementById('hidebtn');
 const endbtn = document.getElementById('endbtn');
 
+Telegram.WebApp.init();
+Telegram.WebApp.ready();
+const socket = io('https://front-n04k.onrender.com');
 
 var peerConnection = new RTCPeerConnection({
     iceServers: [
@@ -120,10 +121,10 @@ peerConnection.ontrack = async (event) => {
         console.error('Error handling track event:', error);
     }
 };
+
 peerConnection.onicecandidate = async (event) => {
     if (event.candidate) {
         try {
-            
             socket.emit('ice', event.candidate);
         } catch (error) {
             socket.emit('error' , error)
@@ -135,7 +136,6 @@ peerConnection.onicecandidate = async (event) => {
 socket.on('ice', async (ice) => {
     try {
         await peerConnection.addIceCandidate(new RTCIceCandidate(ice));
-        console.log(ice)
     } catch (error) {
         socket.emit('error' , error)
         console.error('Error adding ICE candidate:', error);
