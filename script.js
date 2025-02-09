@@ -7,7 +7,7 @@ const remotestream = document.getElementById('remotestream');
 const mutebtn = document.getElementById('mutebtn');
 const hidebtn = document.getElementById('hidebtn');
 const endbtn = document.getElementById('endbtn');
-window.Telegram.WebApp.showAlert('salaammmm')
+
 
 var peerConnection = new RTCPeerConnection({
     iceServers: [
