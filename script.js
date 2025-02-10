@@ -193,15 +193,14 @@ peerConnection.ontrack = async (event) => {
 
 
 switchbtn.addEventListener('click' , ()=>{
-    camera_view = 'user' ? 'environment' : 'user'
+    camera_view = camera_view == 'user' ? 'environment' : 'user'
     peerConnection.getSenders().forEach(sender=>{
-        if(sender.track.kind === 'video'){
-            navigator.mediaDevices.getUserMedia({video:camera_view}).then(stream=>{
+        if(sender.track.king=='video'){
+            navigator.mediaDevices.getUserMedia({audio:true , video:{facingMode:camera_view}}).then((stream)=>{
                 sender.replaceTrack(stream.getVideoTracks()[0])
-                localstream.srcObject = stream
-            }).catch(err=>{
+            }).catch((err)=>{
                 alert(err)
-            })
+            })  
         }
 
     })
