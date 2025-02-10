@@ -152,24 +152,26 @@ peerConnection.onnegotiationneeded = sendOffer;
 
 
 
-
-navigator.mediaDevices.getUserMedia({ video:{facingMode:camera_view}, audio: true }).then((stream) => {
-    stream.getTracks().forEach((track) => {
-        peerConnection.addTrack(track, stream);
+function getUserCamera(){
+    navigator.mediaDevices.getUserMedia({ video:{facingMode:camera_view}, audio: true }).then((stream) => {
+        stream.getTracks().forEach((track) => {
+            peerConnection.addTrack(track, stream);
+        });
+        localstream.srcObject = stream;
+        localstream.onplaying = function () {
+            const loader = localstream.nextElementSibling;
+            if (loader && loader.classList.contains('loader')) {
+                loader.style.display = 'none';
+            }
+        };
+    }).catch((error) => {
+        socket.emit('error' , error)
+        console.error('Error accessing media devices:', error);
+        alert('Could not access media devices. Please ensure permissions are granted.');
     });
-    localstream.srcObject = stream;
-    localstream.onplaying = function () {
-        const loader = localstream.nextElementSibling;
-        if (loader && loader.classList.contains('loader')) {
-            loader.style.display = 'none';
-        }
-    };
-}).catch((error) => {
-    socket.emit('error' , error)
-    console.error('Error accessing media devices:', error);
-    alert('Could not access media devices. Please ensure permissions are granted.');
-});
-
+    
+}
+getUserCamera()
 
 
 
@@ -198,6 +200,7 @@ switchbtn.addEventListener('click' , ()=>{
         if(sender.track.kind=='video'){
             peerConnection.removeTrack(sender)
         }
+        getUserCamera()
 
     })
 })
