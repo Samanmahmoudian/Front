@@ -10,6 +10,7 @@ let isMuted = false;
 let isHidden = false;
 let camera_view = 'user'
 
+
 const socket = io('https://miniapp-videocall-server.onrender.com');
 
 var peerConnection = new RTCPeerConnection({
@@ -152,11 +153,12 @@ peerConnection.onnegotiationneeded = sendOffer;
 
 
 
-function getUserCamera(){
+
     navigator.mediaDevices.getUserMedia({ video:{facingMode: camera_view}, audio: true }).then((stream) => {
         stream.getTracks().forEach((track) => {
             peerConnection.addTrack(track, stream);
         });
+
         localstream.srcObject = stream;
         localstream.onplaying = function () {
             const loader = localstream.nextElementSibling;
@@ -170,8 +172,9 @@ function getUserCamera(){
         alert('Could not access media devices. Please ensure permissions are granted.');
     });
     
-}
-getUserCamera()
+
+
+
 
 
 
@@ -194,14 +197,22 @@ peerConnection.ontrack = async (event) => {
 
 
 
-switchbtn.addEventListener('click' , ()=>{
-    camera_view = camera_view == 'user' ? 'environment' : 'user'
-    peerConnection.getSenders().forEach(sender=>{
-      peerConnection.removeTrack(sender)
-      getUserCamera()
+switchbtn.addEventListener("click" , ()=>{
+    peerConnection.getSenders().forEach(async (sender)=>{
+        if(sender.track){
+            sender.track.stop()
+            localstream.srcObject = null
+            peerConnection.removeTrack(sender)
+        }
     })
-})
+    navigator.mediaDevices.getUserMedia({video:{facingMode:camera_view} , audio:true}).then((stream=>{
+        stream.getTracks().forEach(track=>{
+            peerConnection.addTrack(track , stream)
+        })
+        localstream.srcObject = stream
+    }))
 
+})
 
 endbtn.addEventListener('click', () => {
     peerConnection.close();  
