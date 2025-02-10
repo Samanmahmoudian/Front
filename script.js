@@ -199,8 +199,9 @@ switchbtn.addEventListener('click' , ()=>{
     peerConnection.getSenders().forEach(sender=>{
         if(sender.track.kind=='video'){
             peerConnection.removeTrack(sender)
+            getUserCamera()
         }
-        getUserCamera()
+        
 
     })
 })
