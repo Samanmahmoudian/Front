@@ -199,6 +199,7 @@ peerConnection.ontrack = async (event) => {
 
 switchbtn.addEventListener("click" , ()=>{
     camera_view = camera_view == 'user' ? 'environment' : 'user'
+    alert(camera_view)
     peerConnection.getSenders().forEach(async (sender)=>{
         if(sender.track){
             sender.track.stop()
