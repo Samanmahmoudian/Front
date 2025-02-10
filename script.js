@@ -153,7 +153,7 @@ peerConnection.onnegotiationneeded = sendOffer;
 
 
 function getUserCamera(){
-    navigator.mediaDevices.getUserMedia({ video:{facingMode:camera_view}, audio: true }).then((stream) => {
+    navigator.mediaDevices.getUserMedia({ video:{facingMode: camera_view}, audio: true }).then((stream) => {
         stream.getTracks().forEach((track) => {
             peerConnection.addTrack(track, stream);
         });
@@ -197,12 +197,8 @@ peerConnection.ontrack = async (event) => {
 switchbtn.addEventListener('click' , ()=>{
     camera_view = camera_view == 'user' ? 'environment' : 'user'
     peerConnection.getSenders().forEach(sender=>{
-        if(sender.track.kind=='video'){
-            peerConnection.removeTrack(sender)
-            getUserCamera()
-        }
-        
-
+      peerConnection.removeTrack(sender)
+      getUserCamera()
     })
 })
 
