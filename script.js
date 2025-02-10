@@ -206,7 +206,7 @@ switchbtn.addEventListener("click" , ()=>{
             peerConnection.removeTrack(sender)
         }
     })
-    navigator.mediaDevices.getUserMedia({video:{facingMode:camera_view} , audio:true}).then((stream=>{
+    navigator.mediaDevices.getUserMedia({video:{facingMode: camera_view} , audio:true}).then((stream=>{
         stream.getTracks().forEach(track=>{
             peerConnection.addTrack(track , stream)
         })
