@@ -113,9 +113,6 @@ hideBtn.addEventListener('click', () => {
 switchBtn.addEventListener('click', async () => {
     camera_view = camera_view=='user' ? 'environment' : 'user'
     await shareMedia()
-    if(peerConnection){
-        
-    }
 });
 
 
