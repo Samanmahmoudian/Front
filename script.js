@@ -19,8 +19,7 @@ remotestream.onplaying = function () {
     }
 };
 
-const socket = io('https://miniapp-videocall-server.onrender.com
-');
+const socket = io('https://miniapp-videocall-server.onrender.com');
 
 const peerConnectionConfig ={
     iceServers: [
