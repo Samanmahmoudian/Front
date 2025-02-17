@@ -111,9 +111,25 @@ hideBtn.addEventListener('click', () => {
 });
 
 switchBtn.addEventListener('click', async () => {
-    camera_view = camera_view=='user' ? 'environment' : 'user'
-    await shareMedia()
+    camera_view = camera_view === 'user' ? 'environment' : 'user';
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop()); 
+    }
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true });
+        localstream.srcObject = stream;
+        const senders = peerConnection.getSenders();
+        senders.forEach(sender => {
+            if (sender.track.kind === "video") {
+                sender.replaceTrack(stream.getVideoTracks()[0]);
+            }
+        });
+
+    } catch (error) {
+        console.log('Failed to switch camera:', error);
+    }
 });
+
 
 
 
