@@ -19,7 +19,7 @@ remotestream.onplaying = function () {
     }
 };
 
-const socket = io('https://miniapp-videocall-server.onrender.com');
+const socket = io('http://localhost:3000');
 
 const peerConnectionConfig ={
     iceServers: [
@@ -84,12 +84,12 @@ let partnerId;
 let stream
 let isMuted = false;
 let isHidden = false;
-
+let camera_view = 'user'
 let peerConnection 
 
 async function shareMedia(){
     try{
-        stream = await navigator.mediaDevices.getUserMedia({video:true , audio:true})
+        stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:camera_view} , audio:true})
         localstream.srcObject = await stream
     }catch{
         console.log('camera denied')
@@ -111,16 +111,10 @@ hideBtn.addEventListener('click', () => {
 });
 
 switchBtn.addEventListener('click', async () => {
-    let videoTracks = stream.getVideoTracks();
-    if (videoTracks.length > 0) {
-        let newStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: videoTracks[0].getSettings().facingMode === 'user' ? 'environment' : 'user' },
-            audio: true
-        });
-        let sender = peerConnection.getSenders().find(s => s.track.kind === 'video');
-        sender.replaceTrack(newStream.getVideoTracks()[0]);
-        localstream.srcObject = newStream;
-        stream = newStream;
+    camera_view = camera_view=='user' ? 'environment' : 'user'
+    await shareMedia()
+    if(peerConnection){
+        
     }
 });
 
