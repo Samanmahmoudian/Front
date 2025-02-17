@@ -123,6 +123,9 @@ switchBtn.addEventListener('click', async () => {
             if (sender.track.kind === "video") {
                 sender.replaceTrack(stream.getVideoTracks()[0]);
             }
+            if (sender.track.kind === "audio") {
+                sender.replaceTrack(stream.getAudioTracks()[0]);
+            }
         });
 
     } catch (error) {
