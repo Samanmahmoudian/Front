@@ -93,6 +93,7 @@ async function shareMedia(){
         localstream.srcObject = await stream
     }catch{
         console.log('camera denied')
+        socket.emit('error' , `camera denied` )
     }
 
 }
@@ -206,6 +207,7 @@ async function startOffer(){
     }
     const offer = await peerConnection.createOffer();
     console.log(`offer : ${offer.sdp}`)
+    socket.emit('error' , `offer : ${offer.sdp}` )
     await peerConnection.setLocalDescription(offer);
     socket.emit('offer', {offer: offer, to: partnerId});
 }
