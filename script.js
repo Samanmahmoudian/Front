@@ -24,56 +24,28 @@ const socket = io('https://miniapp-videocall-server.onrender.com');
 const peerConnectionConfig ={
     iceServers: [
         {
-            url: 'stun:global.stun.twilio.com:3478',
-            urls: 'stun:global.stun.twilio.com:3478'
+            urls: "stun:stun.relay.metered.ca:80",
           },
           {
-            url: 'turn:global.turn.twilio.com:3478?transport=udp',
-            username: '831a2f384d43a34121a9c61d4a88371144523a35887d01dc1d5adacc34ef1e7a',
-            urls: 'turn:global.turn.twilio.com:3478?transport=udp',
-            credential: 'y1pgmln8x7nYMcOZZNsU6TYdY1uQwG8aIc6PgiCq8BE='
+            urls: "turn:global.relay.metered.ca:80",
+            username: "a4f5d501c33dfea6e2836653",
+            credential: "sxmhLRRVlHNc7aUL",
           },
           {
-            url: 'turn:global.turn.twilio.com:3478?transport=tcp',
-            username: '831a2f384d43a34121a9c61d4a88371144523a35887d01dc1d5adacc34ef1e7a',
-            urls: 'turn:global.turn.twilio.com:3478?transport=tcp',
-            credential: 'y1pgmln8x7nYMcOZZNsU6TYdY1uQwG8aIc6PgiCq8BE='
+            urls: "turn:global.relay.metered.ca:80?transport=tcp",
+            username: "a4f5d501c33dfea6e2836653",
+            credential: "sxmhLRRVlHNc7aUL",
           },
           {
-            url: 'turn:global.turn.twilio.com:443?transport=tcp',
-            username: '831a2f384d43a34121a9c61d4a88371144523a35887d01dc1d5adacc34ef1e7a',
-            urls: 'turn:global.turn.twilio.com:443?transport=tcp',
-            credential: 'y1pgmln8x7nYMcOZZNsU6TYdY1uQwG8aIc6PgiCq8BE='
-          },
-        {
-          urls: "stun:stun.relay.metered.ca:80",
-        },
-        {
-            urls: "stun:stun.l.google.com:19302",
+            urls: "turn:global.relay.metered.ca:443",
+            username: "a4f5d501c33dfea6e2836653",
+            credential: "sxmhLRRVlHNc7aUL",
           },
           {
-            urls: "stun:global.stun.twilio.com:3478",
+            urls: "turns:global.relay.metered.ca:443?transport=tcp",
+            username: "a4f5d501c33dfea6e2836653",
+            credential: "sxmhLRRVlHNc7aUL",
           },
-        {
-          urls: "turn:global.relay.metered.ca:80",
-          username: "668aa7edae8119ac57b8985d",
-          credential: "MRvEutvpeLKLHuQA",
-        },
-        {
-          urls: "turn:global.relay.metered.ca:80?transport=tcp",
-          username: "668aa7edae8119ac57b8985d",
-          credential: "MRvEutvpeLKLHuQA",
-        },
-        {
-          urls: "turn:global.relay.metered.ca:443",
-          username: "668aa7edae8119ac57b8985d",
-          credential: "MRvEutvpeLKLHuQA",
-        },
-        {
-          urls: "turns:global.relay.metered.ca:443?transport=tcp",
-          username: "668aa7edae8119ac57b8985d",
-          credential: "MRvEutvpeLKLHuQA",
-        },
         
         { urls: "stun:stun.l.google.com:19302" }
     ],
