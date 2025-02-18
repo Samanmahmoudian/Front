@@ -23,12 +23,56 @@ const socket = io('https://miniapp-videocall-server.onrender.com');
 
 const peerConnectionConfig ={
     iceServers: [
-       
-
         {
-          urls: "turns:miniapp-videocall-server.onrender.com:3478",
-          username: "saman",
-          credential: "Saman1384",
+            url: 'stun:global.stun.twilio.com:3478',
+            urls: 'stun:global.stun.twilio.com:3478'
+          },
+          {
+            url: 'turn:global.turn.twilio.com:3478?transport=udp',
+            username: '831a2f384d43a34121a9c61d4a88371144523a35887d01dc1d5adacc34ef1e7a',
+            urls: 'turn:global.turn.twilio.com:3478?transport=udp',
+            credential: 'y1pgmln8x7nYMcOZZNsU6TYdY1uQwG8aIc6PgiCq8BE='
+          },
+          {
+            url: 'turn:global.turn.twilio.com:3478?transport=tcp',
+            username: '831a2f384d43a34121a9c61d4a88371144523a35887d01dc1d5adacc34ef1e7a',
+            urls: 'turn:global.turn.twilio.com:3478?transport=tcp',
+            credential: 'y1pgmln8x7nYMcOZZNsU6TYdY1uQwG8aIc6PgiCq8BE='
+          },
+          {
+            url: 'turn:global.turn.twilio.com:443?transport=tcp',
+            username: '831a2f384d43a34121a9c61d4a88371144523a35887d01dc1d5adacc34ef1e7a',
+            urls: 'turn:global.turn.twilio.com:443?transport=tcp',
+            credential: 'y1pgmln8x7nYMcOZZNsU6TYdY1uQwG8aIc6PgiCq8BE='
+          },
+        {
+          urls: "stun:stun.relay.metered.ca:80",
+        },
+        {
+            urls: "stun:stun.l.google.com:19302",
+          },
+          {
+            urls: "stun:global.stun.twilio.com:3478",
+          },
+        {
+          urls: "turn:global.relay.metered.ca:80",
+          username: "668aa7edae8119ac57b8985d",
+          credential: "MRvEutvpeLKLHuQA",
+        },
+        {
+          urls: "turn:global.relay.metered.ca:80?transport=tcp",
+          username: "668aa7edae8119ac57b8985d",
+          credential: "MRvEutvpeLKLHuQA",
+        },
+        {
+          urls: "turn:global.relay.metered.ca:443",
+          username: "668aa7edae8119ac57b8985d",
+          credential: "MRvEutvpeLKLHuQA",
+        },
+        {
+          urls: "turns:global.relay.metered.ca:443?transport=tcp",
+          username: "668aa7edae8119ac57b8985d",
+          credential: "MRvEutvpeLKLHuQA",
         },
         
         { urls: "stun:stun.l.google.com:19302" }
@@ -54,6 +98,17 @@ async function shareMedia(){
 }
 shareMedia()
 
+
+async function endpeer(){
+    await peerConnection.close()
+    remotestream.srcObject = null
+    const loader = remotestream.nextElementSibling;
+    if (loader && loader.classList.contains('loader')) {
+        loader.style.display = '';
+    }
+    socket.emit('startnewcall' , 'ended')
+    partnerId = ''
+}
 muteBtn.addEventListener('click', () => {
     isMuted = !isMuted;
     stream.getAudioTracks().forEach(track => track.enabled = !isMuted);
@@ -106,14 +161,7 @@ endBtn.addEventListener('click', () => {
 
 socket.on('endcall' , async(endcall)=>{
     if(endcall){
-        peerConnection.close()
-        remotestream.srcObject = null
-        const loader = remotestream.nextElementSibling;
-        if (loader && loader.classList.contains('loader')) {
-            loader.style.display = '';
-        }
-        socket.emit('startnewcall' , 'ended')
-        partnerId = ''
+        await endpeer()
     }
 })
 
@@ -157,6 +205,7 @@ async function startOffer(){
         }
     }
     const offer = await peerConnection.createOffer();
+    console.log(`offer : ${offer.sdp}`)
     await peerConnection.setLocalDescription(offer);
     socket.emit('offer', {offer: offer, to: partnerId});
 }
@@ -205,8 +254,15 @@ socket.on('answer', async (answer) => {
 socket.on('ice', async(ice) => {
     try {
         await peerConnection.addIceCandidate(new RTCIceCandidate(ice));
+        
     } catch (error) {
         console.error('Error adding ICE candidate:', error);
     }
 })
 
+socket.on('disconnected', async(messege)=>{
+    if(partnerId == messege){
+        await endpeer()
+
+    }
+})
