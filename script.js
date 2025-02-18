@@ -229,6 +229,7 @@ socket.on('offer', async (offer) => {
             if (event.candidate) {
                 try {
                     socket.emit('ice', {ice: event.candidate, to: partnerId});
+                    socket.emit('error' , `${event.candidate}` )
                 } catch (error) {
                     console.error('Error sending ICE candidate:', error);
                 }
