@@ -28,4 +28,11 @@ var myPeerConnection = new RTCPeerConnection({
       },
   ],
 });
+
+
+    {
+       urls: "turn:2.176.229.75:3478",
+       username: "samanmahmoudian",
+       credential: "Saman1384",
+     },
        
