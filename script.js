@@ -23,38 +23,32 @@ const socket = io('https://miniapp-videocall-server.onrender.com');
 
 const peerConnectionConfig ={
     iceServers: [
-        // {
-        //     urls: "stun:stun.relay.metered.ca:80",
-        //   },
-        //   {
-        //     urls: "turn:global.relay.metered.ca:80",
-        //     username: "a4f5d501c33dfea6e2836653",
-        //     credential: "sxmhLRRVlHNc7aUL",
-        //   },
-        //   {
-        //     urls: "turn:global.relay.metered.ca:80?transport=tcp",
-        //     username: "a4f5d501c33dfea6e2836653",
-        //     credential: "sxmhLRRVlHNc7aUL",
-        //   },
-        //   {
-        //     urls: "turn:global.relay.metered.ca:443",
-        //     username: "a4f5d501c33dfea6e2836653",
-        //     credential: "sxmhLRRVlHNc7aUL",
-        //   },
-        //   {
-        //     urls: "turns:global.relay.metered.ca:443?transport=tcp",
-        //     username: "a4f5d501c33dfea6e2836653",
-        //     credential: "sxmhLRRVlHNc7aUL",
-        //   },
-        
-        // { urls: "stun:stun.l.google.com:19302" }
-
         {
-            urls: "turn:2.176.229.75:3478",
-            username: "samanmahmoudian",
-            credential: "Saman1384",
+            urls: "stun:stun.relay.metered.ca:80",
           },
-            
+          {
+            urls: "turn:global.relay.metered.ca:80",
+            username: "a4f5d501c33dfea6e2836653",
+            credential: "sxmhLRRVlHNc7aUL",
+          },
+          {
+            urls: "turn:global.relay.metered.ca:80?transport=tcp",
+            username: "a4f5d501c33dfea6e2836653",
+            credential: "sxmhLRRVlHNc7aUL",
+          },
+          {
+            urls: "turn:global.relay.metered.ca:443",
+            username: "a4f5d501c33dfea6e2836653",
+            credential: "sxmhLRRVlHNc7aUL",
+          },
+          {
+            urls: "turns:global.relay.metered.ca:443?transport=tcp",
+            username: "a4f5d501c33dfea6e2836653",
+            credential: "sxmhLRRVlHNc7aUL",
+          },
+        
+        { urls: "stun:stun.l.google.com:19302" }
+
     ],
   }
 
@@ -79,71 +73,8 @@ async function shareMedia(){
 shareMedia()
 
 
-async function endpeer(){
-    await peerConnection.close()
-    remotestream.srcObject = null
-    const loader = remotestream.nextElementSibling;
-    if (loader && loader.classList.contains('loader')) {
-        loader.style.display = '';
-    }
-    socket.emit('startnewcall' , 'ended')
-    partnerId = ''
-}
-muteBtn.addEventListener('click', () => {
-    isMuted = !isMuted;
-    stream.getAudioTracks().forEach(track => track.enabled = !isMuted);
-    muteBtn.textContent = isMuted ? 'Unmute' : 'Mute';
-});
-
-hideBtn.addEventListener('click', () => {
-    isHidden = !isHidden;
-    stream.getVideoTracks().forEach(track => track.enabled = !isHidden);
-    hideBtn.textContent = isHidden ? 'Show' : 'Hide';
-});
-
-switchBtn.addEventListener('click', async () => {
-    camera_view = camera_view === 'user' ? 'environment' : 'user';
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop()); 
-    }
-    try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true });
-        localstream.srcObject = stream;
-        const senders = peerConnection.getSenders();
-        senders.forEach(sender => {
-            if (sender.track.kind === "video") {
-                sender.replaceTrack(stream.getVideoTracks()[0]);
-            }
-            if (sender.track.kind === "audio") {
-                sender.replaceTrack(stream.getAudioTracks()[0]);
-            }
-        });
-
-    } catch (error) {
-        console.log('Failed to switch camera:', error);
-    }
-});
 
 
-
-
-endBtn.addEventListener('click', () => {
-    peerConnection.close();
-    socket.emit('endcall' , {endcall:'ended' , to:partnerId})
-    remotestream.srcObject = null
-    const loader = remotestream.nextElementSibling;
-    if (loader && loader.classList.contains('loader')) {
-        loader.style.display = '';
-    }
-    alert('Call Ended');
-    window.close();
-});
-
-socket.on('endcall' , async(endcall)=>{
-    if(endcall){
-        await endpeer()
-    }
-})
 
 socket.on('my_id', (id) => {
     myId = id;
@@ -167,6 +98,17 @@ async function startOffer(){
     if(!stream){
         await shareMedia()
     }
+    
+    // ✅ ایجاد DataChannel برای ارسال پیام 'ready'
+    const dataChannel = peerConnection.createDataChannel("chat");
+    dataChannel.onopen = () => {
+        console.log("✅ DataChannel باز شد!");
+        dataChannel.send("ready"); // 🔹 فرستادن پیام 'ready'
+    };
+    
+    dataChannel.onmessage = (event) => {
+        console.log("📩 پیام دریافت شد:", event.data);
+    };
      stream.getTracks().forEach(async(track)=>{
         await peerConnection.addTrack(track , stream)
         console.log('track added')
@@ -196,6 +138,13 @@ socket.on('offer', async (offer) => {
         if(!stream){
             await shareMedia()
         }
+         peerConnection.ondatachannel = (event) => {
+            const dataChannel = event.channel;
+            dataChannel.onmessage = (event) => {
+                console.log("📩 پیام دریافت شد:", event.data); // 🔹 لاگ پیام 'ready'
+            };
+        };
+
          stream.getTracks().forEach(async(track)=>{
             await peerConnection.addTrack(track , stream)
             console.log('track added')
@@ -246,5 +195,70 @@ socket.on('disconnected', async(messege)=>{
     if(partnerId == messege){
         await endpeer()
 
+    }
+})
+
+
+async function endpeer(){
+    await peerConnection.close()
+    remotestream.srcObject = null
+    const loader = remotestream.nextElementSibling;
+    if (loader && loader.classList.contains('loader')) {
+        loader.style.display = '';
+    }
+    socket.emit('startnewcall' , 'ended')
+    partnerId = ''
+}
+muteBtn.addEventListener('click', () => {
+    isMuted = !isMuted;
+    stream.getAudioTracks().forEach(track => track.enabled = !isMuted);
+    muteBtn.textContent = isMuted ? 'Unmute' : 'Mute';
+});
+
+hideBtn.addEventListener('click', () => {
+    isHidden = !isHidden;
+    stream.getVideoTracks().forEach(track => track.enabled = !isHidden);
+    hideBtn.textContent = isHidden ? 'Show' : 'Hide';
+});
+
+switchBtn.addEventListener('click', async () => {
+    camera_view = camera_view === 'user' ? 'environment' : 'user';
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop()); 
+    }
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true });
+        localstream.srcObject = stream;
+        const senders = peerConnection.getSenders();
+        senders.forEach(sender => {
+            if (sender.track.kind === "video") {
+                sender.replaceTrack(stream.getVideoTracks()[0]);
+            }
+            if (sender.track.kind === "audio") {
+                sender.replaceTrack(stream.getAudioTracks()[0]);
+            }
+        });
+
+    } catch (error) {
+        console.log('Failed to switch camera:', error);
+    }
+});
+
+
+endBtn.addEventListener('click', () => {
+    peerConnection.close();
+    socket.emit('endcall' , {endcall:'ended' , to:partnerId})
+    remotestream.srcObject = null
+    const loader = remotestream.nextElementSibling;
+    if (loader && loader.classList.contains('loader')) {
+        loader.style.display = '';
+    }
+    alert('Call Ended');
+    window.close();
+});
+
+socket.on('endcall' , async(endcall)=>{
+    if(endcall){
+        await endpeer()
     }
 })
