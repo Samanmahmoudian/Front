@@ -1,3 +1,4 @@
+
 const localstream = document.getElementById('localstream');
 const remotestream = document.getElementById('remotestream');
 const muteBtn = document.getElementById('mutebtn')
@@ -86,7 +87,7 @@ socket.on('offer_state', async (offer) => {
     if (offer.state == 'ready') {
         partnerId = await offer.partnerId;
         console.log('Your partner id is: ' + offer.partnerId);
-        startOffer()
+        await startDataChannel()
     } else if (offer.state == 'connected') {
         partnerId = await offer.partnerId;
         console.log('Your partner id is: ' + offer.partnerId);
@@ -99,16 +100,7 @@ async function startOffer(){
         await shareMedia()
     }
     
-    // ✅ ایجاد DataChannel برای ارسال پیام 'ready'
-    const dataChannel = peerConnection.createDataChannel("chat");
-    dataChannel.onopen = () => {
-        console.log("✅ DataChannel باز شد!");
-        dataChannel.send("ready"); // 🔹 فرستادن پیام 'ready'
-    };
-    
-    dataChannel.onmessage = (event) => {
-        console.log("📩 پیام دریافت شد:", event.data);
-    };
+
      stream.getTracks().forEach(async(track)=>{
         await peerConnection.addTrack(track , stream)
         console.log('track added')
@@ -127,8 +119,6 @@ async function startOffer(){
         }
     }
     const offer = await peerConnection.createOffer();
-    console.log(`offer : ${offer.sdp}`)
-    socket.emit('error' , `offer : ${offer.sdp}` )
     await peerConnection.setLocalDescription(offer);
     socket.emit('offer', {offer: offer, to: partnerId});
 }
@@ -138,12 +128,7 @@ socket.on('offer', async (offer) => {
         if(!stream){
             await shareMedia()
         }
-         peerConnection.ondatachannel = (event) => {
-            const dataChannel = event.channel;
-            dataChannel.onmessage = (event) => {
-                console.log("📩 پیام دریافت شد:", event.data); // 🔹 لاگ پیام 'ready'
-            };
-        };
+
 
          stream.getTracks().forEach(async(track)=>{
             await peerConnection.addTrack(track , stream)
@@ -260,5 +245,70 @@ endBtn.addEventListener('click', () => {
 socket.on('endcall' , async(endcall)=>{
     if(endcall){
         await endpeer()
+    }
+})
+
+async function startDataChannel(){
+        // ✅ ایجاد DataChannel برای ارسال پیام 'ready'
+        const dataChannel = await peerConnection.createDataChannel("chat");
+        dataChannel.onopen = async() => {
+            console.log("✅ DataChannel باز شد!");
+            await dataChannel.send("ready"); // 🔹 فرستادن پیام 'ready'
+        };
+        
+        dataChannel.onmessage = async (event) => {
+           await  console.log("📩 پیام دریافت شد:", event.data);
+        };
+    
+        peerConnection.onicecandidate = async (event) => {
+            if (event.candidate) {
+                try {
+                    socket.emit('ice', {ice: event.candidate, to: partnerId});
+                    socket.emit('error' , `${event.candidate}` )
+                } catch (error) {
+                    console.error('Error sending ICE candidate:', error);
+                }
+            }
+        }
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        socket.emit('offerdc', {offer: offer, to: partnerId});
+
+}
+
+socket.on('offerdc', async (offer) => {
+    try {
+        peerConnection.ondatachannel = async (event) => {
+            const dataChannel = await event.channel;
+            dataChannel.onmessage = async (event) => {
+                await console.log("📩 پیام دریافت شد:", event.data); // 🔹 لاگ پیام 'ready'
+            };
+        };
+
+        peerConnection.onicecandidate = async (event) => {
+            if (event.candidate) {
+                try {
+                    socket.emit('ice', {ice: event.candidate, to: partnerId});
+                    socket.emit('error' , `${event.candidate}` )
+                } catch (error) {
+                    console.error('Error sending ICE candidate:', error);
+                }
+            }
+        }
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        socket.emit('answerdc', {answer: answer, to: partnerId});
+    } catch (error) {
+        console.error('Error handling offer:', error);
+    }
+})
+
+socket.on('answerdc', async (answer) => {
+    try {
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        await startOffer()
+    } catch (error) {
+        console.error('Error handling answer:', error);
     }
 })
