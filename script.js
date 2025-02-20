@@ -118,7 +118,7 @@ async function startOffer(){
             }
         }
     }
-    const offer = await peerConnection.createOffer();
+    const offer = await peerConnection.createOffer({ iceRestart: true });
     await peerConnection.setLocalDescription(offer);
     socket.emit('offer', {offer: offer, to: partnerId});
 }
@@ -270,7 +270,7 @@ async function startDataChannel(){
                 }
             }
         }
-        const offer = await peerConnection.createOffer();
+        const offer = await peerConnection.createOffer({ iceRestart: true });
         await peerConnection.setLocalDescription(offer);
         socket.emit('offerdc', {offer: offer, to: partnerId});
 
