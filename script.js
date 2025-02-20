@@ -87,7 +87,8 @@ socket.on('offer_state', async (offer) => {
     if (offer.state == 'ready') {
         partnerId = await offer.partnerId;
         console.log('Your partner id is: ' + offer.partnerId);
-        await startDataChannel()
+        // await startDataChannel()
+        await startOffer()
     } else if (offer.state == 'connected') {
         partnerId = await offer.partnerId;
         console.log('Your partner id is: ' + offer.partnerId);
@@ -248,67 +249,67 @@ socket.on('endcall' , async(endcall)=>{
     }
 })
 
-async function startDataChannel(){
-        // ✅ ایجاد DataChannel برای ارسال پیام 'ready'
-        const dataChannel = await peerConnection.createDataChannel("chat");
-        dataChannel.onopen = async() => {
-            console.log("✅ DataChannel باز شد!");
-            await dataChannel.send("ready"); // 🔹 فرستادن پیام 'ready'
-        };
+// async function startDataChannel(){
+//         // ✅ ایجاد DataChannel برای ارسال پیام 'ready'
+//         const dataChannel = await peerConnection.createDataChannel("chat");
+//         dataChannel.onopen = async() => {
+//             console.log("✅ DataChannel باز شد!");
+//             await dataChannel.send("ready"); // 🔹 فرستادن پیام 'ready'
+//         };
         
-        dataChannel.onmessage = async (event) => {
-           await  console.log("📩 پیام دریافت شد:", event.data);
-        };
+//         dataChannel.onmessage = async (event) => {
+//            await  console.log("📩 پیام دریافت شد:", event.data);
+//         };
     
-        peerConnection.onicecandidate = async (event) => {
-            if (event.candidate) {
-                try {
-                    socket.emit('ice', {ice: event.candidate, to: partnerId});
-                    socket.emit('error' , `${event.candidate}` )
-                } catch (error) {
-                    console.error('Error sending ICE candidate:', error);
-                }
-            }
-        }
-        const offer = await peerConnection.createOffer({ iceRestart: true });
-        await peerConnection.setLocalDescription(offer);
-        socket.emit('offerdc', {offer: offer, to: partnerId});
+//         peerConnection.onicecandidate = async (event) => {
+//             if (event.candidate) {
+//                 try {
+//                     socket.emit('ice', {ice: event.candidate, to: partnerId});
+//                     socket.emit('error' , `${event.candidate}` )
+//                 } catch (error) {
+//                     console.error('Error sending ICE candidate:', error);
+//                 }
+//             }
+//         }
+//         const offer = await peerConnection.createOffer({ iceRestart: true });
+//         await peerConnection.setLocalDescription(offer);
+//         socket.emit('offerdc', {offer: offer, to: partnerId});
 
-}
+// }
 
-socket.on('offerdc', async (offer) => {
-    try {
-        peerConnection.ondatachannel = async (event) => {
-            const dataChannel = await event.channel;
-            dataChannel.onmessage = async (event) => {
-                await console.log("📩 پیام دریافت شد:", event.data); // 🔹 لاگ پیام 'ready'
-            };
-        };
+// socket.on('offerdc', async (offer) => {
+//     try {
+//         peerConnection.ondatachannel = async (event) => {
+//             const dataChannel = await event.channel;
+//             dataChannel.onmessage = async (event) => {
+//                 await console.log("📩 پیام دریافت شد:", event.data); // 🔹 لاگ پیام 'ready'
+//             };
+//         };
 
-        peerConnection.onicecandidate = async (event) => {
-            if (event.candidate) {
-                try {
-                    socket.emit('ice', {ice: event.candidate, to: partnerId});
-                    socket.emit('error' , `${event.candidate}` )
-                } catch (error) {
-                    console.error('Error sending ICE candidate:', error);
-                }
-            }
-        }
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        socket.emit('answerdc', {answer: answer, to: partnerId});
-    } catch (error) {
-        console.error('Error handling offer:', error);
-    }
-})
+//         peerConnection.onicecandidate = async (event) => {
+//             if (event.candidate) {
+//                 try {
+//                     socket.emit('ice', {ice: event.candidate, to: partnerId});
+//                     socket.emit('error' , `${event.candidate}` )
+//                 } catch (error) {
+//                     console.error('Error sending ICE candidate:', error);
+//                 }
+//             }
+//         }
+//         await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+//         const answer = await peerConnection.createAnswer();
+//         await peerConnection.setLocalDescription(answer);
+//         socket.emit('answerdc', {answer: answer, to: partnerId});
+//     } catch (error) {
+//         console.error('Error handling offer:', error);
+//     }
+// })
 
-socket.on('answerdc', async (answer) => {
-    try {
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-        await startOffer()
-    } catch (error) {
-        console.error('Error handling answer:', error);
-    }
-})
+// socket.on('answerdc', async (answer) => {
+//     try {
+//         await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+//         await startOffer()
+//     } catch (error) {
+//         console.error('Error handling answer:', error);
+//     }
+// })
