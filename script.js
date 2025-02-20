@@ -119,8 +119,7 @@ async function startOffer(){
             }
         }
     }
-    const offer = await peerConnection.createOffer({ iceRestart: true , offerToReceiveAudio: true,
-        offerToReceiveVideo: true});
+    const offer = await peerConnection.createOffer({ iceRestart: true});
     await peerConnection.setLocalDescription(offer);
     socket.emit('offer', {offer: offer, to: partnerId});
 }
