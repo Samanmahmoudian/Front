@@ -119,9 +119,14 @@ async function startOffer(){
             }
         }
     }
-    const offer = await peerConnection.createOffer({ iceRestart: true });
-    await peerConnection.setLocalDescription(offer);
-    socket.emit('offer', {offer: offer, to: partnerId});
+    peerConnection.onicegatheringstatechange = async function(event) {
+        if (peerConnection.iceGatheringState === "complete") {
+          const offer = await peerConnection.createOffer({ iceRestart: true });
+          await peerConnection.setLocalDescription(offer);
+          socket.emit('offer', {offer: offer, to: partnerId});
+        }
+      };
+
 }
 
 socket.on('offer', async (offer) => {
