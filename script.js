@@ -170,10 +170,13 @@ socket.on('answer', async (answer) => {
 
 socket.on('ice', async(ice) => {
     try {
-        await peerConnection.addIceCandidate(new RTCIceCandidate(ice));
+        if(peerConnection.remoteDescription){
+
+            await peerConnection.addIceCandidate(new RTCIceCandidate(ice));
+        }
         
     } catch (error) {
-        console.error('Error adding ICE candidate:', error);
+        console.error('nashode hannoz', error);
     }
 })
 
