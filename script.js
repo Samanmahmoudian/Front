@@ -107,10 +107,11 @@ async function startOffer(){
         await peerConnection.addTrack(track , stream)
         console.log('track added')
     })
-    peerConnection.ontrack = (event)=>{
+    peerConnection.ontrack = async(event)=>{
         if(event.streams){
             console.log( event.streams[0])
-            remotestream.srcObject = event.streams[0]  
+            remotestream.srcObject = await event.streams[0]  
+            remotestream.play()
             
         }
 
@@ -141,10 +142,11 @@ socket.on('offer', async (offer) => {
             await peerConnection.addTrack(track , stream)
             console.log('track added')
         })
-        peerConnection.ontrack = (event)=>{
+        peerConnection.ontrack = async(event)=>{
             if(event.streams){
                 console.log( event.streams[0])
-                remotestream.srcObject = event.streams[0]  
+                remotestream.srcObject = await event.streams[0]  
+                remotestream.play()
             }
     
         }
@@ -198,7 +200,6 @@ socket.on('disconnected', async(messege)=>{
 async function endpeer(){
     await peerConnection.close()
     remotestream.srcObject = null
-    remotestream.pause()
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
