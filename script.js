@@ -111,6 +111,7 @@ async function startOffer(){
         if(event.streams){
             await remotestream.pause()
             console.log( event.streams[0])
+            remotestream.muted = true
             remotestream.srcObject = await event.streams[0]  
             remotestream.play()
             
@@ -147,6 +148,7 @@ socket.on('offer', async (offer) => {
             if(event.streams){
                 await remotestream.pause()
                 console.log( event.streams[0])
+                remotestream.muted = true
                 remotestream.srcObject = await event.streams[0]  
                 remotestream.play()
             }
@@ -154,8 +156,6 @@ socket.on('offer', async (offer) => {
         }
         
 
-
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
         peerConnection.onicecandidate = async (event) => {
             if (event.candidate) {
                 try {
@@ -166,6 +166,7 @@ socket.on('offer', async (offer) => {
                 }
             }
         }
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);
         socket.emit('answer', {answer: answer, to: partnerId});
