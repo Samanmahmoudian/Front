@@ -216,6 +216,8 @@ body {
     animation: rotate 1.2s linear infinite, colorChange 1.2s linear infinite;
 }
 
+
+
 .loader div:nth-child(1) { transform: rotate(0deg) translate(20px); animation-delay: 0s; }
 .loader div:nth-child(2) { transform: rotate(60deg) translate(20px); animation-delay: 0.2s; }
 .loader div:nth-child(3) { transform: rotate(120deg) translate(20px); animation-delay: 0.4s; }
@@ -258,9 +260,35 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
+
 .end-call {
     color: darkred;
     border-color: darkred;
+}
+
+
+.play-button {
+    position: absolute;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.9);
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.play-button:hover {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+.play-button:active {
+    transform: scale(0.95);
 }
 
 #localstream, #remotestream {

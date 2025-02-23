@@ -6,7 +6,7 @@ const muteBtn = document.getElementById('mutebtn')
 const hideBtn = document.getElementById('hidebtn')
 const switchBtn = document.getElementById('switchbtn')
 const endBtn = document.getElementById('endbtn')
-
+let playButton = document.getElementById("playVideoButton");
 localstream.onplaying = function () {
     const loader = localstream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
@@ -119,20 +119,19 @@ async function startOffer(){
             });
         }
     
-        // منتظر کلیک کاربر برای پخش ویدیو
-        const enablePlayback = () => {
+
+
+        playButton.style.display = "block";
+    
+        playButton.addEventListener("click", () => {
             remotestream.play().then(() => {
                 remotestream.muted = false;
-                document.removeEventListener("click", enablePlayback);
+                playButton.style.display = "none"; // دکمه بعد از کلیک مخفی بشه
             }).catch(error => {
                 console.error("Error playing remote stream:", error);
             });
-        };
-    
-        document.addEventListener("click", enablePlayback);
+        });
     };
-    
-    
     peerConnection.onicecandidate = async (event) => {
         if (event.candidate) {
             try {
@@ -170,17 +169,18 @@ socket.on('offer', async (offer) => {
                 });
             }
         
-            // منتظر کلیک کاربر برای پخش ویدیو
-            const enablePlayback = () => {
+
+
+            playButton.style.display = "block";
+        
+            playButton.addEventListener("click", () => {
                 remotestream.play().then(() => {
                     remotestream.muted = false;
-                    document.removeEventListener("click", enablePlayback);
+                    playButton.style.display = "none"; // دکمه بعد از کلیک مخفی بشه
                 }).catch(error => {
                     console.error("Error playing remote stream:", error);
                 });
-            };
-        
-            document.addEventListener("click", enablePlayback);
+            });
         };
         
         
