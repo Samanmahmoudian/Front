@@ -154,6 +154,8 @@ socket.on('offer', async (offer) => {
         }
         
 
+
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
         peerConnection.onicecandidate = async (event) => {
             if (event.candidate) {
                 try {
@@ -164,7 +166,6 @@ socket.on('offer', async (offer) => {
                 }
             }
         }
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);
         socket.emit('answer', {answer: answer, to: partnerId});
