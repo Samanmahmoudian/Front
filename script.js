@@ -108,11 +108,14 @@ async function startOffer(){
         console.log('track added')
     })
     peerConnection.ontrack = (event)=>{
-        console.log( event.streams[0])
-        remotestream.srcObject = event.streams[0]
-        remotestream.addEventListener("canplay", function () {
-            remotestream.play().catch(e => console.error("⛔ مشکل در پخش ویدیو:", e));
-        }, { once: true }); // ⏳ این باعث می‌شه فقط یکبار اجرا بشه
+        if(event.streams){
+            console.log( event.streams[0])
+            remotestream.srcObject = event.streams[0]
+            remotestream.addEventListener("canplay", function () {
+                remotestream.play().catch(e => console.error("⛔ مشکل در پخش ویدیو:", e));
+            }, { once: true }); // ⏳ این باعث می‌شه فقط یکبار اجرا بشه
+    
+        }
 
     }
     peerConnection.onicecandidate = async (event) => {
@@ -141,12 +144,14 @@ socket.on('offer', async (offer) => {
             console.log('track added')
         })
         peerConnection.ontrack = (event)=>{
-            console.log( event.streams[0])
-            remotestream.srcObject = event.streams[0]
-            remotestream.addEventListener("canplay", function () {
-                remotestream.play().catch(e => console.error("⛔ مشکل در پخش ویدیو:", e));
-            }, { once: true }); // ⏳ این باعث می‌شه فقط یکبار اجرا بشه
-
+            if(event.streams){
+                console.log( event.streams[0])
+                remotestream.srcObject = event.streams[0]
+                remotestream.addEventListener("canplay", function () {
+                    remotestream.play().catch(e => console.error("⛔ مشکل در پخش ویدیو:", e));
+                }, { once: true }); // ⏳ این باعث می‌شه فقط یکبار اجرا بشه
+        
+            }
         }
         peerConnection.onicecandidate = async (event) => {
             if (event.candidate) {
