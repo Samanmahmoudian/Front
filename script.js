@@ -116,7 +116,7 @@ async function startOffer(){
                 remotestream.play().then(()=>{
                 }).catch(e => console.error("⛔ مشکل در پخش ویدیو:", e));
 
-            }, { once: true }); // ⏳ این باعث می‌شه فقط یکبار اجرا بشه
+            }); // ⏳ این باعث می‌شه فقط یکبار اجرا بشه
     
         }
 
@@ -154,8 +154,7 @@ socket.on('offer', async (offer) => {
                     remotestream.play().then(()=>{
                     }).catch(e => console.error("⛔ مشکل در پخش ویدیو:", e));
     
-                }, { once: true }); // ⏳ این باعث می‌شه فقط یکبار اجرا بشه
-        
+                });
         
             }
         }
