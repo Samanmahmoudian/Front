@@ -114,7 +114,9 @@ async function startOffer(){
             console.log( event.streams[0])
             remotestream.muted = true
             remotestream.srcObject = await event.streams[0]  
-            remotestream.play()
+            remotestream.play().then(()=>{
+                remotestream.muted = false
+            })
         }else{
             console.log( event.streams[0])
             remotestream.muted = true
@@ -159,7 +161,9 @@ socket.on('offer', async (offer) => {
                 console.log( event.streams[0])
                 remotestream.muted = true
                 remotestream.srcObject = await event.streams[0]  
-                remotestream.play()
+                remotestream.play().then(()=>{
+                    remotestream.muted = false
+                })
             }else{
                 console.log( event.streams[0])
                 remotestream.muted = true
