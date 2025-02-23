@@ -19,7 +19,6 @@ remotestream.onplaying = function () {
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = 'none';
     }
-    remotestream.muted = false
 };
 
 const socket = io('https://miniapp-videocall-server.onrender.com');
@@ -110,10 +109,16 @@ async function startOffer(){
     })
     peerConnection.ontrack = (event)=>{
         if(event.streams){
-            remotestream.muted = true
+            if(remotestream.src){
+                remotestream.pause()
+                remotestream.srcObject = ''
+                remotestream.play()
+            }
+            else{
+                remotestream.play()
+            }
             console.log( event.streams[0])
             remotestream.srcObject = event.streams[0]  
-            remotestream.play()
               
         }
 
@@ -145,14 +150,22 @@ socket.on('offer', async (offer) => {
             console.log('track added')
         })
         peerConnection.ontrack = (event)=>{
-            remotestream.muted = true
             if(event.streams){
+                if(remotestream.src){
+                    remotestream.pause()
+                    remotestream.srcObject = ''
+                    remotestream.play()
+                }
+                else{
+                    remotestream.play()
+                }
                 console.log( event.streams[0])
-                remotestream.srcObject = event.streams[0]
-                remotestream.play()
-        
+                remotestream.srcObject = event.streams[0]  
+                  
             }
+    
         }
+        
 
         peerConnection.onicecandidate = async (event) => {
             if (event.candidate) {
