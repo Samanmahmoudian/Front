@@ -151,7 +151,6 @@ socket.on('offer', async (offer) => {
             if(event.streams){
                 console.log( event.streams[0])
                 remotestream.srcObject = event.streams[0]
-                remotestream.muted = false
                 remotestream.addEventListener("canplay", function () {
                     remotestream.play().then(()=>{
                         remotestream.muted = false
