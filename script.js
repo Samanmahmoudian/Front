@@ -111,14 +111,15 @@ async function startOffer(){
         await peerConnection.addTrack(track , stream)
         console.log('track added')
     })
-    peerConnection.ontrack = (event)=>{
+    peerConnection.ontrack = async (event)=>{
         if(remotestream){
             remotestream.pause()
         }
-        remotestream.srcObject = event.streams[0]
+        console.log(event.streams[0])
+        remotestream.srcObject = await event.streams[0]
         playBtn.style.display = 'block'
     }
-    
+
     peerConnection.onicecandidate = async (event) => {
         if (event.candidate) {
             try {
@@ -145,11 +146,12 @@ socket.on('offer', async (offer) => {
             console.log('track added')
         })
 
-        peerConnection.ontrack = (event)=>{
+        peerConnection.ontrack = async (event)=>{
             if(remotestream){
                 remotestream.pause()
             }
-            remotestream.srcObject = event.streams[0]
+            console.log(event.streams[0])
+            remotestream.srcObject = await event.streams[0]
             playBtn.style.display = 'block'
         }
         
