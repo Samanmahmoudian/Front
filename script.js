@@ -107,27 +107,26 @@ async function startOffer(){
         await peerConnection.addTrack(track , stream)
         console.log('track added')
     })
-    peerConnection.ontrack = async(event)=>{
-        remotestream.muted = true
-        if(remotestream.srcObject){
-            await remotestream.pause()
-            console.log( event.streams[0])
-            remotestream.muted = true
-            remotestream.srcObject = await event.streams[0]  
-            remotestream.play().then(()=>{
-                remotestream.muted = false
-            })
-        }else{
-            console.log( event.streams[0])
-            remotestream.muted = true
-            remotestream.srcObject = await event.streams[0]  
-            remotestream.play().then(()=>{
-                remotestream.muted = false
-            })
-    
+    peerConnection.ontrack = async (event) => {
+        console.log("Received remote stream:", event.streams[0]);
+        
+        if (!remotestream.srcObject) {
+            remotestream.srcObject = event.streams[0];
+        } else {
+            const existingStream = remotestream.srcObject;
+            event.streams[0].getTracks().forEach(track => {
+                existingStream.addTrack(track);
+            });
         }
-
-    }
+        
+        try {
+            await remotestream.play();
+        } catch (error) {
+            console.error("Error playing remote stream:", error);
+        }
+        
+        remotestream.muted = false;
+    };
     
     peerConnection.onicecandidate = async (event) => {
         if (event.candidate) {
@@ -154,27 +153,27 @@ socket.on('offer', async (offer) => {
             await peerConnection.addTrack(track , stream)
             console.log('track added')
         })
-        peerConnection.ontrack = async(event)=>{
-            remotestream.muted = true
-            if(remotestream.srcObject){
-                await remotestream.pause()
-                console.log( event.streams[0])
-                remotestream.muted = true
-                remotestream.srcObject = await event.streams[0]  
-                remotestream.play().then(()=>{
-                    remotestream.muted = false
-                })
-            }else{
-                console.log( event.streams[0])
-                remotestream.muted = true
-                remotestream.srcObject = await event.streams[0]  
-                remotestream.play().then(()=>{
-                    remotestream.muted = false
-                })
-        
+        peerConnection.ontrack = async (event) => {
+            console.log("Received remote stream:", event.streams[0]);
+            
+            if (!remotestream.srcObject) {
+                remotestream.srcObject = event.streams[0];
+            } else {
+                const existingStream = remotestream.srcObject;
+                event.streams[0].getTracks().forEach(track => {
+                    existingStream.addTrack(track);
+                });
             }
-    
-        }
+            
+            try {
+                await remotestream.play();
+            } catch (error) {
+                console.error("Error playing remote stream:", error);
+            }
+            
+            remotestream.muted = false;
+        };
+        
         
 
         peerConnection.onicecandidate = async (event) => {
