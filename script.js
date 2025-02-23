@@ -6,7 +6,8 @@ const muteBtn = document.getElementById('mutebtn')
 const hideBtn = document.getElementById('hidebtn')
 const switchBtn = document.getElementById('switchbtn')
 const endBtn = document.getElementById('endbtn')
-let playButton = document.getElementById("playVideoButton");
+let playBtn = document.getElementById("playbutton");
+
 localstream.onplaying = function () {
     const loader = localstream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
@@ -22,6 +23,8 @@ remotestream.onplaying = function () {
 };
 
 const socket = io('https://miniapp-videocall-server.onrender.com');
+
+
 
 const peerConnectionConfig ={
     iceServers: [
@@ -60,6 +63,7 @@ let stream
 let isMuted = false;
 let isHidden = false;
 let camera_view = 'user'
+/** @type {RTCPeerConnection} */
 let peerConnection 
 
 async function shareMedia(){
@@ -107,31 +111,14 @@ async function startOffer(){
         await peerConnection.addTrack(track , stream)
         console.log('track added')
     })
-    peerConnection.ontrack = async (event) => {
-        console.log("Received remote stream:", event.streams[0]);
-    
-        if (!remotestream.srcObject) {
-            remotestream.srcObject = event.streams[0];
-        } else {
-            const existingStream = remotestream.srcObject;
-            event.streams[0].getTracks().forEach(track => {
-                existingStream.addTrack(track);
-            });
+    peerConnection.ontrack = (event)=>{
+        if(remotestream){
+            remotestream.pause()
         }
+        remotestream.srcObject = event.streams[0]
+        playBtn.style.display = 'block'
+    }
     
-
-
-        playButton.style.display = "block";
-    
-        playButton.addEventListener("click", () => {
-            remotestream.play().then(() => {
-                remotestream.muted = false;
-                playButton.style.display = "none"; // دکمه بعد از کلیک مخفی بشه
-            }).catch(error => {
-                console.error("Error playing remote stream:", error);
-            });
-        });
-    };
     peerConnection.onicecandidate = async (event) => {
         if (event.candidate) {
             try {
@@ -157,33 +144,14 @@ socket.on('offer', async (offer) => {
             await peerConnection.addTrack(track , stream)
             console.log('track added')
         })
-        peerConnection.ontrack = async (event) => {
-            console.log("Received remote stream:", event.streams[0]);
-        
-            if (!remotestream.srcObject) {
-                remotestream.srcObject = event.streams[0];
-            } else {
-                const existingStream = remotestream.srcObject;
-                event.streams[0].getTracks().forEach(track => {
-                    existingStream.addTrack(track);
-                });
+
+        peerConnection.ontrack = (event)=>{
+            if(remotestream){
+                remotestream.pause()
             }
-        
-
-
-            playButton.style.display = "block";
-        
-            playButton.addEventListener("click", () => {
-                remotestream.play().then(() => {
-                    remotestream.muted = false;
-                    playButton.style.display = "none"; // دکمه بعد از کلیک مخفی بشه
-                }).catch(error => {
-                    console.error("Error playing remote stream:", error);
-                });
-            });
-        };
-        
-        
+            remotestream.srcObject = event.streams[0]
+            playBtn.style.display = 'block'
+        }
         
 
         peerConnection.onicecandidate = async (event) => {
@@ -291,7 +259,13 @@ endBtn.addEventListener('click', () => {
 
 socket.on('endcall' , async(endcall)=>{
     if(endcall){
-        await endpeer()
+        await endpeer() 
     }
 })
 
+playBtn.addEventListener("click" , ()=>{
+    if(remotestream){
+        remotestream.play()
+        playBtn.style.display = 'none'
+    }
+})
