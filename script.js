@@ -108,8 +108,8 @@ async function startOffer(){
         console.log('track added')
     })
     peerConnection.ontrack = async(event)=>{
-        if(event.streams){
-            await remotestream.pause()
+        if(remotestream.srcObject){
+             remotestream.pause()
         }
         console.log( event.streams[0])
         remotestream.muted = true
@@ -144,7 +144,7 @@ socket.on('offer', async (offer) => {
             console.log('track added')
         })
         peerConnection.ontrack = async(event)=>{
-            if(event.streams){
+            if(remotestream.srcObject){
                 await remotestream.pause()
             }
             console.log( event.streams[0])
