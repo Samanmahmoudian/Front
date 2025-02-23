@@ -116,8 +116,12 @@ async function startOffer(){
             remotestream.pause()
         }
         console.log(event.streams[0])
-        remotestream.srcObject = await event.streams[0]
-        playBtn.style.display = 'block'
+        await new Promise(async(resolve)=>{
+            remotestream.srcObject = await event.streams[0]
+            resolve()
+        }).then(()=>{
+            playBtn.style.display = 'block'
+        })
     }
 
     peerConnection.onicecandidate = async (event) => {
@@ -151,8 +155,12 @@ socket.on('offer', async (offer) => {
                 remotestream.pause()
             }
             console.log(event.streams[0])
-            remotestream.srcObject = await event.streams[0]
-            playBtn.style.display = 'block'
+            await new Promise(async(resolve)=>{
+                remotestream.srcObject = await event.streams[0]
+                resolve()
+            }).then(()=>{
+                playBtn.style.display = 'block'
+            })
         }
         
 
