@@ -64,7 +64,7 @@ let peerConnection
 
 async function shareMedia(){
     try{
-        stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:camera_view} , audio:true})
+        stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:camera_view}})
         localstream.srcObject = await stream
     }catch{
         console.log('camera denied')
@@ -110,8 +110,9 @@ async function startOffer(){
     peerConnection.ontrack = (event)=>{
         if(event.streams){
             console.log( event.streams[0])
-            remotestream.srcObject = event.streams[0]  
             remotestream.play()
+            remotestream.srcObject = event.streams[0]  
+            
         }
 
     }
@@ -229,7 +230,7 @@ switchBtn.addEventListener('click', async () => {
         stream.getTracks().forEach(track => track.stop()); 
     }
     try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true });
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }});
         localstream.srcObject = stream;
         const senders = peerConnection.getSenders();
         senders.forEach(sender => {
