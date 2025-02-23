@@ -110,14 +110,7 @@ async function startOffer(){
     peerConnection.ontrack = (event)=>{
         if(event.streams){
             console.log( event.streams[0])
-            remotestream.srcObject = event.streams[0]
-
-            remotestream.addEventListener("canplay", function () {
-                remotestream.play().then(()=>{
-                }).catch(e => console.error("⛔ مشکل در پخش ویدیو:", e));
-
-            }); // ⏳ این باعث می‌شه فقط یکبار اجرا بشه
-    
+            remotestream.srcObject = event.streams[0]    
         }
 
     }
@@ -150,11 +143,6 @@ socket.on('offer', async (offer) => {
             if(event.streams){
                 console.log( event.streams[0])
                 remotestream.srcObject = event.streams[0]
-                remotestream.addEventListener("canplay", function () {
-                    remotestream.play().then(()=>{
-                    }).catch(e => console.error("⛔ مشکل در پخش ویدیو:", e));
-    
-                });
         
             }
         }
