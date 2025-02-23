@@ -109,12 +109,18 @@ async function startOffer(){
     })
     peerConnection.ontrack = async(event)=>{
         if(remotestream.srcObject){
-             remotestream.pause()
+            await remotestream.pause()
+            console.log( event.streams[0])
+            remotestream.muted = true
+            remotestream.srcObject = await event.streams[0]  
+            remotestream.play()
+        }else{
+            console.log( event.streams[0])
+            remotestream.muted = true
+            remotestream.srcObject = await event.streams[0]  
+            remotestream.play()
+    
         }
-        console.log( event.streams[0])
-        remotestream.muted = true
-        remotestream.srcObject = await event.streams[0]  
-        remotestream.play()
 
     }
     
@@ -146,12 +152,18 @@ socket.on('offer', async (offer) => {
         peerConnection.ontrack = async(event)=>{
             if(remotestream.srcObject){
                 await remotestream.pause()
+                console.log( event.streams[0])
+                remotestream.muted = true
+                remotestream.srcObject = await event.streams[0]  
+                remotestream.play()
+            }else{
+                console.log( event.streams[0])
+                remotestream.muted = true
+                remotestream.srcObject = await event.streams[0]  
+                remotestream.play()
+        
             }
-            console.log( event.streams[0])
-            remotestream.muted = true
-            remotestream.srcObject = await event.streams[0]  
-            remotestream.play()
-    
+
         }
         
 
