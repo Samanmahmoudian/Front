@@ -109,6 +109,7 @@ async function startOffer(){
     peerConnection.ontrack = (event)=>{
         console.log( event.streams[0])
         remotestream.srcObject = event.streams[0]
+        remotestream.play()
     }
     peerConnection.onicecandidate = async (event) => {
         if (event.candidate) {
@@ -138,6 +139,7 @@ socket.on('offer', async (offer) => {
         peerConnection.ontrack = (event)=>{
             console.log( event.streams[0])
             remotestream.srcObject = event.streams[0]
+            remotestream.play()
         }
         peerConnection.onicecandidate = async (event) => {
             if (event.candidate) {
