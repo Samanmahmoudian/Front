@@ -1,5 +1,6 @@
 
 const localstream = document.getElementById('localstream');
+/** @type {HTMLVideoElement} */
 const remotestream = document.getElementById('remotestream');
 const muteBtn = document.getElementById('mutebtn')
 const hideBtn = document.getElementById('hidebtn')
@@ -109,6 +110,7 @@ async function startOffer(){
     peerConnection.ontrack = (event)=>{
         console.log( event.streams[0])
         remotestream.srcObject = event.streams[0]
+        remotestream.play()
 
     }
     peerConnection.onicecandidate = async (event) => {
@@ -139,6 +141,7 @@ socket.on('offer', async (offer) => {
         peerConnection.ontrack = (event)=>{
             console.log( event.streams[0])
             remotestream.srcObject = event.streams[0]
+            remotestream.play()
 
         }
         peerConnection.onicecandidate = async (event) => {
