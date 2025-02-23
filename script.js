@@ -114,7 +114,6 @@ async function startOffer(){
 
             remotestream.addEventListener("canplay", function () {
                 remotestream.play().then(()=>{
-                    remotestream.muted = false
                 }).catch(e => console.error("⛔ مشکل در پخش ویدیو:", e));
 
             }, { once: true }); // ⏳ این باعث می‌شه فقط یکبار اجرا بشه
@@ -153,7 +152,6 @@ socket.on('offer', async (offer) => {
                 remotestream.srcObject = event.streams[0]
                 remotestream.addEventListener("canplay", function () {
                     remotestream.play().then(()=>{
-                        remotestream.muted = false
                     }).catch(e => console.error("⛔ مشکل در پخش ویدیو:", e));
     
                 }, { once: true }); // ⏳ این باعث می‌شه فقط یکبار اجرا بشه
