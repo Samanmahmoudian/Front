@@ -63,10 +63,7 @@ let peerConnection
 
 async function shareMedia(){
     try{
-        stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: camera_view, width: { ideal: 640 }, height: { ideal: 360 } }, 
-            audio: true
-        });
+        stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:camera_view} , audio:true})
         localstream.srcObject = await stream
     }catch{
         console.log('camera denied')
@@ -122,9 +119,8 @@ async function startOffer(){
             }
         }
     }
-const offer = await peerConnection.createOffer({iceRestart:true});
-let updatedOffer = offer.sdp.replace('VP8', 'H264');
-await peerConnection.setLocalDescription({ type: 'offer', sdp: updatedOffer });
+    const offer = await peerConnection.createOffer({ iceRestart: true});
+    await peerConnection.setLocalDescription(offer);
     socket.emit('offer', {offer: offer, to: partnerId});
 }
 
@@ -165,7 +161,6 @@ socket.on('offer', async (offer) => {
 socket.on('answer', async (answer) => {
     try {
         await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-
     } catch (error) {
         console.error('Error handling answer:', error);
     }
@@ -173,21 +168,14 @@ socket.on('answer', async (answer) => {
 
 
 
-socket.on('ice', async (ice) => {
+socket.on('ice', async(ice) => {
     try {
-        if (peerConnection.remoteDescription) {  // Ensure remote description is set
-            await peerConnection.addIceCandidate(new RTCIceCandidate(ice));
-        } else {
-            console.warn('ICE candidate received before remote description was set.');
-            setTimeout(() => {
-                peerConnection.addIceCandidate(new RTCIceCandidate(ice));
-            }, 1000);  // Delay adding ICE candidate
-        }
+        await peerConnection.addIceCandidate(new RTCIceCandidate(ice));
+        
     } catch (error) {
         console.error('Error adding ICE candidate:', error);
     }
-});
-
+})
 
 socket.on('disconnected', async(messege)=>{
     if(partnerId == messege){
