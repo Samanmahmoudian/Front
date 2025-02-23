@@ -109,7 +109,7 @@ async function startOffer(){
     })
     peerConnection.ontrack = async (event) => {
         console.log("Received remote stream:", event.streams[0]);
-        
+    
         if (!remotestream.srcObject) {
             remotestream.srcObject = event.streams[0];
         } else {
@@ -118,15 +118,20 @@ async function startOffer(){
                 existingStream.addTrack(track);
             });
         }
-        
-        try {
-            await remotestream.play();
-        } catch (error) {
-            console.error("Error playing remote stream:", error);
-        }
-        
-        remotestream.muted = false;
+    
+        // منتظر کلیک کاربر برای پخش ویدیو
+        const enablePlayback = () => {
+            remotestream.play().then(() => {
+                remotestream.muted = false;
+                document.removeEventListener("click", enablePlayback);
+            }).catch(error => {
+                console.error("Error playing remote stream:", error);
+            });
+        };
+    
+        document.addEventListener("click", enablePlayback);
     };
+    
     
     peerConnection.onicecandidate = async (event) => {
         if (event.candidate) {
@@ -155,7 +160,7 @@ socket.on('offer', async (offer) => {
         })
         peerConnection.ontrack = async (event) => {
             console.log("Received remote stream:", event.streams[0]);
-            
+        
             if (!remotestream.srcObject) {
                 remotestream.srcObject = event.streams[0];
             } else {
@@ -164,15 +169,20 @@ socket.on('offer', async (offer) => {
                     existingStream.addTrack(track);
                 });
             }
-            
-            try {
-                await remotestream.play();
-            } catch (error) {
-                console.error("Error playing remote stream:", error);
-            }
-            
-            remotestream.muted = false;
+        
+            // منتظر کلیک کاربر برای پخش ویدیو
+            const enablePlayback = () => {
+                remotestream.play().then(() => {
+                    remotestream.muted = false;
+                    document.removeEventListener("click", enablePlayback);
+                }).catch(error => {
+                    console.error("Error playing remote stream:", error);
+                });
+            };
+        
+            document.addEventListener("click", enablePlayback);
         };
+        
         
         
 
