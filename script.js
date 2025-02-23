@@ -166,12 +166,6 @@ socket.on('answer', async (answer) => {
     try {
         await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
 
-
-    while (pendingICECandidates.length) {
-        const candidate = pendingICECandidates.shift();
-        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-    }
-
     } catch (error) {
         console.error('Error handling answer:', error);
     }
