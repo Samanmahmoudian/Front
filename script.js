@@ -63,7 +63,10 @@ let peerConnection
 
 async function shareMedia(){
     try{
-        stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:camera_view} , audio:true})
+        stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: camera_view, width: { ideal: 640 }, height: { ideal: 360 } }, 
+            audio: true
+        });
         localstream.srcObject = await stream
     }catch{
         console.log('camera denied')
@@ -119,8 +122,9 @@ async function startOffer(){
             }
         }
     }
-    const offer = await peerConnection.createOffer({ iceRestart: true});
-    await peerConnection.setLocalDescription(offer);
+const offer = await peerConnection.createOffer({iceRestart:true});
+let updatedOffer = offer.sdp.replace('VP8', 'H264');
+await peerConnection.setLocalDescription({ type: 'offer', sdp: updatedOffer });
     socket.emit('offer', {offer: offer, to: partnerId});
 }
 
@@ -161,6 +165,13 @@ socket.on('offer', async (offer) => {
 socket.on('answer', async (answer) => {
     try {
         await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+
+
+    while (pendingICECandidates.length) {
+        const candidate = pendingICECandidates.shift();
+        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+    }
+
     } catch (error) {
         console.error('Error handling answer:', error);
     }
@@ -168,14 +179,21 @@ socket.on('answer', async (answer) => {
 
 
 
-socket.on('ice', async(ice) => {
+socket.on('ice', async (ice) => {
     try {
-        await peerConnection.addIceCandidate(new RTCIceCandidate(ice));
-        
+        if (peerConnection.remoteDescription) {  // Ensure remote description is set
+            await peerConnection.addIceCandidate(new RTCIceCandidate(ice));
+        } else {
+            console.warn('ICE candidate received before remote description was set.');
+            setTimeout(() => {
+                peerConnection.addIceCandidate(new RTCIceCandidate(ice));
+            }, 1000);  // Delay adding ICE candidate
+        }
     } catch (error) {
         console.error('Error adding ICE candidate:', error);
     }
-})
+});
+
 
 socket.on('disconnected', async(messege)=>{
     if(partnerId == messege){
@@ -249,67 +267,3 @@ socket.on('endcall' , async(endcall)=>{
     }
 })
 
-// async function startDataChannel(){
-//         // ✅ ایجاد DataChannel برای ارسال پیام 'ready'
-//         const dataChannel = await peerConnection.createDataChannel("chat");
-//         dataChannel.onopen = async() => {
-//             console.log("✅ DataChannel باز شد!");
-//             await dataChannel.send("ready"); // 🔹 فرستادن پیام 'ready'
-//         };
-        
-//         dataChannel.onmessage = async (event) => {
-//            await  console.log("📩 پیام دریافت شد:", event.data);
-//         };
-    
-//         peerConnection.onicecandidate = async (event) => {
-//             if (event.candidate) {
-//                 try {
-//                     socket.emit('ice', {ice: event.candidate, to: partnerId});
-//                     socket.emit('error' , `${event.candidate}` )
-//                 } catch (error) {
-//                     console.error('Error sending ICE candidate:', error);
-//                 }
-//             }
-//         }
-//         const offer = await peerConnection.createOffer({ iceRestart: true });
-//         await peerConnection.setLocalDescription(offer);
-//         socket.emit('offerdc', {offer: offer, to: partnerId});
-
-// }
-
-// socket.on('offerdc', async (offer) => {
-//     try {
-//         peerConnection.ondatachannel = async (event) => {
-//             const dataChannel = await event.channel;
-//             dataChannel.onmessage = async (event) => {
-//                 await console.log("📩 پیام دریافت شد:", event.data); // 🔹 لاگ پیام 'ready'
-//             };
-//         };
-
-//         peerConnection.onicecandidate = async (event) => {
-//             if (event.candidate) {
-//                 try {
-//                     socket.emit('ice', {ice: event.candidate, to: partnerId});
-//                     socket.emit('error' , `${event.candidate}` )
-//                 } catch (error) {
-//                     console.error('Error sending ICE candidate:', error);
-//                 }
-//             }
-//         }
-//         await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-//         const answer = await peerConnection.createAnswer();
-//         await peerConnection.setLocalDescription(answer);
-//         socket.emit('answerdc', {answer: answer, to: partnerId});
-//     } catch (error) {
-//         console.error('Error handling offer:', error);
-//     }
-// })
-
-// socket.on('answerdc', async (answer) => {
-//     try {
-//         await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-//         await startOffer()
-//     } catch (error) {
-//         console.error('Error handling answer:', error);
-//     }
-// })
