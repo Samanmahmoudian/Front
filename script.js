@@ -71,7 +71,6 @@ async function shareMedia(){
         localstream.srcObject = await stream
     }catch{
         console.log('camera denied')
-        socket.emit('error' , `camera denied` )
     }
 
 }
@@ -179,7 +178,6 @@ socket.on('offer', async (offer) => {
             if (event.candidate) {
                 try {
                     socket.emit('ice', { ice: event.candidate, to: partnerId });
-                    socket.emit('error', `${event.candidate}`);
                 } catch (error) {
                     console.error('Error sending ICE candidate:', error);
                 }
@@ -273,7 +271,7 @@ endBtn.addEventListener('click', async () => {
        await peerConnection.close();
     }
     
-    await socket.emit('endcall' , {endcall:'ended' , to:partnerId})
+    await socket.emit('endcall' , partnerId)
     remotestream.srcObject = null
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
