@@ -274,7 +274,8 @@ switchBtn.addEventListener('click', async () => {
         });
 
     }).catch(error=>{
-        console.log('Failed to switch camera:', error);
+        alert('Failed to switch camera:', error);
+        switchBtn.click()
     })
         
 
