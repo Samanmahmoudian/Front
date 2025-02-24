@@ -282,3 +282,17 @@ playBtn.addEventListener("click", () => {
         playBtn.style.display = 'none';
     }
 });
+
+async function setAudioOutputToSpeaker() {
+    if (typeof remotestream.sinkId !== 'undefined') {
+        try {
+            await remotestream.setSinkId('default');
+            console.log('Audio output set to speaker');
+        } catch (error) {
+            console.error('Error setting audio output to speaker:', error);
+        }
+    } else {
+        console.warn('Browser does not support output device selection.');
+    }
+}
+setAudioOutputToSpeaker();
