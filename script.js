@@ -95,8 +95,8 @@ async function shareMedia() {
         localstream.srcObject = await stream;
         localstream.play()
         
-    } catch {
-        alert('camera denied');
+    } catch(error) {
+        alert(error);
     }
 }
 shareMedia();
