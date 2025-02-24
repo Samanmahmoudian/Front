@@ -258,25 +258,29 @@ hideBtn.addEventListener('click', () => {
 
 switchBtn.addEventListener('click', async () => {
     camera_view = camera_view === 'user' ? 'environment' : 'user';
+    if(peerConnection){
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        await shareMedia().then(()=>{
+            const senders = peerConnection.getSenders();
+            senders.forEach(sender => {
+                if (sender.track.kind === "video") {
+                    sender.replaceTrack(stream.getVideoTracks()[0]);
+                }
+                if (sender.track.kind === "audio") {
+                    sender.replaceTrack(stream.getAudioTracks()[0]);
+                }
+            });
     
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+        }).catch(error=>{
+            alert('Failed to switch camera:', error);
+            switchBtn.click()
+        })
+    }else{
+        await shareMedia()
     }
-    await shareMedia().then(()=>{
-        const senders = peerConnection.getSenders();
-        senders.forEach(sender => {
-            if (sender.track.kind === "video") {
-                sender.replaceTrack(stream.getVideoTracks()[0]);
-            }
-            if (sender.track.kind === "audio") {
-                sender.replaceTrack(stream.getAudioTracks()[0]);
-            }
-        });
 
-    }).catch(error=>{
-        alert('Failed to switch camera:', error);
-        switchBtn.click()
-    })
         
 
     
