@@ -4,8 +4,8 @@ const remotestream = document.getElementById('remotestream');
 const muteBtn = document.getElementById('mutebtn');
 const hideBtn = document.getElementById('hidebtn');
 const switchBtn = document.getElementById('switchbtn');
-const endBtn = document.getElementById('endbtn');
-let pnextBtn = document.getElementById("nextybutton");
+const nextBtn = document.getElementById('nextbtn');
+let playBtn = document.getElementById("playbutton");
 
 localstream.onplaying = function () {
     const loader = localstream.nextElementSibling;
