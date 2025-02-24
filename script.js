@@ -78,6 +78,7 @@ const peerConnectionConfig = {
 
 let myId;
 let partnerId;
+/**@type {MediaStream} */
 let stream;
 let isMuted = false;
 let isHidden = false;
@@ -263,10 +264,10 @@ hideBtn.addEventListener('click', () => {
 });
 
 switchBtn.addEventListener('click', async () => {
-    camera_view = camera_view === 'user' ? 'environment' : 'user';
+    camera_view = await camera_view == 'user' ? 'environment' : 'user';
     if(peerConnection){
         if (stream) {
-            stream.getTracks().forEach(track => track.stop());
+            stream.getVideoTracks().forEach(track => track.stop());
         }
         try{
             await shareMedia()
