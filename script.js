@@ -234,8 +234,8 @@ async function endpeer() {
         await peerConnection.close();
         
     }
-    playBtn.style.display = 'none'
     remotestream.srcObject = null;
+    playBtn.style.display = await 'none'
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
@@ -302,6 +302,8 @@ socket.on('nextcall', async (nextcall) => {
 playBtn.addEventListener("click", () => {
     if (remotestream) {
         remotestream.play();
+        playBtn.style.display = 'none';
+    }else{
         playBtn.style.display = 'none';
     }
 });
