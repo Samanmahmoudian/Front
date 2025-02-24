@@ -87,8 +87,12 @@ let peerConnection;
 
 async function shareMedia() {
     try {
+        if(localstream){
+            localstream.pause()
+        }
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true })
-        localstream.srcObject = await  stream;
+        localstream.srcObject = await stream;
+        localstream.play()
         
     } catch {
         alert('camera denied');
