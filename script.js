@@ -203,7 +203,7 @@ socket.on('offer', async (offer) => {
 socket.on('answer', async (answer) => {
     try {
         await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-        // Add queued ICE candidates
+        
         while (iceCandidateQueue.length) {
             await peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidateQueue.shift()));
         }
@@ -221,7 +221,9 @@ socket.on('disconnected', async(messege)=>{
 
 
 async function endpeer(){
-    await peerConnection.close()
+    if(peerConnection){
+        await peerConnection.close()
+    }
     remotestream.srcObject = null
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
@@ -266,16 +268,21 @@ switchBtn.addEventListener('click', async () => {
 });
 
 
-endBtn.addEventListener('click', () => {
-    peerConnection.close();
+endBtn.addEventListener('click', async () => {
+    if(peerConnection){
+       await peerConnection.close();
+    }
+    
     socket.emit('endcall' , {endcall:'ended' , to:partnerId})
     remotestream.srcObject = null
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
     }
+    partnerId = ''
     alert('Call Ended');
-    window.close();
+    socket.emit('startnewcall' , 'ended')
+    
 });
 
 socket.on('endcall' , async(endcall)=>{
