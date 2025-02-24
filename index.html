@@ -11,7 +11,9 @@
 <body>
     <div class="app-container"> 
         <div class="main-video video-box">
-            <button id="playbutton" class="play-button" style="display: none;">Play Video</button>
+            <button id="playbutton" class="play-button" style="display: none;">
+                <img src="./Icons/Play Btn.svg" alt="Play Video" />
+            </button>
             <video id="remotestream" playsinline></video>
             <div class="loader">
                 <div></div><div></div><div></div><div></div><div></div><div></div>
@@ -24,10 +26,18 @@
             </div>
         </div>
         <div class="controls">
-            <button id="mutebtn" class="control-button mute"></button>
-            <button id="hidebtn" class="control-button hide"></button>  
-            <button id="switchbtn" class="control-button"></button>
-            <button id="endbtn" class="control-button end-call"></button>
+            <button id="mutebtn" class="control-button">
+                <img src="./Icons/Mic on Btn.svg" alt="Mute" />
+            </button>
+            <button id="hidebtn" class="control-button">
+                <img src="./Icons/Video on Btn.svg" alt="Hide" />
+            </button>  
+            <button id="switchbtn" class="control-button">
+                <img src="./Icons/Switch camera Btn.svg" alt="Switch" />
+            </button>
+            <button id="endbtn" class="control-button">
+                <img src="./Icons/NextBtn.svg" alt="End" />
+            </button>
         </div>
     </div>
 </body>

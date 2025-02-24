@@ -6,8 +6,6 @@ const hideBtn = document.getElementById('hidebtn');
 const switchBtn = document.getElementById('switchbtn');
 const endBtn = document.getElementById('endbtn');
 let playBtn = document.getElementById("playbutton");
-const micOffIcon = document.getElementById('micOffIcon');
-const videoOffIcon = document.getElementById('videoOffIcon');
 
 localstream.onplaying = function () {
     const loader = localstream.nextElementSibling;
@@ -223,15 +221,13 @@ async function endpeer() {
 muteBtn.addEventListener('click', () => {
     isMuted = !isMuted;
     stream.getAudioTracks().forEach(track => track.enabled = !isMuted);
-    muteBtn.classList.toggle('muted', isMuted);
-    micOffIcon.style.display = isMuted ? 'block' : 'none';
+    muteBtn.querySelector('img').src = isMuted ? './Icons/Mic off Btn.svg' : './Icons/Mic on Btn.svg';
 });
 
 hideBtn.addEventListener('click', () => {
     isHidden = !isHidden;
     stream.getVideoTracks().forEach(track => track.enabled = !isHidden);
-    hideBtn.classList.toggle('hidden', isHidden);
-    videoOffIcon.style.display = isHidden ? 'block' : 'none';
+    hideBtn.querySelector('img').src = isHidden ? './Icons/Video off Btn.svg' : './Icons/Video on Btn.svg';
 });
 
 switchBtn.addEventListener('click', async () => {
@@ -241,18 +237,17 @@ switchBtn.addEventListener('click', async () => {
     }
     try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true });
-        localstream.srcObject = await stream;
+        localstream.srcObject = stream;
         const senders = peerConnection.getSenders();
         senders.forEach(sender => {
             if (sender.track.kind === "video") {
                 sender.replaceTrack(stream.getVideoTracks()[0]);
-
             }
             if (sender.track.kind === "audio") {
                 sender.replaceTrack(stream.getAudioTracks()[0]);
             }
         });
-        localstream.srcObject = await stream;
+
     } catch (error) {
         console.log('Failed to switch camera:', error);
     }
