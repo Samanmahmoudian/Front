@@ -258,11 +258,12 @@ hideBtn.addEventListener('click', () => {
 
 switchBtn.addEventListener('click', async () => {
     camera_view = camera_view === 'user' ? 'environment' : 'user';
+    
     if (stream) {
         stream.getTracks().forEach(track => track.stop());
     }
+    await shareMedia()
     try {
-        await shareMedia()
         const senders = peerConnection.getSenders();
         senders.forEach(sender => {
             if (sender.track.kind === "video") {
