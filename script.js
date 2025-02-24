@@ -262,8 +262,7 @@ switchBtn.addEventListener('click', async () => {
     if (stream) {
         stream.getTracks().forEach(track => track.stop());
     }
-    await shareMedia()
-    try {
+    await shareMedia().then(()=>{
         const senders = peerConnection.getSenders();
         senders.forEach(sender => {
             if (sender.track.kind === "video") {
@@ -274,9 +273,14 @@ switchBtn.addEventListener('click', async () => {
             }
         });
 
-    } catch (error) {
+    }).catch(error=>{
         console.log('Failed to switch camera:', error);
-    }
+    })
+        
+
+    
+
+    
 });
 
 nextBtn.addEventListener('click', async () => {
