@@ -201,6 +201,7 @@ socket.on('answer', async (answer) => {
 
 socket.on('disconnected', async (messege) => {
     if (partnerId == messege) {
+        playBtn.style.display = 'none'
         await endpeer();
     }
 });
@@ -236,8 +237,7 @@ switchBtn.addEventListener('click', async () => {
         stream.getTracks().forEach(track => track.stop());
     }
     try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true });
-        localstream.srcObject = stream;
+        await shareMedia()
         const senders = peerConnection.getSenders();
         senders.forEach(sender => {
             if (sender.track.kind === "video") {
