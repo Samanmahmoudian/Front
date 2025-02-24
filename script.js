@@ -1,3 +1,4 @@
+/** @type {HTMLVideoElement} */
 const localstream = document.getElementById('localstream');
 /** @type {HTMLVideoElement} */
 const remotestream = document.getElementById('remotestream');
@@ -86,9 +87,8 @@ let peerConnection;
 
 async function shareMedia() {
     try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true }).then((localvideo)=>{
-            localstream.srcObject =  localvideo;
-        })
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true })
+        localstream.srcObject = await  stream;
         
     } catch {
         alert('camera denied');
@@ -264,7 +264,9 @@ switchBtn.addEventListener('click', async () => {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
         }
-        await shareMedia().then(()=>{
+        try{
+            await shareMedia()
+            localstream = await stream
             const senders = peerConnection.getSenders();
             senders.forEach(sender => {
                 if (sender.track.kind === "video") {
@@ -273,12 +275,12 @@ switchBtn.addEventListener('click', async () => {
                 if (sender.track.kind === "audio") {
                     sender.replaceTrack(stream.getAudioTracks()[0]);
                 }
-            });
-    
-        }).catch(error=>{
+            });    
+        }catch(error){
             alert('Failed to switch camera:', error);
             switchBtn.click()
-        })
+        }
+
     }else{
         await shareMedia()
     }
