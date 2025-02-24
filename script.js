@@ -5,7 +5,7 @@ const muteBtn = document.getElementById('mutebtn');
 const hideBtn = document.getElementById('hidebtn');
 const switchBtn = document.getElementById('switchbtn');
 const endBtn = document.getElementById('endbtn');
-let playBtn = document.getElementById("playbutton");
+let pnextBtn = document.getElementById("nextybutton");
 
 localstream.onplaying = function () {
     const loader = localstream.nextElementSibling;
@@ -253,7 +253,7 @@ switchBtn.addEventListener('click', async () => {
     }
 });
 
-endBtn.addEventListener('click', async () => {
+nextBtn.addEventListener('click', async () => {
     if (peerConnection) {
         await peerConnection.close();
         playBtn.style.display = 'none';
