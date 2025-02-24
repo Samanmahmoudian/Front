@@ -1,4 +1,3 @@
-
 const localstream = document.getElementById('localstream');
 /** @type {HTMLVideoElement} */
 const remotestream = document.getElementById('remotestream');
@@ -138,68 +137,80 @@ async function startOffer(){
     socket.emit('offer', {offer: offer, to: partnerId});
 }
 
+let iceCandidateQueue = [];
+
+socket.on('ice', async (ice) => {
+    try {
+        if (peerConnection.remoteDescription) {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(ice));
+        } else {
+            iceCandidateQueue.push(ice);
+        }
+    } catch (error) {
+        console.error('Error adding ICE candidate:', error);
+    }
+});
+
 socket.on('offer', async (offer) => {
     try {
-        if(!stream){
-            await shareMedia()
+        if (!stream) {
+            await shareMedia();
         }
 
+        stream.getTracks().forEach(async (track) => {
+            await peerConnection.addTrack(track, stream);
+            console.log('track added');
+        });
 
-         stream.getTracks().forEach(async(track)=>{
-            await peerConnection.addTrack(track , stream)
-            console.log('track added')
-        })
-
-        peerConnection.ontrack = async (event)=>{
-            if(remotestream){
-                remotestream.pause()
+        peerConnection.ontrack = async (event) => {
+            if (remotestream) {
+                remotestream.pause();
             }
-            console.log(event.streams[0])
-            await new Promise(async(resolve)=>{
-                remotestream.srcObject = await event.streams[0]
-                resolve()
-            }).then(()=>{
-                playBtn.style.display = 'block'
-            })
-        }
-        
+            console.log(event.streams[0]);
+            await new Promise(async (resolve) => {
+                remotestream.srcObject = await event.streams[0];
+                resolve();
+            }).then(() => {
+                playBtn.style.display = 'block';
+            });
+        };
 
         peerConnection.onicecandidate = async (event) => {
             if (event.candidate) {
                 try {
-                    socket.emit('ice', {ice: event.candidate, to: partnerId});
-                    socket.emit('error' , `${event.candidate}` )
+                    socket.emit('ice', { ice: event.candidate, to: partnerId });
+                    socket.emit('error', `${event.candidate}`);
                 } catch (error) {
                     console.error('Error sending ICE candidate:', error);
                 }
             }
-        }
+        };
+
         await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);
-        socket.emit('answer', {answer: answer, to: partnerId});
+        socket.emit('answer', { answer: answer, to: partnerId });
+
+        // Add queued ICE candidates
+        while (iceCandidateQueue.length) {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidateQueue.shift()));
+        }
     } catch (error) {
         console.error('Error handling offer:', error);
     }
-})
+});
 
 socket.on('answer', async (answer) => {
     try {
         await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        // Add queued ICE candidates
+        while (iceCandidateQueue.length) {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidateQueue.shift()));
+        }
     } catch (error) {
         console.error('Error handling answer:', error);
     }
-})
-
-
-
-socket.on('ice', async(ice) => {
-    try {
-        await peerConnection.addIceCandidate(new RTCIceCandidate(ice));
-    } catch (error) {
-        console.error('nashode hannoz', error);
-    }
-})
+});
 
 socket.on('disconnected', async(messege)=>{
     if(partnerId == messege){
