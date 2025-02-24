@@ -209,13 +209,15 @@ socket.on('disconnected', async (messege) => {
 async function endpeer() {
     if (peerConnection) {
         await peerConnection.close();
+        
     }
+    playBtn.style.display = 'none'
     remotestream.srcObject = null;
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
     }
-    socket.emit('startnewcall', 'ended');
+    socket.emit('startnewcall', 'done');
     partnerId = '';
 }
 
@@ -258,20 +260,18 @@ nextBtn.addEventListener('click', async () => {
         await peerConnection.close();
         playBtn.style.display = 'none';
     }
-
-    await socket.emit('endcall', partnerId);
+    await socket.emit('nextcall', partnerId);
     remotestream.srcObject = null;
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
     }
     partnerId = '';
-    alert('Call Ended');
     socket.emit('startnewcall', 'ended');
 });
 
-socket.on('endcall', async (endcall) => {
-    if (endcall) {
+socket.on('nextcall', async (nextcall) => {
+    if (nextcall) {
         await endpeer();
     }
 });
