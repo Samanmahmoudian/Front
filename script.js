@@ -266,16 +266,16 @@ switchBtn.addEventListener('click', async () => {
         }
         try{
             await shareMedia()
-            localstream = await stream
-            const senders = peerConnection.getSenders();
-            senders.forEach(sender => {
-                if (sender.track.kind === "video") {
-                    sender.replaceTrack(stream.getVideoTracks()[0]);
-                }
-                if (sender.track.kind === "audio") {
-                    sender.replaceTrack(stream.getAudioTracks()[0]);
-                }
-            });    
+            
+            // const senders = peerConnection.getSenders();
+            // senders.forEach(sender => {
+            //     if (sender.track.kind === "video") {
+            //         sender.replaceTrack(stream.getVideoTracks()[0]);
+            //     }
+            //     if (sender.track.kind === "audio") {
+            //         sender.replaceTrack(stream.getAudioTracks()[0]);
+            //     }
+            // });    
         }catch(error){
             alert('Failed to switch camera:', error);
             switchBtn.click()
