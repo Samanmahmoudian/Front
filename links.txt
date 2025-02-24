@@ -36,3 +36,34 @@ var myPeerConnection = new RTCPeerConnection({
        credential: "Saman1384",
      },
        
+
+
+
+
+       var myPeerConnection = new RTCPeerConnection({
+  iceServers: [
+      {
+        urls: "stun:stun.relay.metered.ca:80",
+      },
+      {
+        urls: "turn:global.relay.metered.ca:80",
+        username: "bff881b65e7cda72364ea616",
+        credential: "r93lIGVmjDZcQD5Y",
+      },
+      {
+        urls: "turn:global.relay.metered.ca:80?transport=tcp",
+        username: "bff881b65e7cda72364ea616",
+        credential: "r93lIGVmjDZcQD5Y",
+      },
+      {
+        urls: "turn:global.relay.metered.ca:443",
+        username: "bff881b65e7cda72364ea616",
+        credential: "r93lIGVmjDZcQD5Y",
+      },
+      {
+        urls: "turns:global.relay.metered.ca:443?transport=tcp",
+        username: "bff881b65e7cda72364ea616",
+        credential: "r93lIGVmjDZcQD5Y",
+      },
+  ],
+});
