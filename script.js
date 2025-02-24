@@ -1,11 +1,13 @@
 const localstream = document.getElementById('localstream');
 /** @type {HTMLVideoElement} */
 const remotestream = document.getElementById('remotestream');
-const muteBtn = document.getElementById('mutebtn')
-const hideBtn = document.getElementById('hidebtn')
-const switchBtn = document.getElementById('switchbtn')
-const endBtn = document.getElementById('endbtn')
+const muteBtn = document.getElementById('mutebtn');
+const hideBtn = document.getElementById('hidebtn');
+const switchBtn = document.getElementById('switchbtn');
+const endBtn = document.getElementById('endbtn');
 let playBtn = document.getElementById("playbutton");
+const micOffIcon = document.getElementById('micOffIcon');
+const videoOffIcon = document.getElementById('videoOffIcon');
 
 localstream.onplaying = function () {
     const loader = localstream.nextElementSibling;
@@ -23,62 +25,53 @@ remotestream.onplaying = function () {
 
 const socket = io('https://miniapp-videocall-server.onrender.com');
 
-
-
-const peerConnectionConfig ={
+const peerConnectionConfig = {
     iceServers: [
         {
             urls: "stun:stun.relay.metered.ca:80",
-          },
-          {
+        },
+        {
             urls: "turn:global.relay.metered.ca:80",
             username: "a4f5d501c33dfea6e2836653",
             credential: "sxmhLRRVlHNc7aUL",
-          },
-          {
+        },
+        {
             urls: "turn:global.relay.metered.ca:80?transport=tcp",
             username: "a4f5d501c33dfea6e2836653",
             credential: "sxmhLRRVlHNc7aUL",
-          },
-          {
+        },
+        {
             urls: "turn:global.relay.metered.ca:443",
             username: "a4f5d501c33dfea6e2836653",
             credential: "sxmhLRRVlHNc7aUL",
-          },
-          {
+        },
+        {
             urls: "turns:global.relay.metered.ca:443?transport=tcp",
             username: "a4f5d501c33dfea6e2836653",
             credential: "sxmhLRRVlHNc7aUL",
-          },
-        
+        },
         { urls: "stun:stun.l.google.com:19302" }
-
     ],
-  }
+};
 
 let myId;
 let partnerId;
-let stream
+let stream;
 let isMuted = false;
 let isHidden = false;
-let camera_view = 'user'
+let camera_view = 'user';
 /** @type {RTCPeerConnection} */
-let peerConnection 
+let peerConnection;
 
-async function shareMedia(){
-    try{
-        stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:camera_view} , audio:true})
-        localstream.srcObject = await stream
-    }catch{
-        console.log('camera denied')
+async function shareMedia() {
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true });
+        localstream.srcObject = await stream;
+    } catch {
+        console.log('camera denied');
     }
-
 }
-shareMedia()
-
-
-
-
+shareMedia();
 
 socket.on('my_id', (id) => {
     myId = id;
@@ -86,54 +79,52 @@ socket.on('my_id', (id) => {
 });
 
 socket.on('offer_state', async (offer) => {
-    peerConnection = new RTCPeerConnection(peerConnectionConfig)
+    peerConnection = new RTCPeerConnection(peerConnectionConfig);
     if (offer.state == 'ready') {
         partnerId = await offer.partnerId;
         console.log('Your partner id is: ' + offer.partnerId);
-        // await startDataChannel()
-        await startOffer()
+        // await startDataChannel();
+        await startOffer();
     } else if (offer.state == 'connected') {
         partnerId = await offer.partnerId;
         console.log('Your partner id is: ' + offer.partnerId);
-
     }
-})
+});
 
-async function startOffer(){
-    if(!stream){
-        await shareMedia()
+async function startOffer() {
+    if (!stream) {
+        await shareMedia();
     }
-    
 
-     stream.getTracks().forEach(async(track)=>{
-        await peerConnection.addTrack(track , stream)
-        console.log('track added')
-    })
-    peerConnection.ontrack = async (event)=>{
-        if(remotestream){
-            remotestream.pause()
+    stream.getTracks().forEach(async (track) => {
+        await peerConnection.addTrack(track, stream);
+        console.log('track added');
+    });
+    peerConnection.ontrack = async (event) => {
+        if (remotestream) {
+            remotestream.pause();
         }
-        console.log(event.streams[0])
-        await new Promise(async(resolve)=>{
-            remotestream.srcObject = await event.streams[0]
-            resolve()
-        }).then(()=>{
-            playBtn.style.display = 'block'
-        })
-    }
+        console.log(event.streams[0]);
+        await new Promise(async (resolve) => {
+            remotestream.srcObject = await event.streams[0];
+            resolve();
+        }).then(() => {
+            playBtn.style.display = 'block';
+        });
+    };
 
     peerConnection.onicecandidate = async (event) => {
         if (event.candidate) {
             try {
-                socket.emit('ice', {ice: event.candidate, to: partnerId});
+                socket.emit('ice', { ice: event.candidate, to: partnerId });
             } catch (error) {
                 console.error('Error sending ICE candidate:', error);
             }
         }
-    }
-    const offer = await peerConnection.createOffer({ iceRestart: true});
+    };
+    const offer = await peerConnection.createOffer({ iceRestart: true });
     await peerConnection.setLocalDescription(offer);
-    socket.emit('offer', {offer: offer, to: partnerId});
+    socket.emit('offer', { offer: offer, to: partnerId });
 }
 
 let iceCandidateQueue = [];
@@ -201,7 +192,7 @@ socket.on('offer', async (offer) => {
 socket.on('answer', async (answer) => {
     try {
         await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-        
+
         while (iceCandidateQueue.length) {
             await peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidateQueue.shift()));
         }
@@ -210,88 +201,89 @@ socket.on('answer', async (answer) => {
     }
 });
 
-socket.on('disconnected', async(messege)=>{
-    if(partnerId == messege){
-        await endpeer()
-
+socket.on('disconnected', async (messege) => {
+    if (partnerId == messege) {
+        await endpeer();
     }
-})
+});
 
-
-async function endpeer(){
-    if(peerConnection){
-        await peerConnection.close()
+async function endpeer() {
+    if (peerConnection) {
+        await peerConnection.close();
     }
-    remotestream.srcObject = null
+    remotestream.srcObject = null;
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
     }
-    socket.emit('startnewcall' , 'ended')
-    partnerId = ''
+    socket.emit('startnewcall', 'ended');
+    partnerId = '';
 }
+
 muteBtn.addEventListener('click', () => {
     isMuted = !isMuted;
     stream.getAudioTracks().forEach(track => track.enabled = !isMuted);
-    muteBtn.textContent = isMuted ? 'Unmute' : 'Mute';
+    muteBtn.classList.toggle('muted', isMuted);
+    micOffIcon.style.display = isMuted ? 'block' : 'none';
 });
 
 hideBtn.addEventListener('click', () => {
     isHidden = !isHidden;
     stream.getVideoTracks().forEach(track => track.enabled = !isHidden);
-    hideBtn.textContent = isHidden ? 'Show' : 'Hide';
+    hideBtn.classList.toggle('hidden', isHidden);
+    videoOffIcon.style.display = isHidden ? 'block' : 'none';
 });
 
 switchBtn.addEventListener('click', async () => {
     camera_view = camera_view === 'user' ? 'environment' : 'user';
     if (stream) {
-        stream.getTracks().forEach(track => track.stop()); 
+        stream.getTracks().forEach(track => track.stop());
     }
     try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view } , audio:true });
-        localstream.srcObject = stream;
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true });
+        localstream.srcObject = await stream;
         const senders = peerConnection.getSenders();
         senders.forEach(sender => {
             if (sender.track.kind === "video") {
                 sender.replaceTrack(stream.getVideoTracks()[0]);
+
             }
             if (sender.track.kind === "audio") {
                 sender.replaceTrack(stream.getAudioTracks()[0]);
             }
         });
-
+        localstream.srcObject = await stream;
     } catch (error) {
         console.log('Failed to switch camera:', error);
     }
 });
 
-
 endBtn.addEventListener('click', async () => {
-    if(peerConnection){
-       await peerConnection.close();
+    if (peerConnection) {
+        await peerConnection.close();
+        playBtn.style.display = 'none';
     }
-    
-    await socket.emit('endcall' , partnerId)
-    remotestream.srcObject = null
+
+    await socket.emit('endcall', partnerId);
+    remotestream.srcObject = null;
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
     }
-    partnerId = ''
+    partnerId = '';
     alert('Call Ended');
-    socket.emit('startnewcall' , 'ended')
-    
+    socket.emit('startnewcall', 'ended');
 });
 
-socket.on('endcall' , async(endcall)=>{
-    if(endcall){
-        await endpeer() 
+socket.on('endcall', async (endcall) => {
+    if (endcall) {
+        await endpeer();
     }
-})
+});
 
-playBtn.addEventListener("click" , ()=>{
-    if(remotestream){
-        remotestream.play()
-        playBtn.style.display = 'none'
+playBtn.addEventListener("click", () => {
+    if (remotestream) {
+        remotestream.play();
+        playBtn.style.display = 'none';
     }
-})
+});

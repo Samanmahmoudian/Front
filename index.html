@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="webkit-playsinline" content="true">
     <meta name="user-gesture-required" content="false">
-
-
     <title>Video Call</title>
     <link href="./styles.css" rel="stylesheet"/>
 </head>
@@ -14,7 +12,7 @@
     <div class="app-container"> 
         <div class="main-video video-box">
             <button id="playbutton" class="play-button" style="display: none;">Play Video</button>
-            <video id="remotestream"  playsinline ></video>
+            <video id="remotestream" playsinline></video>
             <div class="loader">
                 <div></div><div></div><div></div><div></div><div></div><div></div>
             </div>
@@ -26,19 +24,13 @@
             </div>
         </div>
         <div class="controls">
-            <button id="mutebtn" class="control-button mute">Mute</button>
-            <button id="hidebtn" class="control-button hide">Hide</button>  
-            <button id="switchbtn" class="control-button">Switch Camera</button>
-            <button id="endbtn" class="control-button end-call">End Call</button>
-            
+            <button id="mutebtn" class="control-button mute"></button>
+            <button id="hidebtn" class="control-button hide"></button>  
+            <button id="switchbtn" class="control-button"></button>
+            <button id="endbtn" class="control-button end-call"></button>
         </div>
     </div>
 </body>
-
-  
 <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-
-
-
 <script src="./script.js"></script>
 </html>

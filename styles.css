@@ -19,154 +19,7 @@ body {
     width: 100%;
     height: 100%;
     max-width: 100%;
-    background: #ffffff;* {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Poppins', sans-serif;
-    }
-    
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100dvh;
-        background: #f8f9fa;
-        overflow: hidden;
-        position: relative;
-    }
-    
-    .app-container {
-        width: 100%;
-        height: 100%;
-        max-width: 100%;
-        background: #ffffff;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        overflow: hidden;
-        position: relative;
-    }
-    
-    .main-video,
-    .small-video {
-        width: 100%;
-        height: 50%;
-        background: #000000;
-        border-radius: 15px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 0;
-        box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
-        position: relative;
-    }
-    
-    .video-box video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: inherit;
-    }
-    
-    .loader {
-        position: absolute;
-        width: 50px;
-        height: 50px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    
-    .loader div {
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        background-color: rgba(255, 255, 255, 0.6);
-        border-radius: 50%;
-        animation: rotate 1.2s linear infinite, colorChange 1.2s linear infinite;
-    }
-    
-    .loader div:nth-child(1) { transform: rotate(0deg) translate(20px); animation-delay: 0s; }
-    .loader div:nth-child(2) { transform: rotate(60deg) translate(20px); animation-delay: 0.2s; }
-    .loader div:nth-child(3) { transform: rotate(120deg) translate(20px); animation-delay: 0.4s; }
-    .loader div:nth-child(4) { transform: rotate(180deg) translate(20px); animation-delay: 0.6s; }
-    .loader div:nth-child(5) { transform: rotate(240deg) translate(20px); animation-delay: 0.8s; }
-    .loader div:nth-child(6) { transform: rotate(300deg) translate(20px); animation-delay: 1s; }
-    
-    @keyframes rotate {
-        0% { opacity: 1; }
-        100% { opacity: 0; }
-    }
-    
-    @keyframes colorChange {
-        0% { background-color: rgba(255, 255, 255, 0.6); }
-        100% { background-color: rgba(0, 123, 255, 1); }
-    }
-    
-    .controls {
-        position: absolute;
-        bottom: 15px;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        padding-bottom: env(safe-area-inset-bottom);
-    }
-    
-    .control-button {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: white;
-        color: black;
-        border: 2px solid black;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 15px;
-        cursor: pointer;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    }
-    
-    .end-call {
-        color: darkred;
-        border-color: darkred;
-    }
-    
-    @media (max-width: 600px) and (orientation: portrait) {
-        .app-container {
-            flex-direction: column;
-        }
-        .main-video,
-        .small-video {
-            height: 50%;
-        }
-    
-        #localstream, #remotestream {
-            object-fit: cover; 
-            height: 100%;
-        }
-    
-        .controls {
-            position: absolute;
-            bottom: 10px;
-        }
-    }
-    
-    @media (min-width: 601px) {
-        .app-container {
-            flex-direction: row; 
-            justify-content: space-evenly; 
-        }
-    
-        .main-video,
-        .small-video {
-            width: 48%; 
-            height: 50%; 
-        }
-    }
+    background: #ffffff;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -187,8 +40,6 @@ body {
     margin: 0;
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
 }
-
-
 
 .video-box video {
     width: 100%;
@@ -215,8 +66,6 @@ body {
     border-radius: 50%;
     animation: rotate 1.2s linear infinite, colorChange 1.2s linear infinite;
 }
-
-
 
 .loader div:nth-child(1) { transform: rotate(0deg) translate(20px); animation-delay: 0s; }
 .loader div:nth-child(2) { transform: rotate(60deg) translate(20px); animation-delay: 0.2s; }
@@ -246,26 +95,65 @@ body {
 }
 
 .control-button {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: white;
-    color: black;
-    border: 2px solid black;
+    width: 70px; /* Increased size */
+    height: 70px; /* Increased size */
+    background: none;
+    border: none;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 15px;
     cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    background-size: 70%;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
+#mutebtn {
+    background-image: url('./Icons/Mic on Btn.svg');
+}
 
-.end-call {
+#mutebtn.muted {
+    background-image: url('./Icons/Mic off Btn.svg');
+}
+
+#hidebtn {
+    background-image: url('./Icons/Video on Btn.svg');
+}
+
+#hidebtn.hidden {
+    background-image: url('./Icons/Video off Btn.svg');
+}
+
+#switchbtn {
+    background-image: url('./Icons/Switch camera Btn.svg');
+}
+
+#endbtn {
+    background-image: url('./Icons/NextBtn.svg');
     color: darkred;
     border-color: darkred;
 }
 
+.mic-off-icon, .video-off-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: none; /* Hidden by default */
+}
+
+.mic-off-icon {
+    background-image: url('./Icons/Mic off Btn.svg');
+}
+
+.video-off-icon {
+    background-image: url('./Icons/Video off Btn.svg');
+}
 
 .play-button {
     position: absolute;
@@ -311,18 +199,17 @@ body {
         object-fit: cover; 
         height: 100%;
     }
-
 }
+
 @media (min-width: 601px) {
     .app-container {
-        flex-direction: row; 
-        justify-content: space-evenly; 
+        flex-direction: row; /* Change to row layout */
     }
 
     .main-video,
     .small-video {
-        width: 48%; 
-        height: 100%; 
+        width: 48%; /* Adjust width to fit side by side */
+        height: 100%; /* Adjust height */
     }
 }
 
