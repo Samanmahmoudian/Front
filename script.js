@@ -273,7 +273,7 @@ endBtn.addEventListener('click', async () => {
        await peerConnection.close();
     }
     
-    socket.emit('endcall' , {endcall:'ended' , to:partnerId})
+    await socket.emit('endcall' , {endcall:'ended' , to:partnerId})
     remotestream.srcObject = null
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
