@@ -288,7 +288,8 @@ hideBtn.addEventListener('click', () => {
 });
 
 switchBtn.addEventListener('click', async () => {
-    camera_view = await camera_view == 'user' ? 'environment' : 'user';
+    camera_view = camera_view == 'user' ? 'environment' : 'user';
+    await socket.emit('facingmode' , {facingmode:camera_view, to: partnerId});
     if(peerConnection){
         try{
             await shareMedia()
@@ -365,5 +366,4 @@ setAudioOutputToSpeaker();
 
 socket.on('facingmode', async (facingmode) => {
     remoteFacingMode = await facingmode;
-    alert('recived');
 });
