@@ -281,6 +281,7 @@ switchBtn.addEventListener('click', async () => {
             senders.forEach(sender => {
                 if (sender.track.kind === "video") {
                     sender.replaceTrack(stream.getVideoTracks()[0]);
+                    console.log(stream.getVideoTracks()[0])
                 }
                 if (sender.track.kind === "audio") {
                     sender.replaceTrack(stream.getAudioTracks()[0]);
