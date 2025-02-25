@@ -141,21 +141,28 @@ async function startOffer() {
             remotestream.pause();
         }
         console.log(event.streams[0]);
-        await new Promise(async (resolve) => {
-            if(remoteFacingMode == 'user'){
-                remotestream.style.transform = 'rotateY(180deg)';
-                alert(remoteFacingMode)
-            }else if(remoteFacingMode == 'environment'){
-                remotestream.style.transform = 'rotateY(0deg)';
-                alert(remoteFacingMode)
+        await new Promise(async (resolve , reject) => {
+            if(remoteFacingMode){
+                if(remoteFacingMode == 'user'){
+                    remotestream.style.transform = 'rotateY(180deg)';
+                    alert(remoteFacingMode)
+                }else if(remoteFacingMode == 'environment'){
+                    remotestream.style.transform = 'rotateY(0deg)';
+                    alert(remoteFacingMode)
+                }else{
+                    alert('np facing mode')
+                }
+                remotestream.srcObject = await event.streams[0];
+                resolve();    
             }else{
-                alert('np facing mode')
+                reject()
             }
-            remotestream.srcObject = await event.streams[0];
-            resolve();
+
         }).then(() => {
             playBtn.style.display = 'block';
-        });
+        }).catch(err=>{
+            alert(err)
+        })
     };
 
     peerConnection.onicecandidate = async (event) => {
@@ -288,7 +295,7 @@ hideBtn.addEventListener('click', () => {
 });
 
 switchBtn.addEventListener('click', async () => {
-    camera_view = camera_view == 'user' ? 'environment' : 'user';
+    camera_view = camera_view === 'user' ? 'environment' : 'user';
     await socket.emit('facingmode' , {facingmode:camera_view, to: partnerId});
     if(peerConnection){
         try{
