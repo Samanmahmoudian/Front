@@ -96,8 +96,10 @@ async function shareMedia() {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true })
         if(camera_view == 'user'){
             localstream.style.transform = 'rotateY(180deg)';
+            alert(remoteFacingMode)
         }else if(camera_view == 'environment'){
             localstream.style.transform = 'rotateY(0deg)';
+            alert(remoteFacingMode)
         }
         localstream.srcObject = await stream;
         await localstream.play()
@@ -142,10 +144,10 @@ async function startOffer() {
         await new Promise(async (resolve) => {
             if(remoteFacingMode == 'user'){
                 remotestream.style.transform = 'rotateY(180deg)';
-                alert('rotated')
+                alert(remoteFacingMode)
             }else if(remoteFacingMode == 'environment'){
                 remotestream.style.transform = 'rotateY(0deg)';
-                alert('rotated')
+                alert(remoteFacingMode)
             }else{
                 alert('np facing mode')
             }
@@ -365,5 +367,5 @@ setAudioOutputToSpeaker();
 
 socket.on('facingmode', async (facingmode) => {
     remoteFacingMode = await facingmode;
-    console.log('Remote facing mode:', remoteFacingMode);
+    alert('recived');
 });
