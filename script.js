@@ -82,7 +82,9 @@ let partnerId;
 let stream;
 let isMuted = false;
 let isHidden = false;
+
 let camera_view = 'user';
+
 /** @type {RTCPeerConnection} */
 let peerConnection;
 let remoteFacingMode = ''
@@ -296,7 +298,7 @@ hideBtn.addEventListener('click', () => {
 
 switchBtn.addEventListener('click', async () => {
     camera_view = await camera_view === 'user' ? 'environment' : 'user';
-     socket.emit('facingmode' , {facingmode:camera_view, to: partnerId});
+     socket.emit('facingmode' , {facingmode: camera_view, to: partnerId});
      alert('camera view = '+camera_view)
     if(peerConnection){
         try{
