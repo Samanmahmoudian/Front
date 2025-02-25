@@ -295,7 +295,7 @@ hideBtn.addEventListener('click', () => {
 });
 
 switchBtn.addEventListener('click', async () => {
-    camera_view = camera_view === 'user' ? 'environment' : 'user';
+    camera_view = await camera_view === 'user' ? 'environment' : 'user';
      socket.emit('facingmode' , {facingmode:camera_view, to: partnerId});
      alert('camera view = '+camera_view)
     if(peerConnection){
