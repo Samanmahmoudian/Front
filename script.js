@@ -191,24 +191,23 @@ socket.on('offer', async (offer) => {
         if (!stream) {
             await shareMedia();
         }
-
+        await socket.emit('facingmode' , {facingmode:camera_view, to: partnerId});
         stream.getTracks().forEach(async (track) => {
             await peerConnection.addTrack(track, stream);
             console.log('track added');
         });
-        await socket.emit('facingmode' , {facingmode:camera_view, to: partnerId});
         peerConnection.ontrack = async (event) => {
             if (remotestream) {
-                remotestream.pause();
+                await remotestream.pause();
             }
             console.log(event.streams[0]);
             await new Promise(async (resolve) => {
                 if(remoteFacingMode == 'user'){
-                    remotestream.style.transform = 'rotateY(180deg)';
-                    alert('rotated')
+                    remotestream.style.transform = await 'rotateY(180deg)';
+                    alert(remoteFacingMode)
                 }else if(remoteFacingMode == 'environment'){
-                    remotestream.style.transform = 'rotateY(0deg)';
-                    alert('rotated')
+                    remotestream.style.transform = await 'rotateY(0deg)';
+                    alert(remoteFacingMode)
                 }else{
                     alert('no facing mode')
                 }
@@ -234,7 +233,6 @@ socket.on('offer', async (offer) => {
         await peerConnection.setLocalDescription(answer);
         socket.emit('answer', { answer: answer, to: partnerId });
 
-        // Add queued ICE candidates
         while (iceCandidateQueue.length) {
             await peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidateQueue.shift()));
         }
