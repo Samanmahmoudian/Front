@@ -85,7 +85,7 @@ let isHidden = false;
 let camera_view = 'user';
 /** @type {RTCPeerConnection} */
 let peerConnection;
-
+let remoteFacingMode = ''
 async function shareMedia() {
     try {
         if(localstream.srcObject){
@@ -133,12 +133,18 @@ async function startOffer() {
         await peerConnection.addTrack(track, stream);
         console.log('track added');
     });
+    await socket.emit('facingmode' , stream.getVideoTracks()[0].getSettings().facingMode);
     peerConnection.ontrack = async (event) => {
         if (remotestream) {
             remotestream.pause();
         }
         console.log(event.streams[0]);
         await new Promise(async (resolve) => {
+            if(remoteFacingMode == 'user'){
+                remotestream.style.transform = 'rotateY(180deg)';
+            }else if(remoteFacingMode == 'environment'){
+                remotestream.style.transform = 'rotateY(0deg)';
+            }
             remotestream.srcObject = await event.streams[0];
             resolve();
         }).then(() => {
@@ -191,6 +197,11 @@ socket.on('offer', async (offer) => {
             }
             console.log(event.streams[0]);
             await new Promise(async (resolve) => {
+                if(remoteFacingMode == 'user'){
+                    remotestream.style.transform = 'rotateY(180deg)';
+                }else if(remoteFacingMode == 'environment'){
+                    remotestream.style.transform = 'rotateY(0deg)';
+                }
                 remotestream.srcObject = await event.streams[0];
                 resolve();
             }).then(() => {
@@ -346,3 +357,8 @@ async function setAudioOutputToSpeaker() {
     }
 }
 setAudioOutputToSpeaker();
+
+socket.on('facingmode', async (facingmode) => {
+    remoteFacingMode = await facingmode;
+    console.log('Remote facing mode:', facingmode);
+});
