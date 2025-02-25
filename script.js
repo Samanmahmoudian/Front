@@ -133,7 +133,7 @@ async function startOffer() {
         await peerConnection.addTrack(track, stream);
         console.log('track added');
     });
-    await socket.emit('facingmode' , {facingmode:stream.getVideoTracks()[0].getSettings().facingMode, to: partnerId});
+    await socket.emit('facingmode' , {facingmode:camera_view, to: partnerId});
     peerConnection.ontrack = async (event) => {
         if (remotestream) {
             remotestream.pause();
@@ -142,8 +142,12 @@ async function startOffer() {
         await new Promise(async (resolve) => {
             if(remoteFacingMode == 'user'){
                 remotestream.style.transform = 'rotateY(180deg)';
+                alert('rotated')
             }else if(remoteFacingMode == 'environment'){
                 remotestream.style.transform = 'rotateY(0deg)';
+                alert('rotated')
+            }else{
+                alert('np facing mode')
             }
             remotestream.srcObject = await event.streams[0];
             resolve();
@@ -190,7 +194,7 @@ socket.on('offer', async (offer) => {
             await peerConnection.addTrack(track, stream);
             console.log('track added');
         });
-        await socket.emit('facingmode' , {facingmode:stream.getVideoTracks()[0].getSettings().facingMode, to: partnerId});
+        await socket.emit('facingmode' , {facingmode:camera_view, to: partnerId});
         peerConnection.ontrack = async (event) => {
             if (remotestream) {
                 remotestream.pause();
@@ -199,8 +203,12 @@ socket.on('offer', async (offer) => {
             await new Promise(async (resolve) => {
                 if(remoteFacingMode == 'user'){
                     remotestream.style.transform = 'rotateY(180deg)';
+                    alert('rotated')
                 }else if(remoteFacingMode == 'environment'){
                     remotestream.style.transform = 'rotateY(0deg)';
+                    alert('rotated')
+                }else{
+                    alert('no facing mode')
                 }
                 remotestream.srcObject = await event.streams[0];
                 resolve();
@@ -282,9 +290,6 @@ hideBtn.addEventListener('click', () => {
 switchBtn.addEventListener('click', async () => {
     camera_view = await camera_view == 'user' ? 'environment' : 'user';
     if(peerConnection){
-        if (stream) {
-            stream.getVideoTracks().forEach(track => track.stop());
-        }
         try{
             await shareMedia()
             
@@ -360,5 +365,5 @@ setAudioOutputToSpeaker();
 
 socket.on('facingmode', async (facingmode) => {
     remoteFacingMode = await facingmode;
-    console.log('Remote facing mode:', facingmode);
+    console.log('Remote facing mode:', remoteFacingMode);
 });
