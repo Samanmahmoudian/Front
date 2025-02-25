@@ -133,7 +133,7 @@ async function startOffer() {
         await peerConnection.addTrack(track, stream);
         console.log('track added');
     });
-    await socket.emit('facingmode' , stream.getVideoTracks()[0].getSettings().facingMode);
+    await socket.emit('facingmode' , {facingmode:stream.getVideoTracks()[0].getSettings().facingMode, to: partnerId});
     peerConnection.ontrack = async (event) => {
         if (remotestream) {
             remotestream.pause();
@@ -190,7 +190,7 @@ socket.on('offer', async (offer) => {
             await peerConnection.addTrack(track, stream);
             console.log('track added');
         });
-
+        await socket.emit('facingmode' , {facingmode:stream.getVideoTracks()[0].getSettings().facingMode, to: partnerId});
         peerConnection.ontrack = async (event) => {
             if (remotestream) {
                 remotestream.pause();
