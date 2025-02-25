@@ -94,7 +94,11 @@ async function shareMedia() {
             localstream.srcObject = await null
         }
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true })
-        await stream.getVideoTracks().forEach(track => track.getSettings());
+        if(camera_view == 'user'){
+            localstream.style.transform = 'rotateY(180deg)';
+        }else if(camera_view == 'environment'){
+            localstream.style.transform = 'rotateY(0deg)';
+        }
         localstream.srcObject = await stream;
         await localstream.play()
         }catch(error) {
