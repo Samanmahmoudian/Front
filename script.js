@@ -88,27 +88,16 @@ let peerConnection;
 
 async function shareMedia() {
     try {
-        try{
-            if(localstream){
-                localstream.pause()
-            }
-        }catch{
-            alert('if not working')
-        }
-        try{
-            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true })
-            localstream.srcObject = await stream;
-        }catch{
-            alert('stream not working')
-        }
-        try{
-            localstream.play()
-        }catch{
-            alert('play not working')
-        }
         
-        
-    } catch(error) {
+        if(localstream){
+            localstream.pause()
+            localstream.srcObject = null
+            stream = null
+        }
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true })
+        localstream.srcObject = await stream;
+        localstream.play()
+        }catch(error) {
         alert(error);
     }
 }
