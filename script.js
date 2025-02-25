@@ -88,11 +88,10 @@ let peerConnection;
 
 async function shareMedia() {
     try {
-        
-        if(localstream){
+        if(localstream.srcObject){
             localstream.pause()
+            stream.getTracks().forEach(track => track.stop());
             localstream.srcObject = null
-            stream = null
         }
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true })
         localstream.srcObject = await stream;
@@ -113,7 +112,6 @@ socket.on('offer_state', async (offer) => {
     if (offer.state == 'ready') {
         partnerId = await offer.partnerId;
         console.log('Your partner id is: ' + offer.partnerId);
-        // await startDataChannel();
         await startOffer();
     } else if (offer.state == 'connected') {
         partnerId = await offer.partnerId;
