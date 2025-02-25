@@ -296,7 +296,8 @@ hideBtn.addEventListener('click', () => {
 
 switchBtn.addEventListener('click', async () => {
     camera_view = camera_view === 'user' ? 'environment' : 'user';
-    await socket.emit('facingmode' , {facingmode:camera_view, to: partnerId});
+     socket.emit('facingmode' , {facingmode:camera_view, to: partnerId});
+     alert('camera view = '+camera_view)
     if(peerConnection){
         try{
             await shareMedia()
