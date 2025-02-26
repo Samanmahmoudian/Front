@@ -137,7 +137,7 @@ async function startOffer() {
     });
 
     peerConnection.ontrack = async (event) => {
-        if (remotestream) {
+        if (remotestream.played) {
             remotestream.pause();
         }
         console.log(event.streams[0]);
@@ -191,7 +191,7 @@ socket.on('offer', async (offer) => {
             console.log('track added');
         });
         peerConnection.ontrack = async (event) => {
-            if (remotestream) {
+            if (remotestream.played) {
                 remotestream.pause();
             }
             console.log(event.streams[0]);
@@ -253,7 +253,7 @@ async function endpeer() {
          peerConnection.close();
     }
     const sender = peerConnection.getSenders();
-    if(sender.track) {
+    if(sender) {
         sender.forEach(sender => {
             peerConnection.removeTrack(sender);
         });
@@ -306,7 +306,7 @@ nextBtn.addEventListener('click', async () => {
          peerConnection.close();
     }
     const sender = peerConnection.getSenders();
-    if(sender.track) {
+    if(sender) {
         sender.forEach(sender => {
             peerConnection.removeTrack(sender);
         });
