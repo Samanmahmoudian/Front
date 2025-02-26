@@ -92,11 +92,12 @@ let peerConnection;
 let remoteFacingMode = 'user'
 async function shareMedia() {
     try {
-        localstream.onplaying = async()=>{
+        if(localstream.srcObject.active){
             await stream.getTracks().forEach(track => track.stop());
+            await localstream.srcObject.getTracks().forEach(track => track.stop());
             localstream.srcObject = await null
         }
-        
+
         stream = navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true })
         localstream.srcObject = await stream;
         localstream.play()
