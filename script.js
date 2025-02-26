@@ -92,16 +92,16 @@ let peerConnection;
 let remoteFacingMode = 'user'
 
 async function shareMedia() {
-    if(stream){
-        stream.getTracks().forEach(track => track.stop());
-        localstream.srcObject = null;
-    }
     try {
+        if(stream){
+            await stream.getTracks().forEach(track => track.stop());
+            localstream.srcObject = await null;
+        }
         stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode: camera_view } , audio: true })
             localstream.srcObject = await stream;
             localstream.play()
         }catch(error) {
-        alert('can not share media: ', error);
+        alert('Can not share media: ', error);
     }
 }
 shareMedia();
@@ -127,7 +127,7 @@ async function startOffer() {
     if (!stream) {
         await shareMedia();
     }
-    await stream.getTracks().forEach(async (track) => {
+    stream.getTracks().forEach(async (track) => {
         await peerConnection.addTrack(track, stream);
         console.log('track added');
     });
@@ -137,7 +137,7 @@ async function startOffer() {
             remotestream.pause();
         }
         console.log(event.streams[0]);
-        await new Promise(async (resolve ) => {
+        await new Promise(async (resolve) => {
             remotestream.srcObject = await event.streams[0];
             resolve()
         }).then(() => {
@@ -180,7 +180,7 @@ socket.on('offer', async (offer) => {
         if (!stream) {
             await shareMedia();
         }
-        await stream.getTracks().forEach(async (track) => {
+        stream.getTracks().forEach(async (track) => {
             await peerConnection.addTrack(track, stream);
             console.log('track added');
         });
