@@ -95,7 +95,7 @@ async function shareMedia() {
             await stream.getTracks().forEach(track => track.stop());
             localstream.srcObject = await null
         }
-        await socket.emit('facingmode' , {facingmode:camera_view, to: partnerId});
+
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true })
         if(camera_view == 'user'){
             localstream.style.transform = 'rotateY(180deg)';
@@ -144,23 +144,9 @@ async function startOffer() {
             remotestream.pause();
         }
         console.log(event.streams[0]);
-        await new Promise(async (resolve , reject) => {
-            if(remoteFacingMode){
-                if(remoteFacingMode == 'user'){
-                    remotestream.style.transform = 'rotateY(180deg)';
-                    alert(remoteFacingMode)
-                }else if(remoteFacingMode == 'environment'){
-                    remotestream.style.transform = 'rotateY(0deg)';
-                    alert(remoteFacingMode)
-                }else{
-                    alert('np facing mode')
-                }
-                remotestream.srcObject = await event.streams[0];
-                resolve();    
-            }else{
-                reject()
-            }
-
+        await new Promise(async (resolve ) => {
+            remotestream.srcObject = await event.streams[0];
+            resolve()
         }).then(() => {
             playBtn.style.display = 'block';
         }).catch(err=>{
@@ -298,8 +284,6 @@ hideBtn.addEventListener('click', () => {
 
 switchBtn.addEventListener('click', async () => {
     camera_view = await camera_view === 'user' ? 'environment' : 'user';
-     socket.emit('facingmode' , {facingmode: camera_view, to: partnerId});
-     alert('camera view = '+camera_view)
     if(peerConnection){
         try{
             await shareMedia()
