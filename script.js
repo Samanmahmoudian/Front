@@ -96,9 +96,11 @@ async function shareMedia() {
             await stream.getTracks().forEach(track => track.stop());
             localstream.srcObject = await null
         }
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true })
-        localstream.srcObject = await stream;
-        await localstream.play()
+        stream = navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true }).then(()=>{
+            localstream.srcObject = stream;
+            localstream.play()
+        })
+
         }catch(error) {
         alert('can not share media: ', error);
     }
