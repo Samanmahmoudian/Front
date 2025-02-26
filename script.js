@@ -250,7 +250,13 @@ socket.on('disconnected', async (messege) => {
 
 async function endpeer() {
     if (peerConnection) {
-        await peerConnection.close();
+         peerConnection.close();
+    }
+    const sender = peerConnection.getSenders();
+    if(sender.track) {
+        sender.forEach(sender => {
+            peerConnection.removeTrack(sender);
+        });
     }
 
     remotestream.srcObject = await null;
@@ -297,8 +303,15 @@ switchBtn.addEventListener('click', async () => {
 
 nextBtn.addEventListener('click', async () => {
     if(peerConnection) {
-        await peerConnection.close();
+         peerConnection.close();
     }
+    const sender = peerConnection.getSenders();
+    if(sender.track) {
+        sender.forEach(sender => {
+            peerConnection.removeTrack(sender);
+        });
+    }
+
     await socket.emit('nextcall', partnerId);
     partnerId = '';
     socket.emit('startnewcall');
