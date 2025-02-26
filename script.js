@@ -95,15 +95,7 @@ async function shareMedia() {
             await stream.getTracks().forEach(track => track.stop());
             localstream.srcObject = await null
         }
-
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true })
-        if(camera_view == 'user'){
-            localstream.style.transform = 'rotateY(180deg)';
-            alert(remoteFacingMode)
-        }else if(camera_view == 'environment'){
-            localstream.style.transform = 'rotateY(0deg)';
-            alert(remoteFacingMode)
-        }
         localstream.srcObject = await stream;
         await localstream.play()
         }catch(error) {
@@ -146,6 +138,7 @@ async function startOffer() {
         console.log(event.streams[0]);
         await new Promise(async (resolve ) => {
             remotestream.srcObject = await event.streams[0];
+            remotestream.play()
             resolve()
         }).then(() => {
             playBtn.style.display = 'block';
@@ -193,24 +186,18 @@ socket.on('offer', async (offer) => {
         });
         peerConnection.ontrack = async (event) => {
             if (remotestream) {
-                await remotestream.pause();
+                remotestream.pause();
             }
             console.log(event.streams[0]);
-            await new Promise(async (resolve) => {
-                if(remoteFacingMode == 'user'){
-                    remotestream.style.transform = await 'rotateY(180deg)';
-                    alert(remoteFacingMode)
-                }else if(remoteFacingMode == 'environment'){
-                    remotestream.style.transform = await 'rotateY(0deg)';
-                    alert(remoteFacingMode)
-                }else{
-                    alert('no facing mode')
-                }
+            await new Promise(async (resolve ) => {
                 remotestream.srcObject = await event.streams[0];
-                resolve();
+                remotestream.play()
+                resolve()
             }).then(() => {
                 playBtn.style.display = 'block';
-            });
+            }).catch(err=>{
+                alert(err)
+            })
         };
 
         peerConnection.onicecandidate = async (event) => {
