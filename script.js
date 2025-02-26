@@ -5,7 +5,9 @@ const remotestream = document.getElementById('remotestream');
 const muteBtn = document.getElementById('mutebtn');
 const switchBtn = document.getElementById('switchbtn');
 const nextBtn = document.getElementById('nextbtn');
-let startBtn = document.getElementById("startbtn");
+const startBtn = document.getElementById('startbtn');
+let playBtn = document.getElementById("playbutton");
+
 localstream.onplaying = function () {
     const loader = localstream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
@@ -50,27 +52,27 @@ const peerConnectionConfig = {
         { urls: "stun:stun.l.google.com:19302" },
         {
             urls: "stun:stun.relay.metered.ca:80",
-          },
-          {
+        },
+        {
             urls: "turn:global.relay.metered.ca:80",
             username: "bff881b65e7cda72364ea616",
             credential: "r93lIGVmjDZcQD5Y",
-          },
-          {
+        },
+        {
             urls: "turn:global.relay.metered.ca:80?transport=tcp",
             username: "bff881b65e7cda72364ea616",
             credential: "r93lIGVmjDZcQD5Y",
-          },
-          {
+        },
+        {
             urls: "turn:global.relay.metered.ca:443",
             username: "bff881b65e7cda72364ea616",
             credential: "r93lIGVmjDZcQD5Y",
-          },
-          {
+        },
+        {
             urls: "turns:global.relay.metered.ca:443?transport=tcp",
             username: "bff881b65e7cda72364ea616",
             credential: "r93lIGVmjDZcQD5Y",
-          },
+        },
     ],
 };
 
@@ -87,26 +89,24 @@ let camera_view = 'user';
 
 /** @type {RTCPeerConnection} */
 let peerConnection;
-let remoteFacingMode = 'user'
+let remoteFacingMode = 'user';
 
-let startBtnClicked = false;
 async function shareMedia() {
     try {
-        if(stream){
-            localstream.pause()
+        if (stream) {
+            localstream.pause();
             stream.getTracks().forEach(track => track.stop());
             localstream.srcObject = null;
         }
-        stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode: camera_view } , audio: true })
-            localstream.srcObject = stream;
-            if(localstream.ended || localstream.paused){
-                localstream.play()
-            }
-        }catch(error) {
-        alert('Can not share media: ', error);
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true });
+        localstream.srcObject = stream;
+        localstream.play();
+        console.log('Media shared successfully');
+    } catch (error) {
+        console.error('Can not share media:', error);
+        alert('Can not share media: ' + error.message);
     }
 }
-
 
 socket.on('my_id', (id) => {
     myId = id;
@@ -114,7 +114,9 @@ socket.on('my_id', (id) => {
 });
 
 socket.on('offer_state', async (offer) => {
-    peerConnection = new RTCPeerConnection(peerConnectionConfig);
+    if (!peerConnection || peerConnection.signalingState === 'closed') {
+        peerConnection = new RTCPeerConnection(peerConnectionConfig);
+    }
     if (offer.state == 'ready') {
         partnerId = await offer.partnerId;
         console.log('Your partner id is: ' + offer.partnerId);
@@ -133,7 +135,7 @@ async function startOffer() {
         await peerConnection.addTrack(track, stream);
         console.log('track added');
     });
-    
+
     peerConnection.ontrack = async (event) => {
         if (remotestream) {
             remotestream.pause();
@@ -141,10 +143,11 @@ async function startOffer() {
         console.log(event.streams[0]);
         await new Promise(async (resolve) => {
             remotestream.srcObject = await event.streams[0];
-            if(remotestream.ended || remotestream.paused){
-                remotestream.play()
+            if (remotestream.ended || remotestream.paused) {
+                remotestream.play();
             }
-        })
+            resolve();
+        });
     };
 
     peerConnection.onicecandidate = async (event) => {
@@ -177,6 +180,9 @@ socket.on('ice', async (ice) => {
 
 socket.on('offer', async (offer) => {
     try {
+        if (!peerConnection || peerConnection.signalingState === 'closed') {
+            peerConnection = new RTCPeerConnection(peerConnectionConfig);
+        }
         if (!stream) {
             await shareMedia();
         }
@@ -189,13 +195,13 @@ socket.on('offer', async (offer) => {
                 remotestream.pause();
             }
             console.log(event.streams[0]);
-            await new Promise(async (resolve ) => {
+            await new Promise(async (resolve) => {
                 remotestream.srcObject = await event.streams[0];
-                if(remotestream.ended || remotestream.paused){
-                    remotestream.play()
+                if (remotestream.ended || remotestream.paused) {
+                    remotestream.play();
                 }
-                
-            })
+                resolve();
+            });
         };
 
         peerConnection.onicecandidate = async (event) => {
@@ -223,6 +229,9 @@ socket.on('offer', async (offer) => {
 
 socket.on('answer', async (answer) => {
     try {
+        if (!peerConnection || peerConnection.signalingState === 'closed') {
+            peerConnection = new RTCPeerConnection(peerConnectionConfig);
+        }
         await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
 
         while (iceCandidateQueue.length) {
@@ -243,7 +252,7 @@ async function endpeer() {
     if (peerConnection) {
         await peerConnection.close();
     }
-    
+
     remotestream.srcObject = await null;
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
@@ -261,27 +270,27 @@ muteBtn.addEventListener('click', () => {
 
 switchBtn.addEventListener('click', async () => {
     camera_view = await camera_view === 'user' ? 'environment' : 'user';
-    if(peerConnection){
+    if (peerConnection) {
 
-        try{
-            await shareMedia()
+        try {
+            await shareMedia();
             const senders = peerConnection.getSenders();
             senders.forEach(sender => {
                 if (sender.track.kind === "video") {
                     sender.replaceTrack(stream.getVideoTracks()[0]);
-                    console.log(stream.getVideoTracks()[0])
+                    console.log(stream.getVideoTracks()[0]);
                 }
                 if (sender.track.kind === "audio") {
                     sender.replaceTrack(stream.getAudioTracks()[0]);
                 }
-            });    
-        }catch(error){
+            });
+        } catch (error) {
             alert('Failed to switch camera:', error);
-            switchBtn.click()
+            switchBtn.click();
         }
 
-    }else{
-        await shareMedia()
+    } else {
+        await shareMedia();
     }
 
 });
@@ -305,7 +314,6 @@ socket.on('nextcall', async (nextcall) => {
     await endpeer();
 });
 
-
 async function setAudioOutputToSpeaker() {
     if (typeof remotestream.sinkId !== 'undefined') {
         try {
@@ -320,14 +328,11 @@ async function setAudioOutputToSpeaker() {
 }
 setAudioOutputToSpeaker();
 
-startBtn.addEventListener('click', async() => {
+startBtn.addEventListener('click', async () => {
     startBtn.style.display = 'none';
     nextBtn.style.display = 'block';
     muteBtn.style.display = 'block';
     switchBtn.style.display = 'block';
-    await shareMedia()
+    await shareMedia();
     socket.emit('readytostart');
-    
-
-
 });
