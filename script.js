@@ -143,8 +143,8 @@ async function startOffer() {
         console.log(event.streams[0]);
         await new Promise(async (resolve) => {
             remotestream.srcObject = await event.streams[0];
-            if (remotestream.ended || remotestream.paused) {
-                remotestream.play();
+            if (!remotestream.played){
+                await remotestream.play();
             }
             resolve();
         });
@@ -192,13 +192,13 @@ socket.on('offer', async (offer) => {
         });
         peerConnection.ontrack = async (event) => {
             if (remotestream.played) {
-                remotestream.pause();
+                await remotestream.pause();
             }
             console.log(event.streams[0]);
             await new Promise(async (resolve) => {
                 remotestream.srcObject = await event.streams[0];
-                if (remotestream.ended || remotestream.paused) {
-                    remotestream.play();
+                if(!remotestream.played){
+                    await remotestream.play();
                 }
                 resolve();
             });
@@ -305,12 +305,7 @@ nextBtn.addEventListener('click', async () => {
     if(peerConnection) {
          peerConnection.close();
     }
-    const sender = peerConnection.getSenders();
-    if(sender) {
-        sender.forEach(sender => {
-            peerConnection.removeTrack(sender);
-        });
-    }
+
 
     await socket.emit('nextcall', partnerId);
     partnerId = '';
