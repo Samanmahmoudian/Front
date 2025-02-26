@@ -138,7 +138,6 @@ async function startOffer() {
         console.log(event.streams[0]);
         await new Promise(async (resolve ) => {
             remotestream.srcObject = await event.streams[0];
-            remotestream.play()
             resolve()
         }).then(() => {
             playBtn.style.display = 'block';
@@ -191,7 +190,6 @@ socket.on('offer', async (offer) => {
             console.log(event.streams[0]);
             await new Promise(async (resolve ) => {
                 remotestream.srcObject = await event.streams[0];
-                remotestream.play()
                 resolve()
             }).then(() => {
                 playBtn.style.display = 'block';
