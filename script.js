@@ -124,7 +124,7 @@ async function startOffer() {
     if (!stream) {
         await shareMedia();
     }
-    
+    await socket.emit('faceingmode', { facingmode: camera_view, to: partnerId });
     stream.getTracks().forEach(async (track) => {
         await peerConnection.addTrack(track, stream);
         console.log('track added');
@@ -178,6 +178,7 @@ socket.on('offer', async (offer) => {
         if (!stream) {
             await shareMedia();
         }
+        await socket.emit('faceingmode', { facingmode: camera_view, to: partnerId });
         stream.getTracks().forEach(async (track) => {
             await peerConnection.addTrack(track, stream);
             console.log('track added');
@@ -268,6 +269,7 @@ hideBtn.addEventListener('click', () => {
 
 switchBtn.addEventListener('click', async () => {
     camera_view = await camera_view === 'user' ? 'environment' : 'user';
+    await socket.emit('faceingmode', { facingmode: camera_view, to: partnerId });
     if(peerConnection){
         try{
             await shareMedia()
@@ -343,5 +345,6 @@ async function setAudioOutputToSpeaker() {
 setAudioOutputToSpeaker();
 
 socket.on('facingmode', async (facingmode) => {
-    alert(facingmode)
+    remoteFacingMode = facingmode;
+    alert(remoteFacingMode)
 });
