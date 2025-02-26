@@ -20,10 +20,11 @@ body {
     z-index: 3;
     background: #007bff;
     color: white;
-    font-size: 18px;
+    font-size: 22px;
     font-weight: bold;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     border: none;
-    padding: 12px 24px;
+    padding: 16px 32px;
     border-radius: 30px;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
