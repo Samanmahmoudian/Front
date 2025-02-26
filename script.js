@@ -345,6 +345,5 @@ async function setAudioOutputToSpeaker() {
 setAudioOutputToSpeaker();
 
 socket.on('facingmode', async (facingmode) => {
-    remoteFacingMode = facingmode;
-    alert(remoteFacingMode)
+    alert(facingmode)
 });
