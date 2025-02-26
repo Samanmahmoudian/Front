@@ -119,9 +119,8 @@ body {
 }
 
 .control-button {
-    width: 70px; /* Increased size */
-    height: 70px; /* Increased size */
-    background: none;
+    width: 55px; 
+    height: 55px; 
     border: none;
     display: flex;
     justify-content: center;
@@ -130,13 +129,34 @@ body {
     background-size: 70%;
     background-repeat: no-repeat;
     background-position: center;
+    background-color: white; /* Add white background */
+    border-radius: 50%; /* Make the background circular */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Optional: Add shadow for better visibility */
 }
 
 .control-button img {
-    width: 100%; /* Adjust the size of the icons */
-    height: 100%;
+    width: 70%; /* Adjust the size of the icons */
+    height: 70%;
 }
 
+.play-button {
+    position: absolute;
+    z-index: 2;
+    background: none; /* No background color */
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    width: 100%; /* Cover the entire loader */
+    height: 100%; /* Cover the entire loader */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.play-button img {
+    width: 70px; /* Increased size of the play icon */
+    height: 70px;
+}
 
 #localstream, #remotestream {
     width: 100%;

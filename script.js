@@ -3,7 +3,6 @@ const localstream = document.getElementById('localstream');
 /** @type {HTMLVideoElement} */
 const remotestream = document.getElementById('remotestream');
 const muteBtn = document.getElementById('mutebtn');
-const hideBtn = document.getElementById('hidebtn');
 const switchBtn = document.getElementById('switchbtn');
 const nextBtn = document.getElementById('nextbtn');
 let startBtn = document.getElementById("startbtn");
@@ -140,7 +139,9 @@ async function startOffer() {
         console.log(event.streams[0]);
         await new Promise(async (resolve) => {
             remotestream.srcObject = await event.streams[0];
-            await remotestream.play()
+            if(remotestream.ended || remotestream.paused){
+                remotestream.play()
+            }
         })
     };
 
@@ -188,7 +189,9 @@ socket.on('offer', async (offer) => {
             console.log(event.streams[0]);
             await new Promise(async (resolve ) => {
                 remotestream.srcObject = await event.streams[0];
-                remotestream.play()
+                if(remotestream.ended || remotestream.paused){
+                    remotestream.play()
+                }
                 
             })
         };
@@ -246,7 +249,7 @@ async function endpeer() {
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
     }
-    socket.emit('startnewcall', 'done');
+    socket.emit('startnewcall');
     partnerId = '';
 }
 
@@ -254,12 +257,6 @@ muteBtn.addEventListener('click', () => {
     isMuted = !isMuted;
     stream.getAudioTracks().forEach(track => track.enabled = !isMuted);
     muteBtn.querySelector('img').src = isMuted ? './Icons/Mic off Btn.svg' : './Icons/Mic on Btn.svg';
-});
-
-hideBtn.addEventListener('click', () => {
-    isHidden = !isHidden;
-    stream.getVideoTracks().forEach(track => track.enabled = !isHidden);
-    hideBtn.querySelector('img').src = isHidden ? './Icons/Video off Btn.svg' : './Icons/Video on Btn.svg';
 });
 
 switchBtn.addEventListener('click', async () => {
@@ -291,16 +288,17 @@ switchBtn.addEventListener('click', async () => {
 
 nextBtn.addEventListener('click', async () => {
     if (peerConnection) {
-        await peerConnection.close();
+        peerConnection.close();
     }
     await socket.emit('nextcall', partnerId);
+    partnerId = '';
+    socket.emit('startnewcall');
     remotestream.srcObject = null;
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
     }
-    partnerId = '';
-    socket.emit('startnewcall', 'ended');
+
 });
 
 socket.on('nextcall', async (nextcall) => {
@@ -328,7 +326,6 @@ startBtn.addEventListener('click', async() => {
     startBtn.style.display = 'none';
     nextBtn.style.display = 'block';
     muteBtn.style.display = 'block';
-    hideBtn.style.display = 'block';
     switchBtn.style.display = 'block';
     await shareMedia()
     socket.emit('readytostart');
