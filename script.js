@@ -93,7 +93,7 @@ let remoteFacingMode = 'user'
 async function shareMedia() {
     try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true })
-            localstream.srcObject = await Stream;
+            localstream.srcObject = await stream;
             localstream.play()
         }catch(error) {
         alert('can not share media: ', error);
