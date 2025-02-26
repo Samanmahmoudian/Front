@@ -95,6 +95,7 @@ async function shareMedia() {
             await stream.getTracks().forEach(track => track.stop());
             localstream.srcObject = await null
         }
+        await socket.emit('facingmode' , {facingmode:camera_view, to: partnerId});
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true })
         if(camera_view == 'user'){
             localstream.style.transform = 'rotateY(180deg)';
@@ -132,7 +133,7 @@ async function startOffer() {
     if (!stream) {
         await shareMedia();
     }
-    await socket.emit('facingmode' , {facingmode:camera_view, to: partnerId});
+    
     stream.getTracks().forEach(async (track) => {
         await peerConnection.addTrack(track, stream);
         console.log('track added');
@@ -200,7 +201,6 @@ socket.on('offer', async (offer) => {
         if (!stream) {
             await shareMedia();
         }
-        await socket.emit('facingmode' , {facingmode:camera_view, to: partnerId});
         stream.getTracks().forEach(async (track) => {
             await peerConnection.addTrack(track, stream);
             console.log('track added');
