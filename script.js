@@ -6,7 +6,6 @@ const muteBtn = document.getElementById('mutebtn');
 const hideBtn = document.getElementById('hidebtn');
 const switchBtn = document.getElementById('switchbtn');
 const nextBtn = document.getElementById('nextbtn');
-let playBtn = document.getElementById("playbutton");
 let startBtn = document.getElementById("startbtn");
 localstream.onplaying = function () {
     const loader = localstream.nextElementSibling;
@@ -95,13 +94,13 @@ let startBtnClicked = false;
 async function shareMedia() {
     try {
         if(stream){
-            // localstream.pause()
+            localstream.pause()
             stream.getTracks().forEach(track => track.stop());
             localstream.srcObject = null;
         }
         stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode: camera_view } , audio: true })
             localstream.srcObject = stream;
-            // localstream.play()
+            localstream.play()
         }catch(error) {
         alert('Can not share media: ', error);
     }
@@ -135,16 +134,15 @@ async function startOffer() {
     });
     
     peerConnection.ontrack = async (event) => {
-        // if (remotestream) {
-        //     remotestream.pause();
-        // }
+        if (remotestream) {
+            remotestream.pause();
+        }
         console.log(event.streams[0]);
         await new Promise(async (resolve) => {
             remotestream.srcObject = await event.streams[0];
             resolve()
         }).then(() => {
-            playBtn.style.display = 'block';
-            playBtn.click()
+            remotestream.play()
         }).catch(err=>{
             alert(err)
         })
@@ -188,16 +186,15 @@ socket.on('offer', async (offer) => {
             console.log('track added');
         });
         peerConnection.ontrack = async (event) => {
-            // if (remotestream) {
-            //     remotestream.pause();
-            // }
+            if (remotestream) {
+                remotestream.pause();
+            }
             console.log(event.streams[0]);
             await new Promise(async (resolve ) => {
                 remotestream.srcObject = await event.streams[0];
                 resolve()
             }).then(() => {
-                playBtn.style.display = 'block';
-                playBtn.click()
+                remotestream.play()
             }).catch(err=>{
                 alert(err)
             })
@@ -240,7 +237,6 @@ socket.on('answer', async (answer) => {
 
 socket.on('disconnected', async (messege) => {
     if (partnerId == messege) {
-        playBtn.style.display = 'none'
         await endpeer();
     }
 });
@@ -251,7 +247,6 @@ async function endpeer() {
         
     }
     remotestream.srcObject = null;
-    playBtn.style.display = await 'none'
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
@@ -302,7 +297,6 @@ switchBtn.addEventListener('click', async () => {
 nextBtn.addEventListener('click', async () => {
     if (peerConnection) {
         await peerConnection.close();
-        playBtn.style.display = 'none';
     }
     await socket.emit('nextcall', partnerId);
     remotestream.srcObject = null;
@@ -320,14 +314,6 @@ socket.on('nextcall', async (nextcall) => {
     }
 });
 
-playBtn.addEventListener("click", () => {
-    if (remotestream) {
-        // remotestream.play();
-        playBtn.style.display = 'none';
-    }else{
-        playBtn.style.display = 'none';
-    }
-});
 
 async function setAudioOutputToSpeaker() {
     if (typeof remotestream.sinkId !== 'undefined') {

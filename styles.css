@@ -58,7 +58,6 @@ body {
     width: 98%;
     height: 70%;
     background: #000000;
-    border-radius: 15px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -138,24 +137,6 @@ body {
     height: 100%;
 }
 
-.play-button {
-    position: absolute;
-    z-index: 2;
-    background: none; /* No background color */
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    width: 100%; /* Cover the entire loader */
-    height: 100%; /* Cover the entire loader */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.play-button img {
-    width: 70px; /* Increased size of the play icon */
-    height: 70px;
-}
 
 #localstream, #remotestream {
     width: 100%;
