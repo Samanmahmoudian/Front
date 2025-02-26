@@ -296,7 +296,9 @@ switchBtn.addEventListener('click', async () => {
 });
 
 nextBtn.addEventListener('click', async () => {
-
+    if(peerConnection) {
+        await peerConnection.close();
+    }
     await socket.emit('nextcall', partnerId);
     partnerId = '';
     socket.emit('startnewcall');
