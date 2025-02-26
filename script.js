@@ -241,10 +241,7 @@ socket.on('disconnected', async (messege) => {
 
 async function endpeer() {
     if (peerConnection) {
-        await peerConnection.close();
-        if(remotestream){
-        remotestream.pause()  
-        }
+        peerConnection.close();
     }
     remotestream.srcObject = null;
     const loader = remotestream.nextElementSibling;
