@@ -80,6 +80,7 @@ let myId;
 let partnerId;
 /**@type {MediaStream} */
 let stream;
+
 let isMuted = false;
 let isHidden = false;
 
@@ -87,6 +88,7 @@ let camera_view = 'user';
 
 /** @type {RTCPeerConnection} */
 let peerConnection;
+
 let remoteFacingMode = 'user'
 async function shareMedia() {
     try {
