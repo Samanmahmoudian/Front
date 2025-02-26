@@ -15,6 +15,30 @@ body {
     position: relative;
 }
 
+.start-button {
+    position: absolute;
+    z-index: 3;
+    background: #007bff;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.start-button:hover {
+    background: #0056b3;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+.start-button:active {
+    transform: scale(0.95);
+}
+
 .app-container {
     width: 100%;
     height: 100%;

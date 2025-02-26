@@ -7,7 +7,7 @@ const hideBtn = document.getElementById('hidebtn');
 const switchBtn = document.getElementById('switchbtn');
 const nextBtn = document.getElementById('nextbtn');
 let playBtn = document.getElementById("playbutton");
-
+let startBtn = document.getElementById("startbtn");
 localstream.onplaying = function () {
     const loader = localstream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
@@ -91,6 +91,7 @@ let camera_view = 'user';
 let peerConnection;
 let remoteFacingMode = 'user'
 
+let startBtnClicked = false;
 async function shareMedia() {
     try {
         if(stream){
@@ -105,7 +106,7 @@ async function shareMedia() {
         alert('Can not share media: ', error);
     }
 }
-shareMedia();
+
 
 socket.on('my_id', (id) => {
     myId = id;
@@ -342,3 +343,15 @@ async function setAudioOutputToSpeaker() {
 }
 setAudioOutputToSpeaker();
 
+startBtn.addEventListener('click', async() => {
+    startBtn.style.display = 'none';
+    nextBtn.style.display = 'block';
+    muteBtn.style.display = 'block';
+    hideBtn.style.display = 'block';
+    switchBtn.style.display = 'block';
+    await shareMedia()
+    socket.emit('readytostart');
+    
+
+
+});
