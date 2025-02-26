@@ -91,7 +91,6 @@ let remoteFacingMode = 'user'
 async function shareMedia() {
     try {
         if(localstream.srcObject){
-            await localstream.pause()
             await stream.getTracks().forEach(track => track.stop());
             localstream.srcObject = await null
         }
@@ -99,7 +98,7 @@ async function shareMedia() {
         localstream.srcObject = await stream;
         await localstream.play()
         }catch(error) {
-        alert(error);
+        alert('can not share media: ', error);
     }
 }
 shareMedia();
@@ -269,7 +268,6 @@ hideBtn.addEventListener('click', () => {
 
 switchBtn.addEventListener('click', async () => {
     camera_view = await camera_view === 'user' ? 'environment' : 'user';
-    socket.emit('facingmode', {facingmode: camera_view, to: partnerId});
     if(peerConnection){
         try{
             await shareMedia()
