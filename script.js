@@ -143,6 +143,7 @@ async function startOffer() {
             resolve()
         }).then(() => {
             playBtn.style.display = 'block';
+            playBtn.click()
         }).catch(err=>{
             alert(err)
         })
@@ -195,6 +196,7 @@ socket.on('offer', async (offer) => {
                 resolve()
             }).then(() => {
                 playBtn.style.display = 'block';
+                playBtn.click()
             }).catch(err=>{
                 alert(err)
             })
