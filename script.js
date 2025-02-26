@@ -237,7 +237,9 @@ socket.on('disconnected', async (messege) => {
 async function endpeer() {
     if (peerConnection) {
         await peerConnection.close();
-        
+        if(remotestream){
+        remotestream.pause()  
+        }
     }
     remotestream.srcObject = null;
     const loader = remotestream.nextElementSibling;
@@ -302,7 +304,7 @@ nextBtn.addEventListener('click', async () => {
 });
 
 socket.on('nextcall', async (nextcall) => {
-    if (nextcall) {
+    if (nextcall == partnerId) {
         await endpeer();
     }
 });
