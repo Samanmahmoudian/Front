@@ -241,9 +241,10 @@ socket.on('disconnected', async (messege) => {
 
 async function endpeer() {
     if (peerConnection) {
-        peerConnection.close();
+        await peerConnection.close();
     }
-    remotestream.srcObject = null;
+    
+    remotestream.srcObject = await null;
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
@@ -301,9 +302,7 @@ nextBtn.addEventListener('click', async () => {
 });
 
 socket.on('nextcall', async (nextcall) => {
-    if (partnerId == nextcall) {
-        await endpeer();
-    }
+    await endpeer();
 });
 
 
