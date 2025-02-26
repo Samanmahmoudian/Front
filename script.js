@@ -92,14 +92,9 @@ let peerConnection;
 let remoteFacingMode = 'user'
 async function shareMedia() {
     try {
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true }).then(async(Stream)=>{
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true })
             localstream.srcObject = await Stream;
             localstream.play()
-            stream = await Stream;
-        
-        })
-
-
         }catch(error) {
         alert('can not share media: ', error);
     }
@@ -124,11 +119,10 @@ socket.on('offer_state', async (offer) => {
 });
 
 async function startOffer() {
-    if (!stream) {
+    if (!stream.active) {
         await shareMedia();
     }
-    socket.emit('facingmode', { facingmode: camera_view, to: partnerId });
-    stream.getTracks().forEach(async (track) => {
+    await stream.getTracks().forEach(async (track) => {
         await peerConnection.addTrack(track, stream);
         console.log('track added');
     });
@@ -178,11 +172,10 @@ socket.on('ice', async (ice) => {
 
 socket.on('offer', async (offer) => {
     try {
-        if (!stream) {
+        if (!stream.active) {
             await shareMedia();
         }
-        socket.emit('facingmode', { facingmode: camera_view, to: partnerId });
-        stream.getTracks().forEach(async (track) => {
+        await stream.getTracks().forEach(async (track) => {
             await peerConnection.addTrack(track, stream);
             console.log('track added');
         });
@@ -272,7 +265,6 @@ hideBtn.addEventListener('click', () => {
 
 switchBtn.addEventListener('click', async () => {
     camera_view = await camera_view === 'user' ? 'environment' : 'user';
-    socket.emit('facingmode', { facingmode: camera_view, to: partnerId });
     if(peerConnection){
         try{
             await shareMedia()
