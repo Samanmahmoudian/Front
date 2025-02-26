@@ -93,7 +93,7 @@ let remoteFacingMode = 'user'
 
 async function shareMedia() {
     try {
-        if(stream){
+        if(localstream.srcObject){
             await stream.getTracks().forEach(track => track.stop());
             localstream.srcObject = await null;
         }
