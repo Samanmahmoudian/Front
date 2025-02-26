@@ -140,11 +140,7 @@ async function startOffer() {
         console.log(event.streams[0]);
         await new Promise(async (resolve) => {
             remotestream.srcObject = await event.streams[0];
-            resolve()
-        }).then(() => {
-            remotestream.play()
-        }).catch(err=>{
-            alert(err)
+            await remotestream.play()
         })
     };
 
@@ -192,11 +188,8 @@ socket.on('offer', async (offer) => {
             console.log(event.streams[0]);
             await new Promise(async (resolve ) => {
                 remotestream.srcObject = await event.streams[0];
-                resolve()
-            }).then(() => {
                 remotestream.play()
-            }).catch(err=>{
-                alert(err)
+                
             })
         };
 
