@@ -301,7 +301,7 @@ nextBtn.addEventListener('click', async () => {
 });
 
 socket.on('nextcall', async (nextcall) => {
-    if (nextcall == partnerId) {
+    if (partnerId == nextcall) {
         await endpeer();
     }
 });
