@@ -252,14 +252,14 @@ async function endpeer() {
     if (peerConnection) {
          peerConnection.close();
     }
-    const sender = peerConnection.getSenders();
-    if(sender) {
-        sender.forEach(sender => {
-            peerConnection.removeTrack(sender);
-        });
+    peerConnection.getReceivers().forEach(reciever => {
+        if(reciever.track){
+            reciever.track.stop();
+        }
+        
     }
-
-    remotestream.srcObject = await null;
+    )
+    remotestream.srcObject =  null;
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
