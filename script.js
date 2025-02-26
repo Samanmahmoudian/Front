@@ -78,6 +78,7 @@ const peerConnectionConfig = {
 
 let myId;
 let partnerId;
+
 /**@type {MediaStream} */
 let stream;
 
@@ -88,7 +89,6 @@ let camera_view = 'user';
 
 /** @type {RTCPeerConnection} */
 let peerConnection;
-
 let remoteFacingMode = 'user'
 
 async function shareMedia() {
@@ -97,7 +97,7 @@ async function shareMedia() {
         localstream.srcObject = null;
     }
     try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camera_view }, audio: true })
+        stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode: camera_view } , audio: true })
             localstream.srcObject = await stream;
             localstream.play()
         }catch(error) {
@@ -124,7 +124,7 @@ socket.on('offer_state', async (offer) => {
 });
 
 async function startOffer() {
-    if (!stream.active) {
+    if (!stream) {
         await shareMedia();
     }
     await stream.getTracks().forEach(async (track) => {
@@ -177,7 +177,7 @@ socket.on('ice', async (ice) => {
 
 socket.on('offer', async (offer) => {
     try {
-        if (!stream.active) {
+        if (!stream) {
             await shareMedia();
         }
         await stream.getTracks().forEach(async (track) => {
@@ -273,7 +273,6 @@ switchBtn.addEventListener('click', async () => {
     if(peerConnection){
         try{
             await shareMedia()
-            
             const senders = peerConnection.getSenders();
             senders.forEach(sender => {
                 if (sender.track.kind === "video") {
