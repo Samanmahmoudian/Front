@@ -87,7 +87,7 @@ let camera_view = 'user';
 
 /** @type {RTCPeerConnection} */
 let peerConnection;
-let remoteFacingMode = ''
+let remoteFacingMode = 'user'
 async function shareMedia() {
     try {
         if(localstream.srcObject){
@@ -269,6 +269,7 @@ hideBtn.addEventListener('click', () => {
 
 switchBtn.addEventListener('click', async () => {
     camera_view = await camera_view === 'user' ? 'environment' : 'user';
+    socket.emit('facingmode', {facingmode: camera_view, to: partnerId});
     if(peerConnection){
         try{
             await shareMedia()
@@ -344,5 +345,5 @@ async function setAudioOutputToSpeaker() {
 setAudioOutputToSpeaker();
 
 socket.on('facingmode', async (facingmode) => {
-    remoteFacingMode = await facingmode;
+    alert(facingmode)
 });
