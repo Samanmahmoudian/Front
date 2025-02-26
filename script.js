@@ -95,13 +95,13 @@ let startBtnClicked = false;
 async function shareMedia() {
     try {
         if(stream){
-            localstream.pause()
+            // localstream.pause()
             stream.getTracks().forEach(track => track.stop());
             localstream.srcObject = null;
         }
         stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode: camera_view } , audio: true })
             localstream.srcObject = stream;
-            localstream.play()
+            // localstream.play()
         }catch(error) {
         alert('Can not share media: ', error);
     }
@@ -135,9 +135,9 @@ async function startOffer() {
     });
     
     peerConnection.ontrack = async (event) => {
-        if (remotestream) {
-            remotestream.pause();
-        }
+        // if (remotestream) {
+        //     remotestream.pause();
+        // }
         console.log(event.streams[0]);
         await new Promise(async (resolve) => {
             remotestream.srcObject = await event.streams[0];
@@ -188,9 +188,9 @@ socket.on('offer', async (offer) => {
             console.log('track added');
         });
         peerConnection.ontrack = async (event) => {
-            if (remotestream) {
-                remotestream.pause();
-            }
+            // if (remotestream) {
+            //     remotestream.pause();
+            // }
             console.log(event.streams[0]);
             await new Promise(async (resolve ) => {
                 remotestream.srcObject = await event.streams[0];
@@ -322,7 +322,7 @@ socket.on('nextcall', async (nextcall) => {
 
 playBtn.addEventListener("click", () => {
     if (remotestream) {
-        remotestream.play();
+        // remotestream.play();
         playBtn.style.display = 'none';
     }else{
         playBtn.style.display = 'none';
