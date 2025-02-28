@@ -22,6 +22,7 @@ remotestream.onplaying = function () {
     }
 };
 
+alert(window.Telegram.WebApp.initDataUnsafe.user)
 const socket = io('https://miniapp-videocall-server.onrender.com');
 
 const peerConnectionConfig = {
@@ -277,7 +278,6 @@ muteBtn.addEventListener('click', () => {
 switchBtn.addEventListener('click', async () => {
     camera_view = await camera_view === 'user' ? 'environment' : 'user';
     if (peerConnection) {
-
         try {
             await shareMedia();
             const senders = peerConnection.getSenders();
