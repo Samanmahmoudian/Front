@@ -22,8 +22,7 @@ remotestream.onplaying = function () {
     }
 };
 
-alert(window.Telegram.WebApp.initDataUnsafe.user)
-const socket = io('https://miniapp-videocall-server.onrender.com');
+// sconst socket = io('https://miniapp-videocall-server.onrender.com');
 
 const peerConnectionConfig = {
     iceServers: [
