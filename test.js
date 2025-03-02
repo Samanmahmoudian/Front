@@ -2,8 +2,8 @@ window.Telegram.WebApp.ready();
 
 setTimeout(() => {
     if (window.Telegram.WebApp) {
-        console.log("✅ Telegram WebApp is available");
+        alert("✅ Telegram WebApp is available");
     } else {
-        console.log("❌ Still not available");
+        alert("❌ Still not available");
     }
 }, 1000);
