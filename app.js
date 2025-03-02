@@ -1,14 +1,5 @@
 import { peerConnectionConfig } from './PeerConfiguration.js';
-const myTelegramId = async ()=>{
-    await window.Telegram.WebApp.ready()
-    if (window.Telegram.WebApp.initDataUnsafe) {
-        alert(window.Telegram.WebApp.initDataUnsafe.user.id)
-        return window.Telegram.WebApp.initDataUnsafe.user.id;
-    } else {
-        alert('Enter With Telegram')
-        window.close()
-    }
-};
+const myTelegramId = getTelegramId()
 let myId;
 let partnerId;
 /**@type {MediaStream} */
@@ -30,7 +21,16 @@ const startBtn = document.getElementById('startbtn');
 let playBtn = document.getElementById("playbutton");
 
 
-
+async function getTelegramId(){
+    await window.Telegram.WebApp.ready()
+    if (window.Telegram.WebApp.initDataUnsafe) {
+        alert(window.Telegram.WebApp.initDataUnsafe.user.id)
+        return window.Telegram.WebApp.initDataUnsafe.user.id;
+    } else {
+        alert('Enter With Telegram')
+        window.close()
+    }
+}
 
 
 const socket = io(`https://miniapp-videocall-server.onrender.com/?userTelegramId=${myTelegramId}`);
