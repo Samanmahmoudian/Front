@@ -1,5 +1,5 @@
 
-const myTelegramId = getTelegramId()
+const myTelegramId = await getTelegramId()
 let myId;
 let partnerId;
 /**@type {MediaStream} */
