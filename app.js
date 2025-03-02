@@ -1,4 +1,4 @@
-import { peerConnectionConfig } from './config.js';
+import { peerConnectionConfig } from './PeerConfiguration.js';
 const myTelegramId = getTelegramId();
 let myId;
 let partnerId;
