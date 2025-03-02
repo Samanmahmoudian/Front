@@ -24,6 +24,7 @@ let playBtn = document.getElementById("playbutton");
 
 function getTelegramId() {
     if (window.Telegram.WebApp.initDataUnsafe) {
+        alert(window.Telegram.WebApp.initDataUnsafe.user.id)
         return window.Telegram.WebApp.initDataUnsafe.user.id;
     } else {
         alert('Enter With Telegram')
