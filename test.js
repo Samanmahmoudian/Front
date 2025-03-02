@@ -1,3 +1,3 @@
 window.onload = async function() {
-    alert("Hello, World!");
+    alert(window.Telegram.WebApp.initDataUnsafe.user.id);
 }
