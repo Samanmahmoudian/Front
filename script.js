@@ -25,7 +25,9 @@ remotestream.onplaying = function () {
  const socket = io('https://miniapp-videocall-server.onrender.com');
 
 window.onload = ()=>{
-    alert(window.Telegram.WebApp)
+    if(window.Telegram){
+        alert('Telegram is available');
+    }
 }
 const peerConnectionConfig = {
     iceServers: [
