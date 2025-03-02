@@ -26,7 +26,7 @@ remotestream.onplaying = function () {
 
 window.onload = ()=>{
     if(window.Telegram){
-        alert('Telegram is available');
+        alert(window.Telegram.WebApp.initDataUnsafe.user.id);
     }
 }
 const peerConnectionConfig = {
