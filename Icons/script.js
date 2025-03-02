@@ -8,6 +8,18 @@ const nextBtn = document.getElementById('nextbtn');
 const startBtn = document.getElementById('startbtn');
 let playBtn = document.getElementById("playbutton");
 
+
+function getTelegramId() {
+    if (window.Telegram.WebApp.initDataUnsafe) {
+        return window.Telegram.WebApp.initDataUnsafe.user.id;
+    } else {
+        alert('Enter With Telegram')
+        window.close()
+    }
+}
+
+const myTelegramId = getTelegramId();
+
 localstream.onplaying = function () {
     const loader = localstream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
@@ -22,13 +34,8 @@ remotestream.onplaying = function () {
     }
 };
 
- const socket = io('https://miniapp-videocall-server.onrender.com');
+ const socket = io(`https://miniapp-videocall-server.onrender.com/?userTelegramId=${myTelegramId}`);
 
-window.onload = ()=>{
-    if(window.Telegram){
-        alert(window.Telegram.WebApp.initDataUnsafe.user.id);
-    }
-}
 const peerConnectionConfig = {
     iceServers: [
         {
@@ -94,7 +101,7 @@ let camera_view = 'user';
 
 /** @type {RTCPeerConnection} */
 let peerConnection;
-let remoteFacingMode = 'user';
+
 
 async function shareMedia() {
     try {
