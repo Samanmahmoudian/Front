@@ -101,7 +101,6 @@ const peerConnectionConfig = {
 
 async function shareMedia(){
     if(stream){
-        localstream.pause()
         stream.getTracks().forEach(track => track.stop());
         localstream.srcObject = null
     }
@@ -109,15 +108,11 @@ async function shareMedia(){
         video: {facingMode: camera_view},
         audio: true
     });
-    localstream.srcObject = await stream;
-    
-    localstream.onended = () => {
-        localstream.play();
-    };
-    
-    localstream.onpause = () => {
-        localstream.play();
-    };
+    localstream.srcObject = await stream
+    if(localstream.paused || localstream.ended){
+        await localstream.play()
+    }
+
     
 }
 
@@ -144,13 +139,13 @@ async function createOffer(){
 
     peerConnection.ontrack = async (event) => {
         if(event.streams){
-            if (remotestream.played) {
+            if (remotestream.srcObject) {
                 remotestream.pause();
             }
             console.log(event.streams[0]);
             await new Promise(async (resolve) => {
                 remotestream.srcObject = await event.streams[0];
-                if (!remotestream.played){
+                if (remotestream.paused || remotestream.ended){
                     await remotestream.play();
                 }
                 resolve();
@@ -191,13 +186,13 @@ socket.on('offer' , async(offer)=>{
 
             peerConnection.ontrack = async (event) => {
                 if(event.streams){
-                    if (remotestream.played) {
+                    if (remotestream.srcObject) {
                         remotestream.pause();
                     }
                     console.log(event.streams[0]);
                     await new Promise(async (resolve) => {
                         remotestream.srcObject = await event.streams[0];
-                        if (!remotestream.played){
+                        if (remotestream.paused || remotestream.ended){
                             await remotestream.play();
                         }
                         resolve();
