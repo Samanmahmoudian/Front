@@ -1,4 +1,4 @@
-Telegram.WebApp.debug = false;
+window.Telegram.WebApp.debug = false;
 
 const myTelegramId = getTelegramId()
 let myId;
