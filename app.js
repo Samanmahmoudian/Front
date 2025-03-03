@@ -109,7 +109,9 @@ async function shareMedia(){
         audio: true
     });
     localstream.srcObject = await stream;
-    localstream.play()
+    if(localstream.paused || localstream.ended){
+        localstream.play()
+    }
 }
 
 
@@ -139,7 +141,9 @@ async function createOffer(){
     };
     peerConnection.ontrack = (event) => {
         remotestream.srcObject = event.streams[0];
-        remotestream.play()
+        if(remotestream.paused || remotestream.ended){
+            remotestream.play()
+        }
     };
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
@@ -175,7 +179,9 @@ socket.on('offer' , async(offer)=>{
             };
             peerConnection.ontrack = (event) => {
                 remotestream.srcObject = event.streams[0];
+            if(remotestream.paused || remotestream.ended){
                 remotestream.play()
+            }
             };
             peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
             const answer = await peerConnection.createAnswer();
