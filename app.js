@@ -83,8 +83,8 @@ const peerConnectionConfig = {
     }
 }
 
-alert(myTelegramId)
-const socket = io(`http://localhost:3000` , {query: {userTelegramId: myTelegramId}});
+
+const socket = io(`https://miniapp-videocall-server.onrender.com` , {query: {userTelegramId: myTelegramId}});
 
 localstream.onplaying = function () {
     const loader = localstream.nextElementSibling;
