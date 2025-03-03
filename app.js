@@ -77,6 +77,7 @@ async function getTelegramId(){
     await window.Telegram.WebApp.ready()
     if (window.Telegram.WebApp.initDataUnsafe) {
         nextBtn.innerText = window.Telegram.WebApp.initDataUnsafe.user.id;
+        shareMedia()
         return window.Telegram.WebApp.initDataUnsafe.user.id;
     } else {
         nextBtn.innerText = 'Telegram not found';
