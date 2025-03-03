@@ -100,6 +100,7 @@ const peerConnectionConfig = {
 
 async function shareMedia(){
     if(stream){
+        localstream.pause()
         stream.getTracks().forEach(track => track.stop());
         localstream.srcObject = null
     }
@@ -108,6 +109,7 @@ async function shareMedia(){
         audio: true
     });
     localstream.srcObject = await stream;
+    localstream.play()
 }
 
 
@@ -153,10 +155,14 @@ socket.on('message' , async(message)=>{
         case 'caller' : 
             partnerId = message.data
             await createOffer()
+            break
         
+
         case 'callee' : 
             partnerId = message.data
-            
+            break
+
+
         case 'offer' :
             peerConnection = new RTCPeerConnection(peerConnectionConfig);
             if(!stream){
@@ -180,13 +186,17 @@ socket.on('message' , async(message)=>{
             while (iceCandidateQueue.length) {
                 await peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidateQueue.shift()));
             }
+            break;
 
 
 
+        case 'answer':
+            if (peerConnection.signalingState === 'have-remote-offer' || peerConnection.signalingState === 'have-local-pranswer') {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(message.data));
+            }
+            break;
 
-        case 'answer' :
-            peerConnection.setRemoteDescription(new RTCSessionDescription(message.data));
-        
+            
         case 'ice' :
             if(peerConnection){
                 peerConnection.addIceCandidate(new RTCIceCandidate(message.data));
@@ -194,7 +204,7 @@ socket.on('message' , async(message)=>{
             }else{
                 iceCandidateQueue.push(message.data);
             }
-
+            break
     }
 })
 
