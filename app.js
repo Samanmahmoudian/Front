@@ -136,7 +136,6 @@ async function createOffer(){
     stream.getTracks().forEach(track => {
         peerConnection.addTrack(track, stream);
     });
-
     peerConnection.ontrack = async (event) => {
         if(event.streams){
             remotestream.srcObject = null
@@ -144,8 +143,8 @@ async function createOffer(){
             await new Promise(async (resolve) => {
                 remotestream.srcObject = await event.streams[0];
                 if (remotestream.paused || remotestream.ended){
-                    await remotestream.play().catch(err=>{
-                        console.log(err)
+                    remotestream.addEventListener("loadedmetadata", () => {
+                        remotestream.play().catch(error => console.error("Play error:", error));
                     });
                 }
                 resolve();
@@ -191,8 +190,8 @@ socket.on('offer' , async(offer)=>{
                     await new Promise(async (resolve) => {
                         remotestream.srcObject = await event.streams[0];
                         if (remotestream.paused || remotestream.ended){
-                            await remotestream.play().catch(err=>{
-                                console.log(err)
+                            remotestream.addEventListener("loadedmetadata", () => {
+                                remotestream.play().catch(error => console.error("Play error:", error));
                             });
                         }
                         resolve();
