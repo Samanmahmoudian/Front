@@ -73,8 +73,8 @@ const peerConnectionConfig = {
 };
 
 
-async function getTelegramId(){
-    await window.Telegram.WebApp.ready()
+ function getTelegramId(){
+    window.Telegram.WebApp.ready()
     if (window.Telegram.WebApp.initDataUnsafe) {
         alert(window.Telegram.WebApp.initDataUnsafe.user.id)    
         return window.Telegram.WebApp.initDataUnsafe.user.id;
