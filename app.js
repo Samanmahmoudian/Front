@@ -86,7 +86,7 @@ async function getTelegramId(){
 }
 
 
-const socket = io(`https://miniapp-videocall-server.onrender.com/ws?userTelegramId=${String(myTelegramId)}`);
+const socket = io(`https://miniapp-videocall-server.onrender.com` , {query: {userTelegramId: myTelegramId}});
 
 localstream.onplaying = function () {
     const loader = localstream.nextElementSibling;
