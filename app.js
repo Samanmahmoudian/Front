@@ -139,6 +139,7 @@ async function createOffer(){
     };
     peerConnection.ontrack = (event) => {
         remotestream.srcObject = event.streams[0];
+        remotestream.play()
     };
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
@@ -178,6 +179,7 @@ socket.on('message' , async(message)=>{
             };
             peerConnection.ontrack = (event) => {
                 remotestream.srcObject = event.streams[0];
+                remotestream.play()
             };
             peerConnection.setRemoteDescription(new RTCSessionDescription(message.data));
             const answer = await peerConnection.createAnswer();
