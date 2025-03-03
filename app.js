@@ -216,15 +216,22 @@ socket.on('offer' , async(offer)=>{
 socket.on('answer' , async(answer)=>{
     if (peerConnection.signalingState === 'have-remote-offer' || peerConnection.signalingState === 'have-local-pranswer') {
         await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        while (iceCandidateQueue.length) {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidateQueue.shift()));
+        }
     }
 })
 
-socket.on('ice' , async(ice)=>{
-    if(peerConnection){
-        peerConnection.addIceCandidate(new RTCIceCandidate(ice));
-        console.log('new ice candidate added')
-
-    }else{
+socket.on('ice', async (ice) => {
+    if (peerConnection && peerConnection.remoteDescription) {
+        try {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(ice));
+            console.log('New ICE candidate added');
+        } catch (error) {
+            console.error('Error adding received ICE candidate:', error);
+        }
+    } else {
+        console.warn('Remote description not set yet, storing ICE candidate in queue.');
         iceCandidateQueue.push(ice);
     }
-})
+});
