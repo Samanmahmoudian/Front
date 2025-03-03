@@ -77,7 +77,7 @@ const peerConnectionConfig = {
     window.Telegram.WebApp.ready()
     if (window.Telegram.WebApp.initDataUnsafe) {
         alert(window.Telegram.WebApp.initDataUnsafe.user.id)    
-        return window.Telegram.WebApp.initDataUnsafe.user.id;
+        return String(window.Telegram.WebApp.initDataUnsafe.user.id);
     } else {
         window.close()
     }
