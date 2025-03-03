@@ -208,6 +208,7 @@ socket.on('message' , async(message)=>{
             peerConnection = new RTCPeerConnection(peerConnectionConfig);
         }
         partnerId = await message.data
+        alert('caller')
         await startOffer();
     }
 
@@ -216,6 +217,7 @@ socket.on('message' , async(message)=>{
         if (!peerConnection || peerConnection.signalingState === 'closed') {
             peerConnection = new RTCPeerConnection(peerConnectionConfig);
         }
+        alert('callee')
     }
 
     else if(message.type == 'offer'){
