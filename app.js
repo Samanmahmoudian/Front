@@ -1,3 +1,4 @@
+Telegram.WebApp.debug = false;
 
 const myTelegramId = getTelegramId()
 let myId;
@@ -109,7 +110,7 @@ async function shareMedia(){
         audio: true
     });
     localstream.srcObject = await stream;
-    if(localstream.paused || localstream.ended){
+    if(!localstream.played){
         localstream.play()
     }
 }
@@ -136,13 +137,21 @@ async function createOffer(){
     });
 
     peerConnection.ontrack = async (event) => {
-        remotestream.srcObject = await event.streams[0];
-        console.log(event.streams[0])
-        if(!remotestream.played){
-            remotestream.play()
+        if(event.streams){
+            if (remotestream.played) {
+                remotestream.pause();
+            }
+            console.log(event.streams[0]);
+            await new Promise(async (resolve) => {
+                remotestream.srcObject = await event.streams[0];
+                if (!remotestream.played){
+                    await remotestream.play();
+                }
+                resolve();
+            });  
         }
     };
-    
+
     peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
             socket.emit('ice' , {to: partnerId , data: event.candidate});
@@ -177,10 +186,18 @@ socket.on('offer' , async(offer)=>{
             });
 
             peerConnection.ontrack = async (event) => {
-                remotestream.srcObject = await event.streams[0];
-                console.log(event.streams[0])
-                if(!remotestream.played){
-                    remotestream.play()
+                if(event.streams){
+                    if (remotestream.played) {
+                        remotestream.pause();
+                    }
+                    console.log(event.streams[0]);
+                    await new Promise(async (resolve) => {
+                        remotestream.srcObject = await event.streams[0];
+                        if (!remotestream.played){
+                            await remotestream.play();
+                        }
+                        resolve();
+                    });  
                 }
             };
 
