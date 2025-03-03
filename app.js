@@ -83,7 +83,7 @@ const peerConnectionConfig = {
     }
 }
 
-
+alert(myTelegramId)
 const socket = io(`http://localhost:3000` , {query: {userTelegramId: myTelegramId}});
 
 localstream.onplaying = function () {
