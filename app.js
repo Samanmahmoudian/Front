@@ -171,7 +171,7 @@ async function endpeer() {
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
     }
-    socket.emit('startnewcall');
+    socket.emit('startnewcall' , myTelegramId);
     partnerId = '';
 }
 
