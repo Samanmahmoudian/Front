@@ -167,13 +167,11 @@ async function createOffer(){
 }
 socket.on('caller' , async(partnerTelegramId)=>{
     partnerId = await partnerTelegramId
-    alert(partnerId)
     await createOffer()
 })
 
 socket.on('callee' , async(partnerTelegramId)=>{
     partnerId = await partnerTelegramId
-    alert(partnerId)
 })
 
 socket.on('offer' , async(offer)=>{
