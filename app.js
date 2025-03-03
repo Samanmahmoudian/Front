@@ -139,11 +139,9 @@ async function createOffer(){
             socket.emit('ice' , {to: partnerId , data: event.candidate});
         }
     };
-    peerConnection.ontrack = (event) => {
-        remotestream.srcObject = event.streams[0];
-        if(remotestream.paused || remotestream.ended){
-            remotestream.play()
-        }
+    peerConnection.ontrack = async (event) => {
+        remotestream.srcObject = await event.streams[0];
+
     };
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
@@ -177,11 +175,9 @@ socket.on('offer' , async(offer)=>{
                     socket.emit('ice' , {to: partnerId , data: event.candidate});
                 }
             };
-            peerConnection.ontrack = (event) => {
-                remotestream.srcObject = event.streams[0];
-            if(remotestream.paused || remotestream.ended){
-                remotestream.play()
-            }
+            peerConnection.ontrack = async (event) => {
+                remotestream.srcObject = await event.streams[0];
+
             };
             peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
             const answer = await peerConnection.createAnswer();
