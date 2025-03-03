@@ -146,6 +146,7 @@ async function createOffer(){
     socket.emit('message' , {type:'offer' , to: partnerId , data: offer});
     while (iceCandidateQueue.length) {
         await peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidateQueue.shift()));
+        console.log('new ice candidate added')
     }
 }
 
@@ -202,6 +203,7 @@ socket.on('message' , async(message)=>{
         case 'ice' :
             if(peerConnection){
                 peerConnection.addIceCandidate(new RTCIceCandidate(message.data));
+                console.log('new ice candidate added')
 
             }else{
                 iceCandidateQueue.push(message.data);
