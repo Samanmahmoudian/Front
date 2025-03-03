@@ -84,7 +84,7 @@ async function getTelegramId(){
 }
 
 
-const socket = io(`http://localhost:3000` , {query: {userTelegramId: myTelegramId}});
+const socket = io(`` , {query: {userTelegramId: myTelegramId}});
 
 localstream.onplaying = function () {
     const loader = localstream.nextElementSibling;
