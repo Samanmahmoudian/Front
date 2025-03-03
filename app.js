@@ -110,9 +110,15 @@ async function shareMedia(){
         audio: true
     });
     localstream.srcObject = await stream;
-    if(!localstream.played){
-        localstream.play()
-    }
+    
+    localstream.onended = () => {
+        localstream.play();
+    };
+    
+    localstream.onpause = () => {
+        localstream.play();
+    };
+    
 }
 
 
