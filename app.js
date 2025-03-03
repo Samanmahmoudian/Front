@@ -134,7 +134,7 @@ async function createOffer(){
     });
     peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-            socket.emit('message' , {type:'ice' , to: partnerId , data: event.candidate});
+            socket.emit('ice' , {to: partnerId , data: event.candidate});
         }
     };
     peerConnection.ontrack = (event) => {
@@ -143,30 +143,23 @@ async function createOffer(){
     };
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
-    socket.emit('message' , {type:'offer' , to: partnerId , data: offer});
+    socket.emit('offer' , {to: partnerId , data: offer});
     while (iceCandidateQueue.length) {
         await peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidateQueue.shift()));
         console.log('new ice candidate added')
     }
 }
+socket.on('caller' , async(partnerTelegramId)=>{
+    partnerId = await partnerTelegramId
+    await createOffer()
+})
 
+socket.on('callee' , async(partnerTelegramId)=>{
+    partnerId = await partnerTelegramId
+})
 
-
-socket.on('message' , async(message)=>{
-    switch (message.type){
-        case 'caller' : 
-            partnerId = message.data
-            await createOffer()
-            break
-        
-
-        case 'callee' : 
-            partnerId = message.data
-            break
-
-
-        case 'offer' :
-            peerConnection = new RTCPeerConnection(peerConnectionConfig);
+socket.on('offer' , async(offer)=>{
+    peerConnection = new RTCPeerConnection(peerConnectionConfig);
             if(!stream){
                 await shareMedia()
             }
@@ -175,40 +168,34 @@ socket.on('message' , async(message)=>{
             });
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate) {
-                    socket.emit('message' , {type:'ice' , to: partnerId , data: event.candidate});
+                    socket.emit('ice' , {to: partnerId , data: event.candidate});
                 }
             };
             peerConnection.ontrack = (event) => {
                 remotestream.srcObject = event.streams[0];
                 remotestream.play()
             };
-            peerConnection.setRemoteDescription(new RTCSessionDescription(message.data));
+            peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
             const answer = await peerConnection.createAnswer();
             await peerConnection.setLocalDescription(answer);
-            socket.emit('message' , {type:'answer' , to: partnerId , data: answer});
+            socket.emit('answer' , {to: partnerId , data: answer});
             while (iceCandidateQueue.length) {
                 await peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidateQueue.shift()));
             }
-            break;
+})
 
-
-
-        case 'answer':
-            if (peerConnection.signalingState === 'have-remote-offer' || peerConnection.signalingState === 'have-local-pranswer') {
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(message.data));
-            }
-            break;
-
-            
-        case 'ice' :
-            if(peerConnection){
-                peerConnection.addIceCandidate(new RTCIceCandidate(message.data));
-                console.log('new ice candidate added')
-
-            }else{
-                iceCandidateQueue.push(message.data);
-            }
-            break
+socket.on('answer' , async(answer)=>{
+    if (peerConnection.signalingState === 'have-remote-offer' || peerConnection.signalingState === 'have-local-pranswer') {
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
     }
 })
 
+socket.on('ice' , async(ice)=>{
+    if(peerConnection){
+        peerConnection.addIceCandidate(new RTCIceCandidate(ice));
+        console.log('new ice candidate added')
+
+    }else{
+        iceCandidateQueue.push(ice);
+    }
+})
