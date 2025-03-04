@@ -136,19 +136,21 @@ async function createOffer(){
         peerConnection.addTrack(track, stream);
     });
     peerConnection.ontrack = async (event) => {
-        if(event.streams){
-            console.log(event.streams[0]);
-            await new Promise(async (resolve) => {
-                remotestream.srcObject = await event.streams[0];
-                if (remotestream.paused || remotestream.ended){
-                    remotestream.addEventListener("loadedmetadata", () => {
-                        remotestream.play().catch(error => console.error("Play error:", error));
+                
+        console.log(event.streams[0]);
+        await new Promise(async (resolve) => {
+            remotestream.srcObject = await event.streams[0];
+            if (remotestream.paused || remotestream.ended || !remotestream.played){
+                remotestream.addEventListener("loadedmetadata", async () => {
+                    await remotestream.play().catch(error => console.error("Play error:", error)).then(()=>{
+                        console.log('played')
                     });
-                }
-                resolve();
-            });  
-        }
-    };
+                });
+            }
+            resolve();
+        });  
+    
+};
 
     peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
@@ -182,18 +184,20 @@ socket.on('offer' , async(offer)=>{
             });
 
             peerConnection.ontrack = async (event) => {
-                if(event.streams){
+                
                     console.log(event.streams[0]);
                     await new Promise(async (resolve) => {
                         remotestream.srcObject = await event.streams[0];
-                        if (remotestream.paused || remotestream.ended){
-                            remotestream.addEventListener("loadedmetadata", () => {
-                                remotestream.play().catch(error => console.error("Play error:", error));
+                        if (remotestream.paused || remotestream.ended || !remotestream.played){
+                            remotestream.addEventListener("loadedmetadata", async () => {
+                                await remotestream.play().catch(error => console.error("Play error:", error)).then(()=>{
+                                    console.log('played')
+                                });
                             });
                         }
                         resolve();
                     });  
-                }
+                
             };
 
             peerConnection.onicecandidate = (event) => {
