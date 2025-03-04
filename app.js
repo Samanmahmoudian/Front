@@ -208,20 +208,8 @@ switchBtn.addEventListener('click', async () => {
 });
 
 nextBtn.addEventListener('click', async () => {
-    if(peerConnection) {
-         peerConnection.close();
-    }
-
-
+    await endpeer()
     await socket.emit('nextcall', partnerId);
-    partnerId = '';
-    await socket.emit('startNewCall' , myTelegramId);
-    remotestream.srcObject = null;
-    const loader = remotestream.nextElementSibling;
-    if (loader && loader.classList.contains('loader')) {
-        loader.style.display = '';
-    }
-
 });
 
 socket.on('caller' , async(partnerTelegramId)=>{
