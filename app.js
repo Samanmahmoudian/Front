@@ -104,7 +104,7 @@ startBtn.addEventListener('click', async () => {
 });
 
 async function createOffer(){
-    peerConnection = new RTCPeerConnection(peerConnectionConfig);
+    peerConnection = await new RTCPeerConnection(peerConnectionConfig);
     if(!stream){
         await shareMedia()
     }
@@ -112,9 +112,25 @@ async function createOffer(){
        await peerConnection.addTrack(track, stream);
     });
 
+    peerConnection.ontrack = async (event) => {
+        if (remotestream.played) {
+            remotestream.pause();
+        }
+        console.log(event.streams[0]);
+        await new Promise(async (resolve) => {
+            remotestream.srcObject = await event.streams[0];
+            if (!remotestream.played){
+                await remotestream.play();
+            }
+            resolve();
+        });
+    };
 
-
-
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+            socket.emit('ice' , {to: partnerId , data: event.candidate});
+        }
+    };
 
 
     const offer = await peerConnection.createOffer();
@@ -135,7 +151,7 @@ socket.on('callee' , async(partnerTelegramId)=>{
 })
 
 socket.on('offer' , async(offer)=>{
-            peerConnection = new RTCPeerConnection(peerConnectionConfig);
+            peerConnection =await new RTCPeerConnection(peerConnectionConfig);
             if(!stream){
                 await shareMedia()
             }
@@ -143,6 +159,25 @@ socket.on('offer' , async(offer)=>{
                await peerConnection.addTrack(track, stream);
             });
         
+            peerConnection.ontrack = async (event) => {
+                if (remotestream.played) {
+                    remotestream.pause();
+                }
+                console.log(event.streams[0]);
+                await new Promise(async (resolve) => {
+                    remotestream.srcObject = await event.streams[0];
+                    if (!remotestream.played){
+                        await remotestream.play();
+                    }
+                    resolve();
+                });
+            };
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    socket.emit('ice' , {to: partnerId , data: event.candidate});
+                }
+            };
+
             peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
             const answer = await peerConnection.createAnswer();
             await peerConnection.setLocalDescription(answer);
@@ -174,16 +209,3 @@ socket.on('ice', async (ice) => {
         iceCandidateQueue.push(ice);
     }
 });
-
-peerConnection.ontrack = async (event) => {  
-    if(event.streams.length>0)   {
-        console.log(event.streams[0]);
-        remotestream.srcObject = await event.streams[0];  
-    }
-
-};
-peerConnection.onicecandidate = (event) => {
-    if (event.candidate) {
-        socket.emit('ice' , {to: partnerId , data: event.candidate});
-    }
-};
