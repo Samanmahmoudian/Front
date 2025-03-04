@@ -110,31 +110,13 @@ startBtn.addEventListener('click', async () => {
 
 async function createOffer() {
     if (!stream) await shareMedia();
-
-    stream.getTracks().forEach(async(track) =>await peerConnection.addTrack(track, stream));
-
-    peerConnection.ontrack = async (event) => {
-        return new Promise(async(resolve)=>{
-            if(event.streams[0]){
-                await console.log(event.streams[0])
-                await console.log(remotestream.srcObject)
-                remotestream.srcObject = await event.streams[0]
-                await console.log(remotestream.srcObject)
-                remotestream.onloadedmetadata = ()=>{
-                    console.log('load done')
-                }
-            }
-        })
-    };
     
-    peerConnection.onicecandidate = (event) => {
-        if (event.candidate && partnerId) {
-            socket.emit('ice' , {to: partnerId , data: event.candidate});
-        }
-    };
+    
     const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
-    console.log('Offer created and set as local description');
+    await peerConnection.setLocalDescription(offer).then(()=>{
+        console.log('offer created')
+    });
+
 
     socket.emit('offer', { to: partnerId, data: offer });
 
@@ -159,29 +141,11 @@ socket.on('callee' , async(partnerTelegramId)=>{
 socket.on('offer', async (offer) => {
     if (!stream) await shareMedia();
 
-    stream.getTracks().forEach(async(track) =>await peerConnection.addTrack(track, stream));
+   
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer)).then(()=>{
+        console.log('Remote description set for callee');
+    });
 
-    peerConnection.ontrack = async (event) => {
-        return new Promise(async(resolve)=>{
-            if(event.streams[0]){
-                await console.log(event.streams[0])
-                await console.log(remotestream.srcObject)
-                remotestream.srcObject = await event.streams[0]
-                await console.log(remotestream.srcObject)
-                remotestream.onloadedmetadata = ()=>{
-                    console.log('load done')
-                }
-            }
-        })
-    };
-    
-    peerConnection.onicecandidate = (event) => {
-        if (event.candidate && partnerId) {
-            socket.emit('ice' , {to: partnerId , data: event.candidate});
-        }
-    };
-    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-    console.log('Remote description set for callee');
 
     const answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
@@ -194,8 +158,10 @@ socket.on('offer', async (offer) => {
 
 
 socket.on('answer' , async(answer)=>{
-    if (peerConnection.signalingState === 'have-remote-offer' || peerConnection.signalingState === 'have-local-pranswer') {
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+    if (peerConnection.signalingState === 'have-remote-offer') {
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer)).then(()=>{
+            console.log('answer done')
+        });
         while (iceCandidateQueue.length) {
             await peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidateQueue.shift()));
         }
@@ -217,3 +183,22 @@ socket.on('ice', async (ice) => {
 });
 
 
+// peerConnection.ontrack = async (event) => {
+//     return new Promise(async(resolve)=>{
+//         if(event.streams[0]){
+//             await console.log(event.streams[0])
+//             await console.log(remotestream.srcObject)
+//             remotestream.srcObject = await event.streams[0]
+//             await console.log(remotestream.srcObject)
+//             remotestream.onloadedmetadata = ()=>{
+//                 console.log('load done')
+//             }
+//         }
+//     })
+// };
+
+// peerConnection.onicecandidate = (event) => {
+//     if (event.candidate && partnerId) {
+//         socket.emit('ice' , {to: partnerId , data: event.candidate});
+//     }
+// };
