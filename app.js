@@ -225,6 +225,9 @@ nextBtn.addEventListener('click', async () => {
 });
 
 socket.on('caller' , async(partnerTelegramId)=>{
+    if(peerConnection){
+        peerConnection.close()
+    }
     console.log('caller')
     partnerId = await partnerTelegramId
     peerConnection =await new RTCPeerConnection(peerConnectionConfig)
@@ -232,6 +235,9 @@ socket.on('caller' , async(partnerTelegramId)=>{
 })
 
 socket.on('callee' , async(partnerTelegramId)=>{
+    if(peerConnection){
+        peerConnection.close()
+    }
     console.log('callee')
     partnerId = await partnerTelegramId
     peerConnection = await new RTCPeerConnection(peerConnectionConfig)
