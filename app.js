@@ -111,16 +111,9 @@ async function createOffer(){
     if(!stream){
         await shareMedia()
     }
-    stream.getTracks().forEach(async(track) => {
-       await peerConnection.addTrack(track, stream);
-       console.log('my tracks added')
-    });
-
     peerConnection.ontrack = async (event) => {
-        console.log('ontrack fired')
         return new Promise(async(resolve)=>{
             if(event.streams[0]){
-                console.log('iam in if loop')
                 await console.log(event.streams[0])
                 await console.log(remotestream.srcObject)
                 remotestream.srcObject = await event.streams[0]
@@ -131,6 +124,12 @@ async function createOffer(){
         })
     };
 
+    stream.getTracks().forEach(async(track) => {
+       await peerConnection.addTrack(track, stream);
+       console.log('my tracks added')
+    });
+
+   
     peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
             socket.emit('ice' , {to: partnerId , data: event.candidate});
@@ -166,10 +165,6 @@ socket.on('offer' , async(offer)=>{
             if(!stream){
                 await shareMedia()
             }
-            stream.getTracks().forEach(async(track) => {
-               await peerConnection.addTrack(track, stream);
-            });
-        
             peerConnection.ontrack = async (event) => {
                 return new Promise(async(resolve)=>{
                     if(event.streams[0]){
@@ -183,6 +178,11 @@ socket.on('offer' , async(offer)=>{
                 })
             };
 
+            stream.getTracks().forEach(async(track) => {
+               await peerConnection.addTrack(track, stream);
+            });
+        
+            
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate) {
                     socket.emit('ice' , {to: partnerId , data: event.candidate});
