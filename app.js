@@ -112,19 +112,9 @@ async function createOffer(){
        await peerConnection.addTrack(track, stream);
     });
 
-    peerConnection.ontrack = async (event) => {  
-        if(event.streams.length>0)   {
-            console.log(event.streams[0]);
-            remotestream.srcObject = await event.streams[0];  
-        }
 
-};
 
-    peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-            socket.emit('ice' , {to: partnerId , data: event.candidate});
-        }
-    };
+
 
 
     const offer = await peerConnection.createOffer();
@@ -153,22 +143,6 @@ socket.on('offer' , async(offer)=>{
                await peerConnection.addTrack(track, stream);
             });
         
-            peerConnection.ontrack = async (event) => {  
-                if(event.streams.length>0)   {
-                    console.log(event.streams[0]);
-                    remotestream.srcObject =  await event.streams[0];  
-                }
-        
-        };
-        
-
-
-            peerConnection.onicecandidate = (event) => {
-                if (event.candidate) {
-                    socket.emit('ice' , {to: partnerId , data: event.candidate});
-                }
-            };
-
             peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
             const answer = await peerConnection.createAnswer();
             await peerConnection.setLocalDescription(answer);
@@ -200,3 +174,16 @@ socket.on('ice', async (ice) => {
         iceCandidateQueue.push(ice);
     }
 });
+
+peerConnection.ontrack = async (event) => {  
+    if(event.streams.length>0)   {
+        console.log(event.streams[0]);
+        remotestream.srcObject = await event.streams[0];  
+    }
+
+};
+peerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+        socket.emit('ice' , {to: partnerId , data: event.candidate});
+    }
+};
