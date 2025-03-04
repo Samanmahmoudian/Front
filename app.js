@@ -37,7 +37,7 @@ let isMuted = false;
 let isHidden = false;
 let camera_view = 'user';
 /** @type {RTCPeerConnection} */
-let peerConnection = new RTCPeerConnection(peerConnectionConfig)
+let peerConnection 
 let iceCandidateQueue = [];
 /** @type {HTMLVideoElement} */
 const localstream = document.getElementById('localstream');
@@ -111,8 +111,27 @@ startBtn.addEventListener('click', async () => {
 async function createOffer() {
     if (!stream) await shareMedia();
 
-    stream.getTracks().forEach((track) => peerConnection.addTrack(track, stream));
+    stream.getTracks().forEach(async(track) =>await peerConnection.addTrack(track, stream));
 
+    peerConnection.ontrack = async (event) => {
+        return new Promise(async(resolve)=>{
+            if(event.streams[0]){
+                await console.log(event.streams[0])
+                await console.log(remotestream.srcObject)
+                remotestream.srcObject = await event.streams[0]
+                await console.log(remotestream.srcObject)
+                remotestream.onloadedmetadata = ()=>{
+                    console.log('load done')
+                }
+            }
+        })
+    };
+    
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate && partnerId) {
+            socket.emit('ice' , {to: partnerId , data: event.candidate});
+        }
+    };
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
     console.log('Offer created and set as local description');
@@ -127,19 +146,40 @@ async function createOffer() {
 socket.on('caller' , async(partnerTelegramId)=>{
     console.log('caller')
     partnerId = await partnerTelegramId
+    peerConnection =await new RTCPeerConnection(peerConnectionConfig)
     createOffer()
 })
 
 socket.on('callee' , async(partnerTelegramId)=>{
     console.log('callee')
     partnerId = await partnerTelegramId
+    peerConnection = await new RTCPeerConnection(peerConnectionConfig)
 })
 
 socket.on('offer', async (offer) => {
     if (!stream) await shareMedia();
 
-    stream.getTracks().forEach((track) => peerConnection.addTrack(track, stream));
+    stream.getTracks().forEach(async(track) =>await peerConnection.addTrack(track, stream));
 
+    peerConnection.ontrack = async (event) => {
+        return new Promise(async(resolve)=>{
+            if(event.streams[0]){
+                await console.log(event.streams[0])
+                await console.log(remotestream.srcObject)
+                remotestream.srcObject = await event.streams[0]
+                await console.log(remotestream.srcObject)
+                remotestream.onloadedmetadata = ()=>{
+                    console.log('load done')
+                }
+            }
+        })
+    };
+    
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate && partnerId) {
+            socket.emit('ice' , {to: partnerId , data: event.candidate});
+        }
+    };
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
     console.log('Remote description set for callee');
 
@@ -177,22 +217,3 @@ socket.on('ice', async (ice) => {
 });
 
 
-peerConnection.ontrack = async (event) => {
-    return new Promise(async(resolve)=>{
-        if(event.streams[0]){
-            await console.log(event.streams[0])
-            await console.log(remotestream.srcObject)
-            remotestream.srcObject = await event.streams[0]
-            await console.log(remotestream.srcObject)
-            remotestream.onloadedmetadata = ()=>{
-                console.log('load done')
-            }
-        }
-    })
-};
-
-peerConnection.onicecandidate = (event) => {
-    if (event.candidate && partnerId) {
-        socket.emit('ice' , {to: partnerId , data: event.candidate});
-    }
-};
