@@ -142,11 +142,13 @@ async function createOffer(){
     }
 }
 socket.on('caller' , async(partnerTelegramId)=>{
+    console.log('caller')
     partnerId = await partnerTelegramId
     await createOffer()
 })
 
 socket.on('callee' , async(partnerTelegramId)=>{
+    console.log('callee')
     partnerId = await partnerTelegramId
 })
 
