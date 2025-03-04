@@ -1,7 +1,6 @@
-window.Telegram.WebApp.debug = false;
 
 const myTelegramId = getTelegramId()
-let myId;
+let myId; 
 let partnerId;
 /**@type {MediaStream} */
 let stream;
@@ -138,7 +137,6 @@ async function createOffer(){
     });
     peerConnection.ontrack = async (event) => {
         if(event.streams){
-            remotestream.srcObject = null
             console.log(event.streams[0]);
             await new Promise(async (resolve) => {
                 remotestream.srcObject = await event.streams[0];
@@ -185,7 +183,6 @@ socket.on('offer' , async(offer)=>{
 
             peerConnection.ontrack = async (event) => {
                 if(event.streams){
-                    remotestream.srcObject = null
                     console.log(event.streams[0]);
                     await new Promise(async (resolve) => {
                         remotestream.srcObject = await event.streams[0];
