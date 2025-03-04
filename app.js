@@ -123,7 +123,7 @@ async function createOffer() {
                 remotestream.srcObject = await event.streams[0]
                 await console.log(remotestream.srcObject)
                 remotestream.onloadedmetadata = ()=>{
-                    console.log('load done')
+                    remotestream.play()
                 }
             }
         })
