@@ -34,9 +34,6 @@ remotestream.onplaying = function () {
         loader.style.display = 'none';
     }
 };
-remotestream.onloadedmetadata = ()=>{
-    console.log('loaded')
-}
 
 const peerConnectionConfig = {
     iceServers: [
@@ -119,6 +116,9 @@ async function createOffer(){
         if(event.streams[0]){
             console.log(event.streams[0])
             remotestream.srcObject =  event.streams[0]
+            remotestream.onloadedmetadata = async()=>{
+                console.log('loaded')
+            }
         }
     };
 
@@ -159,7 +159,9 @@ socket.on('offer' , async(offer)=>{
                 if(event.streams[0]){
                     console.log(event.streams[0])
                     remotestream.srcObject = event.streams[0]
-
+                    remotestream.onloadedmetadata = ()=>{
+                        console.log('loaded')
+                    }
                 }
             };
             peerConnection.onicecandidate = (event) => {
