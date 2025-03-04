@@ -123,13 +123,13 @@ async function createOffer(){
         console.log(event.streams[0]);
         await new Promise(async (resolve) => {
             remotestream.srcObject = await event.streams[0];
-            if (remotestream.paused || remotestream.ended || !remotestream.played){
+            
                 remotestream.addEventListener("loadedmetadata", async () => {
                     await remotestream.play().catch(error => console.error("Play error:", error)).then(()=>{
                         console.log('played')
                     });
                 });
-            }
+            
             resolve();
         });  
     
@@ -174,13 +174,13 @@ socket.on('offer' , async(offer)=>{
                 console.log(event.streams[0]);
                 await new Promise(async (resolve) => {
                     remotestream.srcObject = await event.streams[0];
-                    if (remotestream.paused || remotestream.ended || !remotestream.played){
+                    
                         remotestream.addEventListener("loadedmetadata", async () => {
                             await remotestream.play().catch(error => console.error("Play error:", error)).then(()=>{
                                 console.log('played')
                             });
                         });
-                    }
+                    
                     resolve();
                 });  
             
