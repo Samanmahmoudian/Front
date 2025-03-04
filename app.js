@@ -1,5 +1,6 @@
 
-const myTelegramId = getTelegramId()
+const myTelegramId = Math.floor(Math.random() * 1000) + 1;
+alert(myTelegramId)
 let myId; 
 let partnerId;
 /**@type {MediaStream} */
@@ -64,15 +65,15 @@ const peerConnectionConfig = {
   }
 
 
- function getTelegramId(){
-    window.Telegram.WebApp.ready()
-    if (window.Telegram.WebApp.initDataUnsafe) {
-        alert(window.Telegram.WebApp.initDataUnsafe.user.id)    
-        return String(window.Telegram.WebApp.initDataUnsafe.user.id);
-    } else {
-        window.close()
-    }
-}
+//  function getTelegramId(){
+//     window.Telegram.WebApp.ready()
+//     if (window.Telegram.WebApp.initDataUnsafe) {
+//         alert(window.Telegram.WebApp.initDataUnsafe.user.id)    
+//         return String(window.Telegram.WebApp.initDataUnsafe.user.id);
+//     } else {
+//         window.close()
+//     }
+// }
 
 async function shareMedia(){
     if(stream){
