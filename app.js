@@ -115,6 +115,7 @@ async function endpeer() {
     if (peerConnection) {
          peerConnection.close();
     }
+    remotestream.srcObject =  await null;
     peerConnection.getReceivers().forEach(reciever => {
         if(reciever.track){
             reciever.track.stop();
@@ -122,7 +123,7 @@ async function endpeer() {
         
     }
     )
-    remotestream.srcObject =  null;
+    
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
