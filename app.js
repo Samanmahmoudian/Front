@@ -145,8 +145,8 @@ async function createOffer() {
         return new Promise(async(resolve)=>{
             if(event.streams[0]){
                 remotestream.srcObject = await event.streams[0]
-                remotestream.onloadedmetadata = ()=>{
-                    remotestream.play().then(()=>{
+                remotestream.onloadedmetadata = async ()=>{
+                    await remotestream.play().then(()=>{
                         console.log('remote stream is playing')
                     }).catch(err=>{
                         console.log(err)
@@ -261,8 +261,8 @@ socket.on('offer', async (offer) => {
         return new Promise(async(resolve)=>{
             if(event.streams[0]){
                 remotestream.srcObject = await event.streams[0]
-                remotestream.onloadedmetadata = ()=>{
-                    remotestream.play().then(()=>{
+                remotestream.onloadedmetadata = async()=>{
+                    await remotestream.play().then(()=>{
                         console.log('remote stream is playing')
                     }).catch(err=>{
                         console.log(err)
