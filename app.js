@@ -150,7 +150,7 @@ socket.on('offer' , async(offer)=>{
                await peerConnection.addTrack(track, stream);
                console.log('my tracks sent')
             });
-            peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
             const answer = await peerConnection.createAnswer();
             await peerConnection.setLocalDescription(answer);
             socket.emit('answer' , {to: partnerId , data: answer});
