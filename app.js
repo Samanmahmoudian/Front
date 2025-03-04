@@ -113,17 +113,9 @@ async function createOffer(){
     });
 
     peerConnection.ontrack = async (event) => {
-        if (remotestream.played) {
-            remotestream.pause();
+        if(event.streams.length>0){
+            console.log(event.streams)
         }
-        console.log(event.streams[0]);
-        await new Promise(async (resolve) => {
-            remotestream.srcObject = await event.streams[0];
-            if (!remotestream.played){
-                await remotestream.play();
-            }
-            resolve();
-        });
     };
 
     peerConnection.onicecandidate = (event) => {
@@ -160,17 +152,9 @@ socket.on('offer' , async(offer)=>{
             });
         
             peerConnection.ontrack = async (event) => {
-                if (remotestream.played) {
-                    remotestream.pause();
+                if(event.streams.length>0){
+                    console.log(event.streams)
                 }
-                console.log(event.streams[0]);
-                await new Promise(async (resolve) => {
-                    remotestream.srcObject = await event.streams[0];
-                    if (!remotestream.played){
-                        await remotestream.play();
-                    }
-                    resolve();
-                });
             };
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate) {
