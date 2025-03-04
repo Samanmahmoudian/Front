@@ -1,5 +1,5 @@
 
-const myTelegramId = Math.floor(Math.random() * 1000) + 1;
+const myTelegramId = String(Math.floor(Math.random() * 1000) + 1);
 alert(myTelegramId)
 let myId; 
 let partnerId;
