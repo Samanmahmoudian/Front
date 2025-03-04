@@ -113,12 +113,12 @@ async function createOffer(){
     });
 
     peerConnection.ontrack = async (event) => {
-        await new Promise((resolve)=>{
+        return new Promise(async(resolve)=>{
             if(event.streams[0]){
-                console.log(event.streams[0])
-                remotestream.srcObject = event.streams[0]
-                console.log(remotestream)
-                console.log(remotestream.srcObject)
+                await console.log(event.streams[0])
+                await console.log(remotestream.srcObject)
+                remotestream.srcObject = await event.streams[0]
+                await console.log(remotestream.srcObject)
             }
         }).then(()=>{
             console.log('done')
@@ -159,12 +159,12 @@ socket.on('offer' , async(offer)=>{
             });
         
             peerConnection.ontrack = async (event) => {
-                await new Promise((resolve)=>{
+                return new Promise(async(resolve)=>{
                     if(event.streams[0]){
-                        console.log(event.streams[0])
-                        remotestream.srcObject = event.streams[0]
-                        console.log(remotestream)
-                        console.log(remotestream.srcObject)
+                        await console.log(event.streams[0])
+                        await console.log(remotestream.srcObject)
+                        remotestream.srcObject = await event.streams[0]
+                        await console.log(remotestream.srcObject)
                     }
                 }).then(()=>{
                     console.log('done')
