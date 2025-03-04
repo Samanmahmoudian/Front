@@ -209,8 +209,8 @@ switchBtn.addEventListener('click', async () => {
 });
 
 nextBtn.addEventListener('click', async () => {
-    await endpeer()
     await socket.emit('nextcall', partnerId);
+    await endpeer()
 });
 
 socket.on('caller' , async(partnerTelegramId)=>{
