@@ -180,6 +180,7 @@ socket.on('offer' , async(offer)=>{
 
             stream.getTracks().forEach(async(track) => {
                await peerConnection.addTrack(track, stream);
+               console.log('my tracks sent')
             });
         
             
