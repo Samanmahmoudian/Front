@@ -118,12 +118,13 @@ async function createOffer() {
     peerConnection.ontrack = async (event) => {
         return new Promise(async(resolve)=>{
             if(event.streams[0]){
-                await console.log(event.streams[0])
-                await console.log(remotestream.srcObject)
                 remotestream.srcObject = await event.streams[0]
-                await console.log(remotestream.srcObject)
                 remotestream.onloadedmetadata = ()=>{
-                    remotestream.play()
+                    remotestream.play().then(()=>{
+                        console.log('remote stream is playing')
+                    }).catch(err=>{
+                        console.log(err)
+                    })
                 }
             }
         })
@@ -171,17 +172,17 @@ socket.on('offer', async (offer) => {
     peerConnection.ontrack = async (event) => {
         return new Promise(async(resolve)=>{
             if(event.streams[0]){
-                await console.log(event.streams[0])
-                await console.log(remotestream.srcObject)
                 remotestream.srcObject = await event.streams[0]
-                await console.log(remotestream.srcObject)
                 remotestream.onloadedmetadata = ()=>{
-                    remotestream.play()
+                    remotestream.play().then(()=>{
+                        console.log('remote stream is playing')
+                    }).catch(err=>{
+                        console.log(err)
+                    })
                 }
             }
         })
     };
-    
     peerConnection.onicecandidate = (event) => {
         if (event.candidate && partnerId) {
             socket.emit('ice' , {to: partnerId , data: event.candidate});
