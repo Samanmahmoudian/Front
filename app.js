@@ -136,11 +136,15 @@ async function createOffer() {
     if (!stream) await shareMedia();
     
     const sender = await peerConnection.getSenders()
-    if(!sender){
-        stream.getTracks().forEach(track=>{
-            peerConnection.addTrack(track , stream)
+    if(sender){
+        sender.forEach(track => {
+            peerConnection.removeTrack(track)
         })
     }
+        stream.getTracks().forEach(track=>{
+            peerConnection.addTrack(track , stream)
+
+        })
     peerConnection.ontrack = async (event) => {
         if(!remotestream.paused){
             remotestream.pause()
@@ -247,13 +251,15 @@ socket.on('disconnected', async (messege) => {
 socket.on('offer', async (offer) => {
     if (!stream) await shareMedia();
     const sender = await peerConnection.getSenders()
-    if(!sender){
-        stream.getTracks().forEach(track=>{
-            peerConnection.addTrack(track , stream)
+    if(sender){
+        sender.forEach(track => {
+            peerConnection.removeTrack(track)
         })
     }
 
-
+    stream.getTracks().forEach(track=>{
+        peerConnection.addTrack(track , stream)
+    })
     peerConnection.ontrack = async (event) => {
         if(!remotestream.paused){
             remotestream.pause()
