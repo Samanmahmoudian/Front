@@ -116,10 +116,12 @@ async function createOffer(){
         if(event.streams[0]){
             remotestream.srcObject = null
             console.log(event.streams[0])
-            remotestream.srcObject =  event.streams[0]
-            remotestream.onloadedmetadata = async()=>{
-                console.log('loaded')
+            remotestream.srcObject = event.streams[0]
+            
             }
+            remotestream.onloadedmetadata = async ()=>{
+                console.log('loaded')
+                remotestream.play()
         }
     };
 
@@ -161,9 +163,11 @@ socket.on('offer' , async(offer)=>{
                     remotestream.srcObject = null
                     console.log(event.streams[0])
                     remotestream.srcObject = event.streams[0]
-                    remotestream.onloadedmetadata = ()=>{
-                        console.log('loaded')
+                    
                     }
+                    remotestream.onloadedmetadata = async ()=>{
+                        console.log('loaded')
+                        remotestream.play()
                 }
             };
             peerConnection.onicecandidate = (event) => {
