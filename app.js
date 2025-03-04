@@ -169,7 +169,7 @@ socket.on('answer' , async(answer)=>{
 })
 
 socket.on('ice', async (ice) => {
-    if (ice) {
+    if (peerConnection.remoteDescription && ice) {
         try {
             await peerConnection.addIceCandidate(new RTCIceCandidate(ice));
             console.log('New ICE candidate added');
@@ -189,12 +189,10 @@ peerConnection.ontrack = async (event) => {
             await console.log(remotestream.srcObject)
             remotestream.srcObject = await event.streams[0]
             await console.log(remotestream.srcObject)
-            resolve()
+            remotestream.onloadedmetadata = ()=>{
+                console.log('load done')
+            }
         }
-    }).then(()=>{
-        remotestream.play().catch(err=>{
-            console.log(err)
-        })
     })
 };
 
