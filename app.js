@@ -111,6 +111,29 @@ startBtn.addEventListener('click', async () => {
 async function createOffer() {
     if (!stream) await shareMedia();
     
+    stream.getTracks().forEach(track=>{
+        peerConnection.addTrack(track , stream)
+    })
+
+    peerConnection.ontrack = async (event) => {
+        return new Promise(async(resolve)=>{
+            if(event.streams[0]){
+                await console.log(event.streams[0])
+                await console.log(remotestream.srcObject)
+                remotestream.srcObject = await event.streams[0]
+                await console.log(remotestream.srcObject)
+                remotestream.onloadedmetadata = ()=>{
+                    console.log('load done')
+                }
+            }
+        })
+    };
+    
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate && partnerId) {
+            socket.emit('ice' , {to: partnerId , data: event.candidate});
+        }
+    };
     
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer).then(()=>{
@@ -141,7 +164,29 @@ socket.on('callee' , async(partnerTelegramId)=>{
 socket.on('offer', async (offer) => {
     if (!stream) await shareMedia();
 
-   
+    stream.getTracks().forEach(track=>{
+        peerConnection.addTrack(track , stream)
+    })
+
+    peerConnection.ontrack = async (event) => {
+        return new Promise(async(resolve)=>{
+            if(event.streams[0]){
+                await console.log(event.streams[0])
+                await console.log(remotestream.srcObject)
+                remotestream.srcObject = await event.streams[0]
+                await console.log(remotestream.srcObject)
+                remotestream.onloadedmetadata = ()=>{
+                    console.log('load done')
+                }
+            }
+        })
+    };
+    
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate && partnerId) {
+            socket.emit('ice' , {to: partnerId , data: event.candidate});
+        }
+    };
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer)).then(()=>{
         console.log('Remote description set for callee');
     });
@@ -183,22 +228,3 @@ socket.on('ice', async (ice) => {
 });
 
 
-// peerConnection.ontrack = async (event) => {
-//     return new Promise(async(resolve)=>{
-//         if(event.streams[0]){
-//             await console.log(event.streams[0])
-//             await console.log(remotestream.srcObject)
-//             remotestream.srcObject = await event.streams[0]
-//             await console.log(remotestream.srcObject)
-//             remotestream.onloadedmetadata = ()=>{
-//                 console.log('load done')
-//             }
-//         }
-//     })
-// };
-
-// peerConnection.onicecandidate = (event) => {
-//     if (event.candidate && partnerId) {
-//         socket.emit('ice' , {to: partnerId , data: event.candidate});
-//     }
-// };
