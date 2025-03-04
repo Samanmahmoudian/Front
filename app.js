@@ -114,6 +114,7 @@ async function createOffer(){
 
     peerConnection.ontrack = async (event) => {
         if(event.streams[0]){
+            remotestream.srcObject = null
             console.log(event.streams[0])
             remotestream.srcObject =  event.streams[0]
             remotestream.onloadedmetadata = async()=>{
@@ -157,6 +158,7 @@ socket.on('offer' , async(offer)=>{
         
             peerConnection.ontrack = async (event) => {
                 if(event.streams[0]){
+                    remotestream.srcObject = null
                     console.log(event.streams[0])
                     remotestream.srcObject = event.streams[0]
                     remotestream.onloadedmetadata = ()=>{
