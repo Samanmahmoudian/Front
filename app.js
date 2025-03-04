@@ -113,9 +113,9 @@ async function createOffer(){
     });
 
     peerConnection.ontrack = async (event) => {
-        if(event.streams.length>0){
-            console.log(event.streams)
-            remotestream.srcObject = await event.streams[0]
+        if(event.streams[0]){
+            console.log(event.streams[0])
+            remotestream.srcObject =  event.streams[0]
             remotestream.onloadedmetadata = async()=>{
                 console.log('loaded')
             }
@@ -157,9 +157,9 @@ socket.on('offer' , async(offer)=>{
         
             peerConnection.ontrack = async (event) => {
                 if(event.streams.length>0){
-                    console.log(event.streams)
-                    remotestream.srcObject = await event.streams[0]
-                    remotestream.onloadedmetadata = async()=>{
+                    console.log(event.streams[0])
+                    remotestream.srcObject = event.streams[0]
+                    remotestream.onloadedmetadata = ()=>{
                         console.log('loaded')
                     }
                 }
