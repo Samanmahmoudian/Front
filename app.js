@@ -128,7 +128,6 @@ async function endpeer() {
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
     }
-    await socket.emit('startNewCall' , myTelegramId);
     partnerId = '';
 }
 
@@ -336,3 +335,8 @@ async function setAudioOutputToSpeaker() {
 }
 setAudioOutputToSpeaker();
 
+peerConnection.addEventListener('iceconnectionstatechange' , async()=>{
+    if(peerConnection.iceConnectionState == 'closed' || peerConnection.iceConnectionState == 'disconnected'){
+        await socket.emit('startNewCall' , myTelegramId)
+    }
+})
