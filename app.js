@@ -158,7 +158,7 @@ socket.on('offer', async (offer) => {
 
 
 socket.on('answer' , async(answer)=>{
-    if (peerConnection.signalingState === 'have-remote-offer') {
+    if (peerConnection.signalingState === 'have-local-offer') {
         await peerConnection.setRemoteDescription(new RTCSessionDescription(answer)).then(()=>{
             console.log('answer done')
         });
