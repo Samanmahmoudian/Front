@@ -121,9 +121,8 @@ async function endpeer() {
             reciever.track.stop();
         }
         
-    }
-    )
-    
+    })
+    socket.emit('startNewCall',myTelegramId)
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
@@ -167,7 +166,11 @@ async function createOffer() {
             socket.emit('ice' , {to: partnerId , data: event.candidate});
         }
     };
-    
+    peerConnection.addEventListener('iceconnectionstatechange' , async()=>{
+        if(peerConnection.iceConnectionState == 'closed' || peerConnection.iceConnectionState == 'disconnected'){
+            endpeer()
+        }
+    })
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer).then(()=>{
         console.log('offer created')
@@ -281,6 +284,11 @@ socket.on('offer', async (offer) => {
             socket.emit('ice' , {to: partnerId , data: event.candidate});
         }
     };
+    peerConnection.addEventListener('iceconnectionstatechange' , async()=>{
+        if(peerConnection.iceConnectionState == 'closed' || peerConnection.iceConnectionState == 'disconnected'){
+            endpeer()
+        }
+    })
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer)).then(()=>{
         console.log('Remote description set for callee');
     });
@@ -335,8 +343,3 @@ async function setAudioOutputToSpeaker() {
 }
 setAudioOutputToSpeaker();
 
-peerConnection.addEventListener('iceconnectionstatechange' , async()=>{
-    if(peerConnection.iceConnectionState == 'closed' || peerConnection.iceConnectionState == 'disconnected'){
-        await socket.emit('startNewCall' , myTelegramId)
-    }
-})
