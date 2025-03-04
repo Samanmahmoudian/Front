@@ -111,6 +111,13 @@ async function createOffer(){
     stream.getTracks().forEach(track => {
         peerConnection.addTrack(track, stream);
     });
+
+
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+            socket.emit('ice' , {to: partnerId , data: event.candidate});
+        }
+    };
     peerConnection.ontrack = async (event) => {
                 
         console.log(event.streams[0]);
@@ -128,11 +135,6 @@ async function createOffer(){
     
 };
 
-    peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-            socket.emit('ice' , {to: partnerId , data: event.candidate});
-        }
-    };
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
     socket.emit('offer' , {to: partnerId , data: offer});
@@ -159,28 +161,30 @@ socket.on('offer' , async(offer)=>{
                 peerConnection.addTrack(track, stream);
             });
 
-            peerConnection.ontrack = async (event) => {
-                
-                    console.log(event.streams[0]);
-                    await new Promise(async (resolve) => {
-                        remotestream.srcObject = await event.streams[0];
-                        if (remotestream.paused || remotestream.ended || !remotestream.played){
-                            remotestream.addEventListener("loadedmetadata", async () => {
-                                await remotestream.play().catch(error => console.error("Play error:", error)).then(()=>{
-                                    console.log('played')
-                                });
-                            });
-                        }
-                        resolve();
-                    });  
-                
-            };
+
 
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate) {
                     socket.emit('ice' , {to: partnerId , data: event.candidate});
                 }
             };
+
+            peerConnection.ontrack = async (event) => {
+                
+                console.log(event.streams[0]);
+                await new Promise(async (resolve) => {
+                    remotestream.srcObject = await event.streams[0];
+                    if (remotestream.paused || remotestream.ended || !remotestream.played){
+                        remotestream.addEventListener("loadedmetadata", async () => {
+                            await remotestream.play().catch(error => console.error("Play error:", error)).then(()=>{
+                                console.log('played')
+                            });
+                        });
+                    }
+                    resolve();
+                });  
+            
+        };
             peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
             const answer = await peerConnection.createAnswer();
             await peerConnection.setLocalDescription(answer);
