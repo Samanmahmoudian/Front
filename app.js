@@ -79,6 +79,9 @@ remotestream.onplaying = function () {
 
 async function shareMedia(){
     if(stream){
+        if(!localstream.paused){
+            localstream.pause()
+        }
         stream.getTracks().forEach(track => track.stop());
         localstream.srcObject = null
     }
@@ -108,6 +111,26 @@ startBtn.addEventListener('click', async () => {
     await socket.emit('startNewCall' , myTelegramId);
 });
 
+async function endpeer() {
+    if (peerConnection) {
+         peerConnection.close();
+    }
+    peerConnection.getReceivers().forEach(reciever => {
+        if(reciever.track){
+            reciever.track.stop();
+        }
+        
+    }
+    )
+    remotestream.srcObject =  null;
+    const loader = remotestream.nextElementSibling;
+    if (loader && loader.classList.contains('loader')) {
+        loader.style.display = '';
+    }
+    await socket.emit('startNewCall' , myTelegramId);
+    partnerId = '';
+}
+
 async function createOffer() {
     if (!stream) await shareMedia();
     
@@ -116,6 +139,9 @@ async function createOffer() {
     })
 
     peerConnection.ontrack = async (event) => {
+        if(!remotestream.paused){
+            remotestream.pause()
+        }
         return new Promise(async(resolve)=>{
             if(event.streams[0]){
                 remotestream.srcObject = await event.streams[0]
@@ -149,6 +175,55 @@ async function createOffer() {
     }
 }
 
+muteBtn.addEventListener('click', () => {
+    isMuted = !isMuted;
+    stream.getAudioTracks().forEach(track => track.enabled = !isMuted);
+    muteBtn.querySelector('img').src = isMuted ? './Icons/Mic off Btn.svg' : './Icons/Mic on Btn.svg';
+});
+
+switchBtn.addEventListener('click', async () => {
+    camera_view = await camera_view === 'user' ? 'environment' : 'user';
+    if (peerConnection) {
+        try {
+            await shareMedia();
+            const senders = peerConnection.getSenders();
+            senders.forEach(sender => {
+                if (sender.track.kind === "video") {
+                    sender.replaceTrack(stream.getVideoTracks()[0]);
+                    console.log(stream.getVideoTracks()[0]);
+                }
+                if (sender.track.kind === "audio") {
+                    sender.replaceTrack(stream.getAudioTracks()[0]);
+                }
+            });
+        } catch (error) {
+            alert('Failed to switch camera:', error);
+            switchBtn.click();
+        }
+
+    } else {
+        await shareMedia();
+    }
+
+});
+
+nextBtn.addEventListener('click', async () => {
+    if(peerConnection) {
+         peerConnection.close();
+    }
+
+
+    await socket.emit('nextcall', partnerId);
+    partnerId = '';
+    await socket.emit('startNewCall' , myTelegramId);
+    remotestream.srcObject = null;
+    const loader = remotestream.nextElementSibling;
+    if (loader && loader.classList.contains('loader')) {
+        loader.style.display = '';
+    }
+
+});
+
 socket.on('caller' , async(partnerTelegramId)=>{
     console.log('caller')
     partnerId = await partnerTelegramId
@@ -162,6 +237,16 @@ socket.on('callee' , async(partnerTelegramId)=>{
     peerConnection = await new RTCPeerConnection(peerConnectionConfig)
 })
 
+socket.on('nextcall', async (nextcall) => {
+    await endpeer();
+});
+
+socket.on('disconnected', async (messege) => {
+    if (partnerId == messege) {
+        await endpeer();
+    }
+});
+
 socket.on('offer', async (offer) => {
     if (!stream) await shareMedia();
 
@@ -170,6 +255,9 @@ socket.on('offer', async (offer) => {
     })
 
     peerConnection.ontrack = async (event) => {
+        if(!remotestream.paused){
+            remotestream.pause()
+        }
         return new Promise(async(resolve)=>{
             if(event.streams[0]){
                 remotestream.srcObject = await event.streams[0]
@@ -228,4 +316,17 @@ socket.on('ice', async (ice) => {
     }
 });
 
+async function setAudioOutputToSpeaker() {
+    if (typeof remotestream.sinkId !== 'undefined') {
+        try {
+            await remotestream.setSinkId('default');
+            console.log('Audio output set to speaker');
+        } catch (error) {
+            console.error('Error setting audio output to speaker:', error);
+        }
+    } else {
+        console.warn('Browser does not support output device selection.');
+    }
+}
+setAudioOutputToSpeaker();
 
