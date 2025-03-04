@@ -118,24 +118,12 @@ async function createOffer(){
             socket.emit('ice' , {to: partnerId , data: event.candidate});
         }
     };
-    peerConnection.ontrack = async (event) => {
-                
-        console.log(event.streams[0]);
-        await new Promise(async (resolve) => {
-            if(remotestream.srcObject.active){
-                remotestream.pause()
-            }
-            remotestream.srcObject = await event.streams[0];
-            
-                remotestream.addEventListener("loadedmetadata", async () => {
-                    await remotestream.play().catch(error => console.error("Play error:", error)).then(()=>{
-                        console.log('played')
-                    });
-                });
-            
-            resolve();
-        });  
-    
+    peerConnection.ontrack = async (event) => {  
+        if(event.streams.length>0)   {
+            console.log(event.streams[0]);
+            remotestream.srcObject =  event.streams[0];  
+        }
+
 };
 
     const offer = await peerConnection.createOffer();
@@ -172,23 +160,12 @@ socket.on('offer' , async(offer)=>{
                 }
             };
 
-            peerConnection.ontrack = async (event) => {
-                if(remotestream.srcObject.active){
-                    remotestream.pause()
+            peerConnection.ontrack = async (event) => {  
+                if(event.streams.length>0)   {
+                    console.log(event.streams[0]);
+                    remotestream.srcObject =  event.streams[0];  
                 }
-                console.log(event.streams[0]);
-                await new Promise(async (resolve) => {
-                    remotestream.srcObject = await event.streams[0];
-                    
-                        remotestream.addEventListener("loadedmetadata", async () => {
-                            await remotestream.play().catch(error => console.error("Play error:", error)).then(()=>{
-                                console.log('played')
-                            });
-                        });
-                    
-                    resolve();
-                });  
-            
+        
         };
             peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
             const answer = await peerConnection.createAnswer();
