@@ -108,28 +108,22 @@ startBtn.addEventListener('click', async () => {
     await socket.emit('startNewCall' , myTelegramId);
 });
 
-async function createOffer(){
-    if(!stream){
-        await shareMedia()
-    }
+async function createOffer() {
+    if (!stream) await shareMedia();
 
-
-    stream.getTracks().forEach(async(track) => {
-       await peerConnection.addTrack(track, stream);
-       console.log('my tracks added')
-    });
+    stream.getTracks().forEach((track) => peerConnection.addTrack(track, stream));
 
     const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer).then(()=>{
-        console.log('offer sended')
-    });
-    socket.emit('offer' , {to: partnerId , data: offer});
-    
-    while (iceCandidateQueue.length) {
+    await peerConnection.setLocalDescription(offer);
+    console.log('Offer created and set as local description');
+
+    socket.emit('offer', { to: partnerId, data: offer });
+
+    while (iceCandidateQueue.length && peerConnection.remoteDescription) {
         await peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidateQueue.shift()));
-        console.log('new ice candidate added')
     }
 }
+
 socket.on('caller' , async(partnerTelegramId)=>{
     console.log('caller')
     partnerId = await partnerTelegramId
@@ -141,23 +135,23 @@ socket.on('callee' , async(partnerTelegramId)=>{
     partnerId = await partnerTelegramId
 })
 
-socket.on('offer' , async(offer)=>{
-            if(!stream){
-                await shareMedia()
-            }
+socket.on('offer', async (offer) => {
+    if (!stream) await shareMedia();
 
-            stream.getTracks().forEach(async(track) => {
-               await peerConnection.addTrack(track, stream);
-               console.log('my tracks sent')
-            });
-            await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
-            socket.emit('answer' , {to: partnerId , data: answer});
-            while (iceCandidateQueue.length) {
-                await peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidateQueue.shift()));
-            }
-})
+    stream.getTracks().forEach((track) => peerConnection.addTrack(track, stream));
+
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+    console.log('Remote description set for callee');
+
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+    socket.emit('answer', { to: partnerId, data: answer });
+
+    while (iceCandidateQueue.length) {
+        await peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidateQueue.shift()));
+    }
+});
+
 
 socket.on('answer' , async(answer)=>{
     if (peerConnection.signalingState === 'have-remote-offer' || peerConnection.signalingState === 'have-local-pranswer') {
@@ -169,18 +163,19 @@ socket.on('answer' , async(answer)=>{
 })
 
 socket.on('ice', async (ice) => {
-    if (peerConnection.remoteDescription && ice) {
+    if (peerConnection.remoteDescription) {
         try {
             await peerConnection.addIceCandidate(new RTCIceCandidate(ice));
-            console.log('New ICE candidate added');
+            console.log('ICE candidate added');
         } catch (error) {
-            console.error('Error adding received ICE candidate:', error);
+            console.error('Error adding ICE candidate:', error);
         }
     } else {
-        console.warn('Remote description not set yet, storing ICE candidate in queue.');
+        console.warn('Storing ICE candidate because remote description is not set yet.');
         iceCandidateQueue.push(ice);
     }
 });
+
 
 peerConnection.ontrack = async (event) => {
     return new Promise(async(resolve)=>{
