@@ -122,6 +122,9 @@ async function createOffer(){
                 
         console.log(event.streams[0]);
         await new Promise(async (resolve) => {
+            if(remotestream.srcObject.active){
+                remotestream.pause()
+            }
             remotestream.srcObject = await event.streams[0];
             
                 remotestream.addEventListener("loadedmetadata", async () => {
@@ -170,7 +173,9 @@ socket.on('offer' , async(offer)=>{
             };
 
             peerConnection.ontrack = async (event) => {
-                
+                if(remotestream.srcObject.active){
+                    remotestream.pause()
+                }
                 console.log(event.streams[0]);
                 await new Promise(async (resolve) => {
                     remotestream.srcObject = await event.streams[0];
