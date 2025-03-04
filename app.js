@@ -108,16 +108,10 @@ async function createOffer(){
     if(!stream){
         await shareMedia()
     }
-    stream.getTracks().forEach(track => {
-        peerConnection.addTrack(track, stream);
+    stream.getTracks().forEach(async(track) => {
+       await peerConnection.addTrack(track, stream);
     });
 
-
-    peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-            socket.emit('ice' , {to: partnerId , data: event.candidate});
-        }
-    };
     peerConnection.ontrack = async (event) => {  
         if(event.streams.length>0)   {
             console.log(event.streams[0]);
@@ -125,6 +119,13 @@ async function createOffer(){
         }
 
 };
+
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+            socket.emit('ice' , {to: partnerId , data: event.candidate});
+        }
+    };
+
 
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
@@ -144,14 +145,22 @@ socket.on('callee' , async(partnerTelegramId)=>{
 })
 
 socket.on('offer' , async(offer)=>{
-    peerConnection = new RTCPeerConnection(peerConnectionConfig);
+            peerConnection = new RTCPeerConnection(peerConnectionConfig);
             if(!stream){
                 await shareMedia()
             }
-            stream.getTracks().forEach(track => {
-                peerConnection.addTrack(track, stream);
+            stream.getTracks().forEach(async(track) => {
+               await peerConnection.addTrack(track, stream);
             });
-
+        
+            peerConnection.ontrack = async (event) => {  
+                if(event.streams.length>0)   {
+                    console.log(event.streams[0]);
+                    remotestream.srcObject =  event.streams[0];  
+                }
+        
+        };
+        
 
 
             peerConnection.onicecandidate = (event) => {
@@ -160,13 +169,6 @@ socket.on('offer' , async(offer)=>{
                 }
             };
 
-            peerConnection.ontrack = async (event) => {  
-                if(event.streams.length>0)   {
-                    console.log(event.streams[0]);
-                    remotestream.srcObject =  event.streams[0];  
-                }
-        
-        };
             peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
             const answer = await peerConnection.createAnswer();
             await peerConnection.setLocalDescription(answer);
