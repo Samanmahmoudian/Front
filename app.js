@@ -70,7 +70,6 @@ async function shareMedia() {
     });
     localstream.srcObject = stream;
 
-    // Manually play the local stream for WebView compatibility
     if (localstream.paused || localstream.ended) {
         await localstream.play().catch(err => {
             console.log('Error playing local stream:', err);
@@ -94,11 +93,14 @@ async function endpeer() {
         peerConnection.close();
     }
     remotestream.srcObject = null;
-    peerConnection.getReceivers().forEach(reciever => {
-        if (reciever.track) {
-            reciever.track.stop();
-        }
-    });
+    const getReciever = await peerConnection.getReceivers()
+    if(getReciever){
+        getReciever.forEach(reciever => {
+            if (reciever.track) {
+                reciever.track.stop();
+            }
+        });
+    }
     socket.emit('startNewCall', myTelegramId);
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
