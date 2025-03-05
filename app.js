@@ -143,11 +143,13 @@ async function createOffer() {
         }
     };
 
-    peerConnection.addEventListener('iceconnectionstatechange', async () => {
-        if (peerConnection.iceConnectionState === 'closed' || peerConnection.iceConnectionState === 'disconnected') {
-            await endpeer();
+    peerConnection.oniceconnectionstatechange = () => {
+        console.log('ICE Connection State:', peerConnection.iceConnectionState);
+        if (peerConnection.iceConnectionState === 'failed') {
+            console.error('ICE Connection failed');
         }
-    });
+    };
+    
 
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
@@ -249,12 +251,14 @@ socket.on('offer', async (offer) => {
             socket.emit('ice', { to: partnerId, data: event.candidate });
         }
     };
-
-    peerConnection.addEventListener('iceconnectionstatechange', async () => {
-        if (peerConnection.iceConnectionState === 'closed' || peerConnection.iceConnectionState === 'disconnected') {
-            await endpeer();
+    peerConnection.oniceconnectionstatechange = () => {
+        console.log('ICE Connection State:', peerConnection.iceConnectionState);
+        if (peerConnection.iceConnectionState === 'failed') {
+            console.error('ICE Connection failed');
         }
-    });
+    };
+    
+
 
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
     const answer = await peerConnection.createAnswer();
