@@ -124,7 +124,7 @@ async function createOffer() {
     });
 
     peerConnection.ontrack = async(event) => {
-        if(!event.streams[0]) return
+        if(!event.streams[0])console.log('injas moshkel')
         if(!remotestream.paused){
             await remotestream.pause()
         }
@@ -234,7 +234,7 @@ socket.on('offer', async (offer) => {
     });
 
     peerConnection.ontrack = async(event) => {
-        if(!event.streams[0]) return
+        if(!event.streams[0]) console.log('injas moshkel')
         if(!remotestream.paused){
             await remotestream.pause()
         }
