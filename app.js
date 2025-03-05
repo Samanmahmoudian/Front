@@ -1,10 +1,28 @@
 const peerConnectionConfig = {
     iceServers: [
-        { urls: "stun:stun.relay.metered.ca:80" },
-        { urls: "turn:global.relay.metered.ca:80", username: "3d4c3bafb3a7da4b33bd3f07", credential: "Ib6+qiOHo648ZsE5" },
-        { urls: "turn:global.relay.metered.ca:80?transport=tcp", username: "3d4c3bafb3a7da4b33bd3f07", credential: "Ib6+qiOHo648ZsE5" },
-        { urls: "turn:global.relay.metered.ca:443", username: "3d4c3bafb3a7da4b33bd3f07", credential: "Ib6+qiOHo648ZsE5" },
-        { urls: "turns:global.relay.metered.ca:443?transport=tcp", username: "3d4c3bafb3a7da4b33bd3f07", credential: "Ib6+qiOHo648ZsE5" },
+        {
+            urls: "stun:stun.relay.metered.ca:80",
+        },
+        {
+            urls: "turn:global.relay.metered.ca:80",
+            username: "3d4c3bafb3a7da4b33bd3f07",
+            credential: "Ib6+qiOHo648ZsE5",
+        },
+        {
+            urls: "turn:global.relay.metered.ca:80?transport=tcp",
+            username: "3d4c3bafb3a7da4b33bd3f07",
+            credential: "Ib6+qiOHo648ZsE5",
+        },
+        {
+            urls: "turn:global.relay.metered.ca:443",
+            username: "3d4c3bafb3a7da4b33bd3f07",
+            credential: "Ib6+qiOHo648ZsE5",
+        },
+        {
+            urls: "turns:global.relay.metered.ca:443?transport=tcp",
+            username: "3d4c3bafb3a7da4b33bd3f07",
+            credential: "Ib6+qiOHo648ZsE5",
+        },
     ],
 };
 
@@ -54,11 +72,9 @@ async function shareMedia() {
 
     // Manually play the local stream for WebView compatibility
     if (localstream.paused || localstream.ended) {
-        try {
-            await localstream.play();
-        } catch (err) {
+        await localstream.play().catch(err => {
             console.log('Error playing local stream:', err);
-        }
+        });
     }
 }
 
