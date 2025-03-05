@@ -27,7 +27,7 @@ const peerConnectionConfig = {
 };
 
 const myTelegramId = String(Math.floor(Math.random() * 1000) + 1);
-let myId;
+let myId; 
 let partnerId;
 let stream;
 let isMuted = false;
@@ -126,13 +126,19 @@ async function createOffer() {
         return new Promise(async (resolve) => {
             if (event.streams[0]) {
                 remotestream.srcObject = event.streams[0];
+
+                // وقتی متا داده‌ها بارگذاری شدند، شروع به پخش می‌کنیم
                 remotestream.onloadedmetadata = async () => {
                     try {
-                        // Play remote stream manually for Android/WebView compatibility
-                        await remotestream.play();
+                        // اگر ویدیو هنوز پخش نشده، پخش را شروع می‌کنیم
+                        if (remotestream.paused) {
+                            await remotestream.play();
+                        }
                         console.log('Remote stream is playing');
                     } catch (err) {
                         console.log('Error playing remote stream:', err);
+                        // اگر پخش نشد، دوباره تلاش می‌کنیم
+                        setTimeout(() => remotestream.play(), 1000);
                     }
                 };
             }
@@ -240,6 +246,8 @@ socket.on('offer', async (offer) => {
         return new Promise(async (resolve) => {
             if (event.streams[0]) {
                 remotestream.srcObject = event.streams[0];
+
+                // وقتی متا داده‌ها بارگذاری شدند، شروع به پخش می‌کنیم
                 remotestream.onloadedmetadata = async () => {
                     await remotestream.play().catch(err => {
                         console.log('Error playing remote stream:', err);
