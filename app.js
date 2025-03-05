@@ -70,6 +70,7 @@ async function shareMedia() {
     });
     localstream.srcObject = stream;
 
+    // Manually play the local stream for WebView compatibility
     if (localstream.paused || localstream.ended) {
         await localstream.play().catch(err => {
             console.log('Error playing local stream:', err);
@@ -77,7 +78,6 @@ async function shareMedia() {
     }
 }
 
-shareMedia()
 const socket = io(`https://miniapp-videocall-server.onrender.com`, { query: { userTelegramId: myTelegramId } });
 
 startBtn.addEventListener('click', async () => {
@@ -85,7 +85,9 @@ startBtn.addEventListener('click', async () => {
     nextBtn.style.display = 'block';
     muteBtn.style.display = 'block';
     switchBtn.style.display = 'block';
-    await endpeer()
+    await shareMedia();
+    await socket.emit('startNewCall', myTelegramId);
+    remotestream.play()
 });
 
 async function endpeer() {
@@ -93,14 +95,11 @@ async function endpeer() {
         peerConnection.close();
     }
     remotestream.srcObject = null;
-    const getReciever = await peerConnection.getReceivers()
-    if(getReciever){
-        getReciever.forEach(reciever => {
-            if (reciever.track) {
-                reciever.track.stop();
-            }
-        });
-    }
+    peerConnection.getReceivers().forEach(reciever => {
+        if (reciever.track) {
+            reciever.track.stop();
+        }
+    });
     socket.emit('startNewCall', myTelegramId);
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
