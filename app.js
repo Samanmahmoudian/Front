@@ -24,31 +24,24 @@ const peerConnectionConfig = {
           credential: "Ib6+qiOHo648ZsE5",
         },
     ],
-  }
+}
 
-  
 const myTelegramId = String(Math.floor(Math.random() * 1000) + 1);
-alert(myTelegramId)
 let myId; 
 let partnerId;
-/**@type {MediaStream} */
 let stream;
 let isMuted = false;
 let isHidden = false;
 let camera_view = 'user';
-/** @type {RTCPeerConnection} */
-let peerConnection 
+let peerConnection;
 let iceCandidateQueue = [];
-/** @type {HTMLVideoElement} */
 const localstream = document.getElementById('localstream');
-/** @type {HTMLVideoElement} */
 const remotestream = document.getElementById('remotestream');
 const muteBtn = document.getElementById('mutebtn');
 const switchBtn = document.getElementById('switchbtn');
 const nextBtn = document.getElementById('nextbtn');
 const startBtn = document.getElementById('startbtn');
 let playBtn = document.getElementById("playbutton");
-
 
 localstream.onplaying = function () {
     const loader = localstream.nextElementSibling;
@@ -64,43 +57,27 @@ remotestream.onplaying = function () {
     }
 };
 
-
-
-
-//  function getTelegramId(){
-//     window.Telegram.WebApp.ready()
-//     if (window.Telegram.WebApp.initDataUnsafe) {
-//         alert(window.Telegram.WebApp.initDataUnsafe.user.id)    
-//         return String(window.Telegram.WebApp.initDataUnsafe.user.id);
-//     } else {
-//         window.close()
-//     }
-// }
-
-async function shareMedia(){
-    if(stream){
-        if(!localstream.paused){
-            localstream.pause()
+async function shareMedia() {
+    if (stream) {
+        if (!localstream.paused) {
+            localstream.pause();
         }
         stream.getTracks().forEach(track => track.stop());
-        localstream.srcObject = null
+        localstream.srcObject = null;
     }
     stream = await navigator.mediaDevices.getUserMedia({
-        video: {facingMode: camera_view},
+        video: { facingMode: camera_view },
         audio: true
     });
-    localstream.srcObject = await stream
-    if(localstream.paused || localstream.ended){
-        await localstream.play().then(()=>{
-            console.log('camera turned on')
-        })
+    localstream.srcObject = stream;
+    if (localstream.paused || localstream.ended) {
+        await localstream.play().then(() => {
+            console.log('Camera turned on');
+        });
     }
-    
-    
 }
 
-
-const socket = io(`https://miniapp-videocall-server.onrender.com` , {query: {userTelegramId: myTelegramId}});
+const socket = io(`https://miniapp-videocall-server.onrender.com`, { query: { userTelegramId: myTelegramId } });
 
 startBtn.addEventListener('click', async () => {
     startBtn.style.display = 'none';
@@ -108,21 +85,20 @@ startBtn.addEventListener('click', async () => {
     muteBtn.style.display = 'block';
     switchBtn.style.display = 'block';
     await shareMedia();
-    await socket.emit('startNewCall' , myTelegramId);
+    await socket.emit('startNewCall', myTelegramId);
 });
 
 async function endpeer() {
     if (peerConnection) {
-         peerConnection.close();
+        peerConnection.close();
     }
-    remotestream.srcObject =  await null;
+    remotestream.srcObject = null;
     peerConnection.getReceivers().forEach(reciever => {
-        if(reciever.track){
+        if (reciever.track) {
             reciever.track.stop();
         }
-        
-    })
-    socket.emit('startNewCall',myTelegramId)
+    });
+    socket.emit('startNewCall', myTelegramId);
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = '';
@@ -132,51 +108,48 @@ async function endpeer() {
 
 async function createOffer() {
     if (!stream) await shareMedia();
-    
-    const sender = await peerConnection.getSenders()
-    if(sender){
-        sender.forEach(track => {
-            peerConnection.removeTrack(track)
-        })
-    }
-        stream.getTracks().forEach(track=>{
-            peerConnection.addTrack(track , stream)
 
-        })
-    peerConnection.ontrack = async (event) => {
-        if(!remotestream.paused){
-            remotestream.pause()
-        }
-        return new Promise(async(resolve)=>{
-            if(event.streams[0]){
-                remotestream.srcObject = await event.streams[0]
-                remotestream.onloadedmetadata = async ()=>{
-                    await remotestream.play().then(()=>{
-                        console.log('remote stream is playing')
-                    }).catch(err=>{
-                        console.log(err)
-                    })
-                }
-            }
-        })
-    };
-    
-    peerConnection.onicecandidate = (event) => {
-        if (event.candidate && partnerId) {
-            socket.emit('ice' , {to: partnerId , data: event.candidate});
-        }
-    };
-    peerConnection.addEventListener('iceconnectionstatechange' , async()=>{
-        if(peerConnection.iceConnectionState == 'closed' || peerConnection.iceConnectionState == 'disconnected'){
-            endpeer()
-        }
-    })
-    const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer).then(()=>{
-        console.log('offer created')
+    const senders = await peerConnection.getSenders();
+    senders.forEach(track => {
+        peerConnection.removeTrack(track);
     });
 
+    stream.getTracks().forEach(track => {
+        peerConnection.addTrack(track, stream);
+    });
 
+    peerConnection.ontrack = async (event) => {
+        if (!remotestream.paused) {
+            remotestream.pause();
+        }
+        return new Promise(async (resolve) => {
+            if (event.streams[0]) {
+                remotestream.srcObject = event.streams[0];
+                remotestream.onloadedmetadata = async () => {
+                    await remotestream.play().then(() => {
+                        console.log('Remote stream is playing');
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                };
+            }
+        });
+    };
+
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate && partnerId) {
+            socket.emit('ice', { to: partnerId, data: event.candidate });
+        }
+    };
+
+    peerConnection.addEventListener('iceconnectionstatechange', async () => {
+        if (peerConnection.iceConnectionState === 'closed' || peerConnection.iceConnectionState === 'disconnected') {
+            await endpeer();
+        }
+    });
+
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
     socket.emit('offer', { to: partnerId, data: offer });
 
     while (iceCandidateQueue.length && peerConnection.remoteDescription) {
@@ -191,7 +164,7 @@ muteBtn.addEventListener('click', () => {
 });
 
 switchBtn.addEventListener('click', async () => {
-    camera_view = await camera_view === 'user' ? 'environment' : 'user';
+    camera_view = camera_view === 'user' ? 'environment' : 'user';
     if (peerConnection) {
         try {
             await shareMedia();
@@ -209,91 +182,86 @@ switchBtn.addEventListener('click', async () => {
             alert('Failed to switch camera:', error);
             switchBtn.click();
         }
-
     } else {
         await shareMedia();
     }
-
 });
 
 nextBtn.addEventListener('click', async () => {
     await socket.emit('nextcall', partnerId);
-    await endpeer()
-});
-
-socket.on('caller' , async(partnerTelegramId)=>{
-    if(peerConnection){
-        peerConnection.close()
-    }
-    console.log('caller')
-    partnerId = await partnerTelegramId
-    peerConnection =await new RTCPeerConnection(peerConnectionConfig)
-    createOffer()
-})
-
-socket.on('callee' , async(partnerTelegramId)=>{
-    if(peerConnection){
-        peerConnection.close()
-    }
-    console.log('callee')
-    partnerId = await partnerTelegramId
-    peerConnection = await new RTCPeerConnection(peerConnectionConfig)
-})
-
-socket.on('nextcall', async (nextcall) => {
     await endpeer();
 });
 
-socket.on('disconnected', async (messege) => {
-    if (partnerId == messege) {
+socket.on('caller', async (partnerTelegramId) => {
+    if (peerConnection) {
+        peerConnection.close();
+    }
+    partnerId = partnerTelegramId;
+    peerConnection = new RTCPeerConnection(peerConnectionConfig);
+    await createOffer();
+});
+
+socket.on('callee', async (partnerTelegramId) => {
+    if (peerConnection) {
+        peerConnection.close();
+    }
+    partnerId = partnerTelegramId;
+    peerConnection = new RTCPeerConnection(peerConnectionConfig);
+});
+
+socket.on('nextcall', async () => {
+    await endpeer();
+});
+
+socket.on('disconnected', async (message) => {
+    if (partnerId === message) {
         await endpeer();
     }
 });
 
 socket.on('offer', async (offer) => {
     if (!stream) await shareMedia();
-    const sender = await peerConnection.getSenders()
-    if(sender){
-        sender.forEach(track => {
-            peerConnection.removeTrack(track)
-        })
-    }
 
-    stream.getTracks().forEach(track=>{
-        peerConnection.addTrack(track , stream)
-    })
-    peerConnection.ontrack = async (event) => {
-        if(!remotestream.paused){
-            remotestream.pause()
-        }
-        return new Promise(async(resolve)=>{
-            if(event.streams[0]){
-                remotestream.srcObject = await event.streams[0]
-                remotestream.onloadedmetadata = async()=>{
-                    await remotestream.play().then(()=>{
-                        console.log('remote stream is playing')
-                    }).catch(err=>{
-                        console.log(err)
-                    })
-                }
-            }
-        })
-    };
-    peerConnection.onicecandidate = (event) => {
-        if (event.candidate && partnerId) {
-            socket.emit('ice' , {to: partnerId , data: event.candidate});
-        }
-    };
-    peerConnection.addEventListener('iceconnectionstatechange' , async()=>{
-        if(peerConnection.iceConnectionState == 'closed' || peerConnection.iceConnectionState == 'disconnected'){
-            endpeer()
-        }
-    })
-    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer)).then(()=>{
-        console.log('Remote description set for callee');
+    const senders = await peerConnection.getSenders();
+    senders.forEach(track => {
+        peerConnection.removeTrack(track);
     });
 
+    stream.getTracks().forEach(track => {
+        peerConnection.addTrack(track, stream);
+    });
 
+    peerConnection.ontrack = async (event) => {
+        if (!remotestream.paused) {
+            remotestream.pause();
+        }
+        return new Promise(async (resolve) => {
+            if (event.streams[0]) {
+                remotestream.srcObject = event.streams[0];
+                remotestream.onloadedmetadata = async () => {
+                    await remotestream.play().then(() => {
+                        console.log('Remote stream is playing');
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                };
+            }
+        });
+    };
+
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate && partnerId) {
+            socket.emit('ice', { to: partnerId, data: event.candidate });
+        }
+    };
+
+    peerConnection.addEventListener('iceconnectionstatechange', async () => {
+        if (peerConnection.iceConnectionState === 'closed' || peerConnection.iceConnectionState === 'disconnected') {
+            await endpeer();
+        }
+    });
+
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
     const answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
     socket.emit('answer', { to: partnerId, data: answer });
@@ -303,17 +271,14 @@ socket.on('offer', async (offer) => {
     }
 });
 
-
-socket.on('answer' , async(answer)=>{
+socket.on('answer', async (answer) => {
     if (peerConnection.signalingState === 'have-local-offer') {
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer)).then(()=>{
-            console.log('answer done')
-        });
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
         while (iceCandidateQueue.length) {
             await peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidateQueue.shift()));
         }
     }
-})
+});
 
 socket.on('ice', async (ice) => {
     if (peerConnection.remoteDescription) {
@@ -341,5 +306,5 @@ async function setAudioOutputToSpeaker() {
         console.warn('Browser does not support output device selection.');
     }
 }
-setAudioOutputToSpeaker();
 
+setAudioOutputToSpeaker();
