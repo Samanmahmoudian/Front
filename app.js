@@ -120,30 +120,37 @@ async function createOffer() {
     });
 
     peerConnection.ontrack = async (event) => {
-        if (!remotestream.paused) {
-            remotestream.pause();
-        }
-        return new Promise(async (resolve) => {
+        try {
             if (event.streams[0]) {
                 remotestream.srcObject = event.streams[0];
 
-                // وقتی متا داده‌ها بارگذاری شدند، شروع به پخش می‌کنیم
                 remotestream.onloadedmetadata = async () => {
                     try {
-                        // اگر ویدیو هنوز پخش نشده، پخش را شروع می‌کنیم
-                        if (remotestream.paused) {
+                        if (remotestream.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA && remotestream.paused) {
                             await remotestream.play();
+                            console.log('Remote stream is playing');
                         }
-                        console.log('Remote stream is playing');
                     } catch (err) {
-                        console.log('Error playing remote stream:', err);
-                        // اگر پخش نشد، دوباره تلاش می‌کنیم
+                        console.error('Error playing remote stream:', err);
                         setTimeout(() => remotestream.play(), 1000);
                     }
                 };
+
+                remotestream.onloadeddata = async () => {
+                    try {
+                        if (remotestream.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA && remotestream.paused) {
+                            await remotestream.play();
+                            console.log('Remote stream data loaded and playing');
+                        }
+                    } catch (err) {
+                        console.error('Error playing remote stream after data load:', err);
+                    }
+                };
             }
-        });
-    };
+        } catch (error) {
+            console.error('Error in ontrack:', error);
+        }
+    }
 
     peerConnection.onicecandidate = (event) => {
         if (event.candidate && partnerId) {
@@ -240,22 +247,37 @@ socket.on('offer', async (offer) => {
     });
 
     peerConnection.ontrack = async (event) => {
-        if (!remotestream.paused) {
-            remotestream.pause();
-        }
-        return new Promise(async (resolve) => {
+        try {
             if (event.streams[0]) {
                 remotestream.srcObject = event.streams[0];
 
-                // وقتی متا داده‌ها بارگذاری شدند، شروع به پخش می‌کنیم
                 remotestream.onloadedmetadata = async () => {
-                    await remotestream.play().catch(err => {
-                        console.log('Error playing remote stream:', err);
-                    });
+                    try {
+                        if (remotestream.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA && remotestream.paused) {
+                            await remotestream.play();
+                            console.log('Remote stream is playing');
+                        }
+                    } catch (err) {
+                        console.error('Error playing remote stream:', err);
+                        setTimeout(() => remotestream.play(), 1000);
+                    }
+                };
+
+                remotestream.onloadeddata = async () => {
+                    try {
+                        if (remotestream.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA && remotestream.paused) {
+                            await remotestream.play();
+                            console.log('Remote stream data loaded and playing');
+                        }
+                    } catch (err) {
+                        console.error('Error playing remote stream after data load:', err);
+                    }
                 };
             }
-        });
-    };
+        } catch (error) {
+            console.error('Error in ontrack:', error);
+        }
+    }
 
     peerConnection.onicecandidate = (event) => {
         if (event.candidate && partnerId) {
