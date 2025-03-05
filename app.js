@@ -78,6 +78,7 @@ async function shareMedia() {
     }
 }
 
+shareMedia()
 const socket = io(`https://miniapp-videocall-server.onrender.com`, { query: { userTelegramId: myTelegramId } });
 
 startBtn.addEventListener('click', async () => {
@@ -85,8 +86,7 @@ startBtn.addEventListener('click', async () => {
     nextBtn.style.display = 'block';
     muteBtn.style.display = 'block';
     switchBtn.style.display = 'block';
-    await shareMedia();
-    await socket.emit('startNewCall', myTelegramId);
+    await endpeer()
 });
 
 async function endpeer() {
