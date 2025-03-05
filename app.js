@@ -124,15 +124,17 @@ async function createOffer() {
     });
 
     peerConnection.ontrack = async(event) => {
-        if(!event.streams[0]) console.log('injas moshkel')
-        remotestream.srcObject = await event.streams[0]
-        remotestream.oncanplay = async()=>{
-            await remotestream.play().catch(async ()=>{
-                await remotestream.pause()
-                await remotestream.play()
-            })
+        try{
+            if(!event.streams[0]) console.log('injas moshkel')
+                remotestream.srcObject = await event.streams[0]
+                remotestream.oncanplay = async()=>{
+                    await remotestream.play()
+                }
+            }catch{
+                console.log('meow')
+            }
         }
-    };
+
     
 
     peerConnection.onicecandidate = (event) => {
@@ -230,15 +232,16 @@ socket.on('offer', async (offer) => {
     });
 
     peerConnection.ontrack = async(event) => {
-        if(!event.streams[0]) console.log('injas moshkel')
-        remotestream.srcObject = await event.streams[0]
-        remotestream.oncanplay = async()=>{
-            await remotestream.play().catch(async ()=>{
-                await remotestream.pause()
-                await remotestream.play()
-            })
+        try{
+            if(!event.streams[0]) console.log('injas moshkel')
+                remotestream.srcObject = await event.streams[0]
+                remotestream.oncanplay = async()=>{
+                    await remotestream.play()
+                }
+            }catch{
+                console.log('meow')
+            }
         }
-    };
     
 
     peerConnection.onicecandidate = (event) => {
