@@ -24,14 +24,13 @@ const peerConnectionConfig = {
           credential: "Ib6+qiOHo648ZsE5",
         },
     ],
-}
+};
 
 const myTelegramId = String(Math.floor(Math.random() * 1000) + 1);
 let myId; 
 let partnerId;
 let stream;
 let isMuted = false;
-let isHidden = false;
 let camera_view = 'user';
 let peerConnection;
 let iceCandidateQueue = [];
@@ -70,9 +69,11 @@ async function shareMedia() {
         audio: true
     });
     localstream.srcObject = stream;
+
+    // Manually play the local stream for WebView compatibility
     if (localstream.paused || localstream.ended) {
-        await localstream.play().then(() => {
-            console.log('Camera turned on');
+        await localstream.play().catch(err => {
+            console.log('Error playing local stream:', err);
         });
     }
 }
@@ -126,11 +127,13 @@ async function createOffer() {
             if (event.streams[0]) {
                 remotestream.srcObject = event.streams[0];
                 remotestream.onloadedmetadata = async () => {
-                    await remotestream.play().then(() => {
+                    try {
+                        // Play remote stream manually for Android/WebView compatibility
+                        await remotestream.play();
                         console.log('Remote stream is playing');
-                    }).catch(err => {
-                        console.log(err);
-                    });
+                    } catch (err) {
+                        console.log('Error playing remote stream:', err);
+                    }
                 };
             }
         });
@@ -172,7 +175,6 @@ switchBtn.addEventListener('click', async () => {
             senders.forEach(sender => {
                 if (sender.track.kind === "video") {
                     sender.replaceTrack(stream.getVideoTracks()[0]);
-                    console.log(stream.getVideoTracks()[0]);
                 }
                 if (sender.track.kind === "audio") {
                     sender.replaceTrack(stream.getAudioTracks()[0]);
@@ -239,10 +241,8 @@ socket.on('offer', async (offer) => {
             if (event.streams[0]) {
                 remotestream.srcObject = event.streams[0];
                 remotestream.onloadedmetadata = async () => {
-                    await remotestream.play().then(() => {
-                        console.log('Remote stream is playing');
-                    }).catch(err => {
-                        console.log(err);
+                    await remotestream.play().catch(err => {
+                        console.log('Error playing remote stream:', err);
                     });
                 };
             }
