@@ -138,7 +138,7 @@ async function createOffer() {
     
 
     peerConnection.onicecandidate = (event) => {
-        if (event.candidate && partnerId) {
+        if (event.candidate && peerConnection.remoteDescription) {
             socket.emit('ice', { to: partnerId, data: event.candidate });
         }
     };
@@ -247,7 +247,7 @@ socket.on('offer', async (offer) => {
     
 
     peerConnection.onicecandidate = (event) => {
-        if (event.candidate && partnerId) {
+        if (event.candidate && peerConnection.remoteDescription) {
             socket.emit('ice', { to: partnerId, data: event.candidate });
         }
     };
