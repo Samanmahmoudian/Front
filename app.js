@@ -32,9 +32,12 @@ let partnerId;
 let stream;
 let isMuted = false;
 let camera_view = 'user';
+/**@type {RTCPeerConnection} */
 let peerConnection;
 let iceCandidateQueue = [];
+/**@type {HTMLVideoElement} */
 const localstream = document.getElementById('localstream');
+/**@type {HTMLVideoElement} */
 const remotestream = document.getElementById('remotestream');
 const muteBtn = document.getElementById('mutebtn');
 const switchBtn = document.getElementById('switchbtn');
@@ -121,20 +124,18 @@ async function createOffer() {
     });
 
     peerConnection.ontrack = async(event) => {
-        const streams = await event.streams[0];
-        if (!streams) return;
-    
-        remotestream.srcObject = streams
-    
-        const playStream = () => {
-            return remotestream.play().catch((err) => {
-                console.error('Error playing remote stream:', err);
-                setTimeout(playStream, 1000); // try again after 1 second
-            });
-        };
-    
-        remotestream.addEventListener('canplay', playStream);
-        remotestream.addEventListener('loadeddata', playStream);
+        if(event.streams[0]) return
+        if(!remotestream.paused){
+            await remotestream.pause()
+        }
+        remotestream.srcObject = await event.streams[0]
+        remotestream.oncanplay = async()=>{
+            await remotestream.play().catch(()=>{
+                setTimeout(async ()=>{
+                    await remotestream.play()
+                }, 500)
+            })
+        }
     };
     
 
@@ -232,38 +233,21 @@ socket.on('offer', async (offer) => {
         peerConnection.addTrack(track, stream);
     });
 
-    peerConnection.ontrack = async (event) => {
-        try {
-            if (event.streams[0]) {
-                remotestream.srcObject = event.streams[0];
-
-                remotestream.onloadedmetadata = async () => {
-                    try {
-                        if (remotestream.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA && remotestream.paused) {
-                            await remotestream.play();
-                            console.log('Remote stream is playing');
-                        }
-                    } catch (err) {
-                        console.error('Error playing remote stream:', err);
-                        setTimeout(() => remotestream.play(), 1000);
-                    }
-                };
-
-                remotestream.onloadeddata = async () => {
-                    try {
-                        if (remotestream.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA && remotestream.paused) {
-                            await remotestream.play();
-                            console.log('Remote stream data loaded and playing');
-                        }
-                    } catch (err) {
-                        console.error('Error playing remote stream after data load:', err);
-                    }
-                };
-            }
-        } catch (error) {
-            console.error('Error in ontrack:', error);
+    peerConnection.ontrack = async(event) => {
+        if(event.streams[0]) return
+        if(!remotestream.paused){
+            await remotestream.pause()
         }
-    }
+        remotestream.srcObject = await event.streams[0]
+        remotestream.oncanplay = async()=>{
+            await remotestream.play().catch(()=>{
+                setTimeout(async ()=>{
+                    await remotestream.play()
+                }, 500)
+            })
+        }
+    };
+    
 
     peerConnection.onicecandidate = (event) => {
         if (event.candidate && partnerId) {
