@@ -95,13 +95,9 @@ startBtn.addEventListener('click', async () => {
 
 async function endpeer() {
     if (peerConnection) {
-        const senders = peerConnection.getSenders();
-        senders.forEach(sender => {
-            peerConnection.removeTrack(sender);
-        });
-        peerConnection.close();
-        peerConnection = null;
+        await peerConnection.close();
     }
+    iceCandidateQueue = []
     remotestream.srcObject = null;
     peerConnection.getReceivers().forEach(reciever => {
         if (reciever.track) {
