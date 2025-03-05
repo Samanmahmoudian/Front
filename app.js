@@ -124,16 +124,12 @@ async function createOffer() {
     });
 
     peerConnection.ontrack = async(event) => {
-        if(!event.streams[0])console.log('injas moshkel')
-        if(!remotestream.paused){
-            await remotestream.pause()
-        }
+        if(!event.streams[0]) console.log('injas moshkel')
         remotestream.srcObject = await event.streams[0]
         remotestream.oncanplay = async()=>{
-            await remotestream.play().catch(()=>{
-                setTimeout(async ()=>{
-                    await remotestream.play()
-                }, 500)
+            await remotestream.play().catch(async ()=>{
+                await remotestream.pause()
+                await remotestream.play()
             })
         }
     };
@@ -235,15 +231,11 @@ socket.on('offer', async (offer) => {
 
     peerConnection.ontrack = async(event) => {
         if(!event.streams[0]) console.log('injas moshkel')
-        if(!remotestream.paused){
-            await remotestream.pause()
-        }
         remotestream.srcObject = await event.streams[0]
         remotestream.oncanplay = async()=>{
-            await remotestream.play().catch(()=>{
-                setTimeout(async ()=>{
-                    await remotestream.play()
-                }, 500)
+            await remotestream.play().catch(async ()=>{
+                await remotestream.pause()
+                await remotestream.play()
             })
         }
     };
