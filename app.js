@@ -143,12 +143,22 @@ async function createOffer() {
         }
     };
 
-    peerConnection.oniceconnectionstatechange = () => {
-        console.log('ICE Connection State:', peerConnection.iceConnectionState);
-        if (peerConnection.iceConnectionState === 'failed') {
-            console.error('ICE Connection failed');
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate && peerConnection.remoteDescription) {
+            socket.emit('ice', { to: partnerId, data: event.candidate });
         }
     };
+    peerConnection.oniceconnectionstatechange = () => {
+        console.log('ICE Connection State:', peerConnection.iceConnectionState);
+        if (peerConnection.iceConnectionState === 'connected') {
+            const receivers = peerConnection.getReceivers();
+
+            receivers.forEach(receiver => {
+                console.log('Receiver track kind:', receiver.track.kind);
+                console.log('Receiver track id:', receiver.track.id);
+        })
+    };
+}
     
 
     const offer = await peerConnection.createOffer();
@@ -253,10 +263,15 @@ socket.on('offer', async (offer) => {
     };
     peerConnection.oniceconnectionstatechange = () => {
         console.log('ICE Connection State:', peerConnection.iceConnectionState);
-        if (peerConnection.iceConnectionState === 'failed') {
-            console.error('ICE Connection failed');
-        }
+        if (peerConnection.iceConnectionState === 'connected') {
+            const receivers = peerConnection.getReceivers();
+
+            receivers.forEach(receiver => {
+                console.log('Receiver track kind:', receiver.track.kind);
+                console.log('Receiver track id:', receiver.track.id);
+        })
     };
+}
     
 
 
