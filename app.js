@@ -120,38 +120,23 @@ async function createOffer() {
         peerConnection.addTrack(track, stream);
     });
 
-    peerConnection.ontrack = async (event) => {
-        try {
-            if (event.streams[0]) {
-                remotestream.srcObject = event.streams[0];
-
-                remotestream.onloadedmetadata = async () => {
-                    try {
-                        if (remotestream.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA && remotestream.paused) {
-                            await remotestream.play();
-                            console.log('Remote stream is playing');
-                        }
-                    } catch (err) {
-                        console.error('Error playing remote stream:', err);
-                        setTimeout(() => remotestream.play(), 1000);
-                    }
-                };
-
-                remotestream.onloadeddata = async () => {
-                    try {
-                        if (remotestream.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA && remotestream.paused) {
-                            await remotestream.play();
-                            console.log('Remote stream data loaded and playing');
-                        }
-                    } catch (err) {
-                        console.error('Error playing remote stream after data load:', err);
-                    }
-                };
-            }
-        } catch (error) {
-            console.error('Error in ontrack:', error);
-        }
-    }
+    peerConnection.ontrack = async(event) => {
+        const streams = await event.streams[0];
+        if (!streams) return;
+    
+        remotestream.srcObject = streams
+    
+        const playStream = () => {
+            return remotestream.play().catch((err) => {
+                console.error('Error playing remote stream:', err);
+                setTimeout(playStream, 1000); // try again after 1 second
+            });
+        };
+    
+        remotestream.addEventListener('canplay', playStream);
+        remotestream.addEventListener('loadeddata', playStream);
+    };
+    
 
     peerConnection.onicecandidate = (event) => {
         if (event.candidate && partnerId) {
