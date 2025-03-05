@@ -126,6 +126,7 @@ async function createOffer() {
     peerConnection.ontrack = async(event) => {
         try{
             if(!event.streams[0]) console.log('injas moshkel')
+                console.log(event.streams[0])
                 remotestream.srcObject = await event.streams[0]
                 remotestream.oncanplay = async()=>{
                     await remotestream.play()
@@ -246,6 +247,7 @@ socket.on('offer', async (offer) => {
     peerConnection.ontrack = async(event) => {
         try{
             if(!event.streams[0]) console.log('injas moshkel')
+                console.log(event.streams[0])
                 remotestream.srcObject = await event.streams[0]
                 remotestream.oncanplay = async()=>{
                     await remotestream.play()
