@@ -129,7 +129,7 @@ async function createOffer() {
             await remotestream.pause()
         }
         remotestream.srcObject = await event.streams[0]
-        remotestream.oncanplay = async()=>{
+        remotestream.onloadedmetadata = async()=>{
             await remotestream.play().catch(()=>{
                 setTimeout(async ()=>{
                     await remotestream.play()
@@ -239,7 +239,7 @@ socket.on('offer', async (offer) => {
             await remotestream.pause()
         }
         remotestream.srcObject = await event.streams[0]
-        remotestream.oncanplay = async()=>{
+        remotestream.onloadedmetadata = async()=>{
             await remotestream.play().catch(()=>{
                 setTimeout(async ()=>{
                     await remotestream.play()
