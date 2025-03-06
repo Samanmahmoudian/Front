@@ -35,6 +35,7 @@ let camera_view = 'user';
 /**@type {RTCPeerConnection} */
 let peerConnection;
 let iceCandidateQueue = [];
+let lockNextCall = false
 /**@type {HTMLVideoElement} */
 const localstream = document.getElementById('localstream');
 /**@type {HTMLVideoElement} */
@@ -94,22 +95,26 @@ startBtn.addEventListener('click', async () => {
 });
 
 async function endpeer() {
-    if (peerConnection) {
-        await peerConnection.close();
-        
-    }
-    remotestream.srcObject = null;
-    peerConnection.getReceivers().forEach(reciever => {
-        if (reciever.track) {
-            reciever.track.stop();
+    if(!lockNextCall){
+        if (peerConnection) {
+            await peerConnection.close();
+            
         }
-    });
-    socket.emit('startNewCall', myTelegramId);
-    const loader = remotestream.nextElementSibling;
-    if (loader && loader.classList.contains('loader')) {
-        loader.style.display = '';
+        remotestream.srcObject = null;
+        peerConnection.getReceivers().forEach(reciever => {
+            if (reciever.track) {
+                reciever.track.stop();
+            }
+        });
+        socket.emit('startNewCall', myTelegramId);
+        const loader = remotestream.nextElementSibling;
+        if (loader && loader.classList.contains('loader')) {
+            loader.style.display = '';
+        }
+        partnerId = '';
+    }else{
+        return
     }
-    partnerId = '';
 }
 
 async function createOffer() {
@@ -210,8 +215,13 @@ switchBtn.addEventListener('click', async () => {
 });
 
 nextBtn.addEventListener('click', async () => {
-    await socket.emit('nextcall', {from:myTelegramId , to:partnerId});;
+    await socket.emit('nextcall', {from:myTelegramId , to:partnerId});
     await endpeer();
+    lockNextCall = true
+    setTimeout(()=>{
+        lockNextCall = false
+    },1500)
+
 });
 
 socket.on('caller', async (partnerTelegramId) => {
