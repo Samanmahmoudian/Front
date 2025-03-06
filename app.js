@@ -101,6 +101,7 @@ startBtn.addEventListener('click', async () => {
 
 async function endpeer() {
     if(!lockNextCall){
+        lockNextCall = true
         if (peerConnection) {
             await peerConnection.close();
             
@@ -121,7 +122,7 @@ async function endpeer() {
             loader.style.display = '';
         }
         partnerId = '';
-        lockNextCall = true
+        
         setTimeout(()=>{
             lockNextCall = false
 
