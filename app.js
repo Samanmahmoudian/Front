@@ -95,7 +95,7 @@ startBtn.addEventListener('click', async () => {
 });
 
 async function endpeer() {
-    if(!lockNextCall){
+
         if (peerConnection) {
             await peerConnection.close();
             
@@ -112,9 +112,7 @@ async function endpeer() {
             loader.style.display = '';
         }
         partnerId = '';
-    }else{
-        return
-    }
+    
 }
 
 async function createOffer() {
@@ -169,7 +167,8 @@ async function createOffer() {
         })
     }    else if(peerConnection.iceConnectionState == "disconnected"){
         socket.emit('nextcall', {from:myTelegramId , to:partnerId});
-        endpeer()
+        if(!lockNextCall) endpeer()
+        
     }
 }
     
@@ -216,7 +215,7 @@ switchBtn.addEventListener('click', async () => {
 
 nextBtn.addEventListener('click', async () => {
     await socket.emit('nextcall', {from:myTelegramId , to:partnerId});
-    await endpeer();
+    if(!lockNextCall) await endpeer();
     lockNextCall = true
     setTimeout(()=>{
         lockNextCall = false
