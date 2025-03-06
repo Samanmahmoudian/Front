@@ -104,11 +104,6 @@ async function endpeer() {
             reciever.track.stop();
         }
     });
-    peerConnection.getSenders().forEach(sender => {
-        if (sender.track) {
-            sender.track.stop();
-        }
-    });
     socket.emit('startNewCall', myTelegramId);
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
