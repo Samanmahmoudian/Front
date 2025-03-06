@@ -168,7 +168,7 @@ async function createOffer() {
     });
 
     peerConnection.ontrack = async(event) => {
-        try{
+        
             if(!remotestream.paused){
                 remotestream.pause
             }
@@ -178,9 +178,7 @@ async function createOffer() {
                 remotestream.oncanplay = async()=>{
                     await remotestream.play()
                 }
-            }catch{
-                console.log('meow')
-            }
+            
         }
 
     
@@ -305,7 +303,7 @@ socket.on('offer', async (offer) => {
     });
 
     peerConnection.ontrack = async(event) => {
-        try{
+        
             if(!remotestream.paused){
                 remotestream.pause
             }
@@ -315,9 +313,7 @@ socket.on('offer', async (offer) => {
                 remotestream.oncanplay = async()=>{
                     await remotestream.play()
                 }
-            }catch{
-                console.log('meow')
-            }
+
         }
     
 
