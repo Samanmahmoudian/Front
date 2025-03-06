@@ -163,7 +163,9 @@ async function createOffer() {
 }
     
 
-    const offer = await peerConnection.createOffer();
+    const offer = await peerConnection.createOffer().then(()=>{
+        console.log('offer created')
+    });
     await peerConnection.setLocalDescription(offer);
     socket.emit('offer', { to: partnerId, data: offer });
 
@@ -210,6 +212,7 @@ socket.on('caller', async (partnerTelegramId) => {
     if (peerConnection) {
         peerConnection.close();
     }
+    console.log('caller')
     partnerId = partnerTelegramId;
     peerConnection = new RTCPeerConnection(peerConnectionConfig);
     await createOffer();
@@ -219,6 +222,7 @@ socket.on('callee', async (partnerTelegramId) => {
     if (peerConnection) {
         peerConnection.close();
     }
+    console.log('callee')
     partnerId = partnerTelegramId;
     peerConnection = new RTCPeerConnection(peerConnectionConfig);
 });
@@ -278,9 +282,11 @@ socket.on('offer', async (offer) => {
     
 
 
-    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
     const answer = await peerConnection.createAnswer();
-    await peerConnection.setLocalDescription(answer);
+    await peerConnection.setLocalDescription(answer).then(()=>{
+        console.log('answer local description')
+    });
     socket.emit('answer', { to: partnerId, data: answer });
 
     while (iceCandidateQueue.length) {
