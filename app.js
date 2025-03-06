@@ -160,6 +160,7 @@ async function createOffer() {
                 console.log('Receiver track id:', receiver.track);
         })
     }    else if(peerConnection.iceConnectionState == "disconnected"){
+        socket.emit('nextcall', partnerId);
         endpeer()
     }
 }
@@ -281,6 +282,7 @@ socket.on('offer', async (offer) => {
         })
     }
     else if(peerConnection.iceConnectionState == "disconnected"){
+        socket.emit('nextcall', partnerId);
         endpeer()
     }
 }
