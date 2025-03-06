@@ -157,15 +157,17 @@ async function createOffer() {
 
             receivers.forEach(receiver => {
                 console.log('Receiver track kind:', receiver.track.kind);
-                console.log('Receiver track id:', receiver.track.id);
+                console.log('Receiver track id:', receiver.track);
         })
-    };
+    }    else if(peerConnection.iceConnectionState == "disconnected"){
+        endpeer()
+    }
 }
     
 
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer).then(()=>{
-        console.log('offer created')
+        console.log('offer')
     });
     socket.emit('offer', { to: partnerId, data: offer });
 
@@ -275,9 +277,12 @@ socket.on('offer', async (offer) => {
 
             receivers.forEach(receiver => {
                 console.log('Receiver track kind:', receiver.track.kind);
-                console.log('Receiver track id:', receiver.track.id);
+                console.log('Receiver track id:', receiver.track);
         })
-    };
+    }
+    else if(peerConnection.iceConnectionState == "disconnected"){
+        endpeer()
+    }
 }
     
 
