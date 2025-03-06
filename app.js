@@ -168,7 +168,7 @@ async function createOffer() {
                 console.log('Receiver track id:', receiver.track);
         })
     }    else if(peerConnection.iceConnectionState == "disconnected"){
-        socket.emit('nextcall', partnerId);
+        socket.emit('nextcall', {from:myTelegramId , to:partnerId});
         endpeer()
     }
 }
@@ -215,7 +215,7 @@ switchBtn.addEventListener('click', async () => {
 });
 
 nextBtn.addEventListener('click', async () => {
-    await socket.emit('nextcall', partnerId);
+    await socket.emit('nextcall', {from:myTelegramId , to:partnerId});;
     await endpeer();
 });
 
@@ -293,7 +293,7 @@ socket.on('offer', async (offer) => {
         })
     }
     else if(peerConnection.iceConnectionState == "disconnected"){
-        socket.emit('nextcall', partnerId);
+        socket.emit('nextcall', {from:myTelegramId , to:partnerId});;
         endpeer()
     }
 }
