@@ -121,6 +121,11 @@ async function endpeer() {
             loader.style.display = '';
         }
         partnerId = '';
+        lockNextCall = true
+        setTimeout(()=>{
+            lockNextCall = false
+
+        },1000)
     }
 
     
