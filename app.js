@@ -1,33 +1,33 @@
 const peerConnectionConfig = {
     iceServers: [
-        // {
-        //     urls: "stun:stun.relay.metered.ca:80",
-        // },
-        // {
-        //     urls: "turn:global.relay.metered.ca:80",
-        //     username: "3d4c3bafb3a7da4b33bd3f07",
-        //     credential: "Ib6+qiOHo648ZsE5",
-        // },
-        // {
-        //     urls: "turn:global.relay.metered.ca:80?transport=tcp",
-        //     username: "3d4c3bafb3a7da4b33bd3f07",
-        //     credential: "Ib6+qiOHo648ZsE5",
-        // },
-        // {
-        //     urls: "turn:global.relay.metered.ca:443",
-        //     username: "3d4c3bafb3a7da4b33bd3f07",
-        //     credential: "Ib6+qiOHo648ZsE5",
-        // },
-        // {
-        //     urls: "turns:global.relay.metered.ca:443?transport=tcp",
-        //     username: "3d4c3bafb3a7da4b33bd3f07",
-        //     credential: "Ib6+qiOHo648ZsE5",
-        // },
         {
-             urls: "turn:91.107.149.64:3478",
-username: "myuser",
-credential: "mypassword",
-        }
+            urls: "stun:stun.relay.metered.ca:80",
+        },
+        {
+            urls: "turn:global.relay.metered.ca:80",
+            username: "3d4c3bafb3a7da4b33bd3f07",
+            credential: "Ib6+qiOHo648ZsE5",
+        },
+        {
+            urls: "turn:global.relay.metered.ca:80?transport=tcp",
+            username: "3d4c3bafb3a7da4b33bd3f07",
+            credential: "Ib6+qiOHo648ZsE5",
+        },
+        {
+            urls: "turn:global.relay.metered.ca:443",
+            username: "3d4c3bafb3a7da4b33bd3f07",
+            credential: "Ib6+qiOHo648ZsE5",
+        },
+        {
+            urls: "turns:global.relay.metered.ca:443?transport=tcp",
+            username: "3d4c3bafb3a7da4b33bd3f07",
+            credential: "Ib6+qiOHo648ZsE5",
+        },
+//         {
+//              urls: "turn:91.107.149.64:3478",
+// username: "myuser",
+// credential: "mypassword",
+//         }
     ],
 };
 
@@ -100,23 +100,29 @@ startBtn.addEventListener('click', async () => {
 });
 
 async function endpeer() {
-
+    if(!lockNextCall){
         if (peerConnection) {
             await peerConnection.close();
             
         }
         remotestream.srcObject = null;
-        peerConnection.getReceivers().forEach(reciever => {
-            if (reciever.track) {
-                reciever.track.stop();
-            }
-        });
+        let getReceivers = peerConnection.getReceivers()
+        if(getReceivers){
+            getReceivers.forEach(reciever => {
+                if (reciever.track) {
+                    reciever.track.stop();
+                }
+            });
+        }
+
         socket.emit('startNewCall', myTelegramId);
         const loader = remotestream.nextElementSibling;
         if (loader && loader.classList.contains('loader')) {
             loader.style.display = '';
         }
         partnerId = '';
+    }
+
     
 }
 
