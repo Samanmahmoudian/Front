@@ -218,7 +218,7 @@ socket.on('caller', async (partnerTelegramId) => {
     if (peerConnection) {
         peerConnection.close();
     }
-    console.log('caller')
+    alert('caller')
     partnerId = partnerTelegramId;
     peerConnection = new RTCPeerConnection(peerConnectionConfig);
     await createOffer();
@@ -228,7 +228,7 @@ socket.on('callee', async (partnerTelegramId) => {
     if (peerConnection) {
         peerConnection.close();
     }
-    console.log('callee')
+    alert('callee')
     partnerId = partnerTelegramId;
     peerConnection = new RTCPeerConnection(peerConnectionConfig);
 });
