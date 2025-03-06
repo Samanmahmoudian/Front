@@ -25,6 +25,30 @@ const peerConnectionConfig = {
                   username: "0b7405b3ccaf2b0fdf498c68",
                   credential: "MjD96GEWGC5oBWSJ",
                 },
+                {
+                    urls: "stun:stun.relay.metered.ca:80",
+                  },
+                  {
+                    urls: "turn:global.relay.metered.ca:80",
+                    username: "49a1c3a66c9064a2e7f59e42",
+                    credential: "0Rz62ookfKDjOdqz",
+                  },
+                  {
+                    urls: "turn:global.relay.metered.ca:80?transport=tcp",
+                    username: "49a1c3a66c9064a2e7f59e42",
+                    credential: "0Rz62ookfKDjOdqz",
+                  },
+                  {
+                    urls: "turn:global.relay.metered.ca:443",
+                    username: "49a1c3a66c9064a2e7f59e42",
+                    credential: "0Rz62ookfKDjOdqz",
+                  },
+                  {
+                    urls: "turns:global.relay.metered.ca:443?transport=tcp",
+                    username: "49a1c3a66c9064a2e7f59e42",
+                    credential: "0Rz62ookfKDjOdqz",
+                  },
+                
             ],
           }
     ],
