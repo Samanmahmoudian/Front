@@ -163,10 +163,10 @@ async function createOffer() {
 }
     
 
-    const offer = await peerConnection.createOffer().then(()=>{
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer).then(()=>{
         console.log('offer created')
     });
-    await peerConnection.setLocalDescription(offer);
     socket.emit('offer', { to: partnerId, data: offer });
 
     while (iceCandidateQueue.length && peerConnection.remoteDescription) {
