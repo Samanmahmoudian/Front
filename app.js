@@ -98,7 +98,6 @@ async function endpeer() {
         await peerConnection.close();
         
     }
-    iceCandidateQueue = []
     remotestream.srcObject = null;
     peerConnection.getReceivers().forEach(reciever => {
         if (reciever.track) {
@@ -155,7 +154,7 @@ async function createOffer() {
     };
 
     peerConnection.onicecandidate = (event) => {
-        if (event.candidate && peerConnection.remoteDescription) {
+        if (event.candidate) {
             socket.emit('ice', { to: partnerId, data: event.candidate });
         }
     };
