@@ -126,6 +126,9 @@ async function createOffer() {
 
     peerConnection.ontrack = async(event) => {
         try{
+            if(!remotestream.paused){
+                remotestream.pause
+            }
             if(!event.streams[0]) console.log('injas moshkel')
                 console.log(event.streams[0])
                 remotestream.srcObject = await event.streams[0]
@@ -140,7 +143,7 @@ async function createOffer() {
     
 
     peerConnection.onicecandidate = (event) => {
-        if (event.candidate && peerConnection.remoteDescription) {
+        if (event.candidate) {
             socket.emit('ice', { to: partnerId, data: event.candidate });
         }
     };
@@ -254,6 +257,9 @@ socket.on('offer', async (offer) => {
 
     peerConnection.ontrack = async(event) => {
         try{
+            if(!remotestream.paused){
+                remotestream.pause
+            }
             if(!event.streams[0]) console.log('injas moshkel')
                 console.log(event.streams[0])
                 remotestream.srcObject = await event.streams[0]
@@ -267,7 +273,7 @@ socket.on('offer', async (offer) => {
     
 
     peerConnection.onicecandidate = (event) => {
-        if (event.candidate && peerConnection.remoteDescription) {
+        if (event.candidate) {
             socket.emit('ice', { to: partnerId, data: event.candidate });
         }
     };
