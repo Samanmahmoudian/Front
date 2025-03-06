@@ -95,16 +95,21 @@ startBtn.addEventListener('click', async () => {
 
 async function endpeer() {
     if (peerConnection) {
-        peerConnection.getReceivers().forEach(reciever => {
-            if (reciever.track) {
-                reciever.track.stop();
-            }
-        });
         await peerConnection.close();
-        peerConnection = null
+        
     }
     iceCandidateQueue = []
     remotestream.srcObject = null;
+    peerConnection.getReceivers().forEach(reciever => {
+        if (reciever.track) {
+            reciever.track.stop();
+        }
+    });
+    peerConnection.getSenders().forEach(sender => {
+        if (sender.track) {
+            sender.track.stop();
+        }
+    });
     socket.emit('startNewCall', myTelegramId);
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
