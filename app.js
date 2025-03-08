@@ -109,7 +109,7 @@ async function shareMedia() {
     }
 }
 
-const socket = io(`http://localhost:3000`, { query: { userTelegramId: myTelegramId } });
+const socket = io(`https://miniapp-videocall-server.onrender.com`, { query: { userTelegramId: myTelegramId } });
 
 startBtn.addEventListener('click', async () => {
     startBtn.style.display = 'none';
