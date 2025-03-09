@@ -53,7 +53,7 @@ const peerConnectionConfig = {
     ],
 };
 
-const myTelegramId = String(Math.floor(Math.random() * 1000) + 1);
+const myTelegramId = getTelegramId()
 let myId; 
 let partnerId;
 let stream;
@@ -72,6 +72,20 @@ const switchBtn = document.getElementById('switchbtn');
 const nextBtn = document.getElementById('nextbtn');
 const startBtn = document.getElementById('startbtn');
 let playBtn = document.getElementById("playbutton");
+
+
+async function getTelegramId(){
+    window.Telegram.WebApp.ready();
+    if(window.Telegram.WebApp.initDataUnsafe){
+        return window.Telegram.WebApp.initDataUnsafe.user.id
+    }else{
+        alert('Please enter with Telegram...!')
+        window.close()
+    }
+}
+
+
+
 
 localstream.onplaying = function () {
     const loader = localstream.nextElementSibling;
