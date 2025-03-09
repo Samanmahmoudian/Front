@@ -267,9 +267,7 @@ switchBtn.addEventListener('click', async () => {
 
 nextBtn.addEventListener('click', async () => {
     await socket.emit('nextcall', {from:myTelegramId , to:partnerId});
-    setTimeout(async()=>{
-        await endpeer();
-    },500)
+    await endpeer()
 
 });
 
@@ -293,7 +291,9 @@ socket.on('callee', async (partnerTelegramId) => {
 });
 
 socket.on('nextcall', async () => {
-    await endpeer();
+    setTimeout(()=>{
+        endpeer()
+    },500)
 });
 
 socket.on('disconnected', async (message) => {
