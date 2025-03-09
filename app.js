@@ -252,11 +252,9 @@ switchBtn.addEventListener('click', async () => {
 
 nextBtn.addEventListener('click', async () => {
     await socket.emit('nextcall', {from:myTelegramId , to:partnerId});
-    if(!lockNextCall) await endpeer();
-    lockNextCall = true
-    setTimeout(()=>{
-        lockNextCall = false
-    },1500)
+    setTimeout(async()=>{
+        await endpeer();
+    },500)
 
 });
 
