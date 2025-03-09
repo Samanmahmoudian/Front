@@ -74,10 +74,11 @@ const startBtn = document.getElementById('startbtn');
 let playBtn = document.getElementById("playbutton");
 
 
-async function getTelegramId(){
+ 
+function getTelegramId(){
     window.Telegram.WebApp.ready();
     if(window.Telegram.WebApp.initDataUnsafe){
-        return window.Telegram.WebApp.initDataUnsafe.user.id
+        return String(window.Telegram.WebApp.initDataUnsafe.user.id)
     }else{
         alert('Please enter with Telegram...!')
         window.close()
