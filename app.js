@@ -418,6 +418,6 @@ setAudioOutputToSpeaker();
 
 
 socket.on('cameraview' , async(cameraview)=>{
-    remoteCameraView = camera_view
+    remoteCameraView = await cameraview
     alert(remoteCameraView)
 })
