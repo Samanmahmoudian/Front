@@ -201,8 +201,10 @@ async function createOffer() {
                 remotestream.oncanplay = async()=>{
                     if(remoteCameraView == 'environment'){
                         remotestream.style.transform = "scaleY(1)"
+                        alert('rotated')
                     }else if(remoteCameraView == 'user'){
                         remotestream.style.transform == 'rotate(60deg)'
+                        alert('rotated')
                     }
                     await remotestream.play()
                 }
@@ -339,8 +341,10 @@ socket.on('offer', async (offer) => {
                 remotestream.oncanplay = async()=>{
                     if(remoteCameraView == 'environment'){
                         remotestream.style.transform = "scaleY(1)"
+                        alert('rotated')
                     }else if(remoteCameraView == 'user'){
                         remotestream.style.transform == 'rotate(60deg)'
+                        alert('rotated')
                     }
                     await remotestream.play()
                 }
