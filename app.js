@@ -92,9 +92,9 @@ function getTelegramId(){
 
 localstream.onplaying = function () {
     if(camera_view == 'environment'){
-        localstream.style.transform = 'rotate(180deg)'
+        localstream.style.transform = 'scaleY(1)'
     }else if(camera_view == 'user'){
-        localstream.style.transform == 'rotate(0deg)'
+        localstream.style.transform == 'scaleY(-1)'
     }
     const loader = localstream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
@@ -103,11 +103,6 @@ localstream.onplaying = function () {
 };
 
 remotestream.onplaying = function () {
-    if(remoteCameraView == 'environment'){
-        remotestream.style.transform = 'rotate(180deg)'
-    }else if(remoteCameraView == 'user'){
-        remotestream.style.transform == 'rotate(0deg)'
-    }
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = 'none';
@@ -204,6 +199,11 @@ async function createOffer() {
                 console.log(event.streams[0])
                 remotestream.srcObject = await event.streams[0]
                 remotestream.oncanplay = async()=>{
+                    if(remoteCameraView == 'environment'){
+                        remotestream.style.transform = "scaleY(1)"
+                    }else if(remoteCameraView == 'user'){
+                        remotestream.style.transform == 'scaleY(-1)'
+                    }
                     await remotestream.play()
                 }
             
@@ -337,6 +337,11 @@ socket.on('offer', async (offer) => {
                 console.log(event.streams[0])
                 remotestream.srcObject = await event.streams[0]
                 remotestream.oncanplay = async()=>{
+                    if(remoteCameraView == 'environment'){
+                        remotestream.style.transform = "scaleY(1)"
+                    }else if(remoteCameraView == 'user'){
+                        remotestream.style.transform == 'scaleY(-1)'
+                    }
                     await remotestream.play()
                 }
 
