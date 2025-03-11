@@ -53,12 +53,14 @@ const peerConnectionConfig = {
     ],
 };
 
+// String(Math.floor(Math.random() * 1000) + 1)
 const myTelegramId = getTelegramId()
 let myId; 
 let partnerId;
 let stream;
 let isMuted = false;
 let camera_view = 'user';
+let remoteCameraView = null;
 /**@type {RTCPeerConnection} */
 let peerConnection;
 let iceCandidateQueue = [];
@@ -89,6 +91,11 @@ function getTelegramId(){
 
 
 localstream.onplaying = function () {
+    if(camera_view == 'environment'){
+        localstream.style.transform = 'scaleX(-1)'
+    }else if(camera_view == 'user'){
+        localstream.style.transform == 'scaleX(1)'
+    }
     const loader = localstream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = 'none';
@@ -96,6 +103,11 @@ localstream.onplaying = function () {
 };
 
 remotestream.onplaying = function () {
+    if(remoteCameraView == 'environment'){
+        remotestream.style.transform = 'scaleX(-1)'
+    }else if(remoteCameraView == 'user'){
+        remotestream.style.transform == 'scaleX(1)'
+    }
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = 'none';
@@ -110,6 +122,7 @@ async function shareMedia() {
         stream.getTracks().forEach(track => track.stop());
         localstream.srcObject = null;
     }
+    if(partnerId) socket.emit('cameraview' , {data: camera_view , to:partnerId})
     stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: camera_view },
         audio: true
@@ -124,7 +137,7 @@ async function shareMedia() {
     }
 }
 
-const socket = io(`https://miniapp-videocall-server.onrender.com`, { query: { userTelegramId: myTelegramId } });
+const socket = io(`http://localhost:3000`, { query: { userTelegramId: myTelegramId } });
 
 startBtn.addEventListener('click', async () => {
     startBtn.style.display = 'none';
@@ -176,7 +189,7 @@ async function createOffer() {
     senders.forEach(track => {
         peerConnection.removeTrack(track);
     });
-
+    socket.emit('cameraview' , {data: camera_view , to:partnerId})
     stream.getTracks().forEach(track => {
         peerConnection.addTrack(track, stream);
     });
@@ -309,7 +322,7 @@ socket.on('offer', async (offer) => {
     senders.forEach(track => {
         peerConnection.removeTrack(track);
     });
-
+    socket.emit('cameraview' , {data: camera_view , to:partnerId})
     stream.getTracks().forEach(track => {
         peerConnection.addTrack(track, stream);
     });
@@ -401,3 +414,9 @@ async function setAudioOutputToSpeaker() {
 }
 
 setAudioOutputToSpeaker();
+
+
+socket.on('cameraview' , async(cameraview)=>{
+    remoteCameraView = camera_view
+    alert(remoteCameraView)
+})
