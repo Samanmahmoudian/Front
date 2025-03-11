@@ -202,7 +202,7 @@ async function createOffer() {
                     if(remoteCameraView == 'environment'){
                         remotestream.style.transform = "scaleY(1)"
                     }else if(remoteCameraView == 'user'){
-                        remotestream.style.transform == 'scaleY(-1)'
+                        remotestream.style.transform == 'rotate(60deg)'
                     }
                     await remotestream.play()
                 }
@@ -340,7 +340,7 @@ socket.on('offer', async (offer) => {
                     if(remoteCameraView == 'environment'){
                         remotestream.style.transform = "scaleY(1)"
                     }else if(remoteCameraView == 'user'){
-                        remotestream.style.transform == 'scaleY(-1)'
+                        remotestream.style.transform == 'rotate(60deg)'
                     }
                     await remotestream.play()
                 }
