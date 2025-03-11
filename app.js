@@ -87,7 +87,13 @@ function getTelegramId(){
     }
 }
 
-
+function applyMirroring(videoElement, facingMode) {
+    if (facingMode === 'user') {
+        videoElement.style.transform = 'rotateY(180deg)';  // Mirror front camera
+    } else {
+        videoElement.style.transform = 'rotateY(0deg)';  // Normal for rear camera
+    }
+}
 
 
 localstream.onplaying = function () {
@@ -114,11 +120,7 @@ async function shareMedia() {
         localstream.srcObject = null;
     }
     if(partnerId) socket.emit('cameraview' , {data: camera_view , to:partnerId})
-        if(camera_view == 'environment'){
-            localstream.style.transform = 'rotate(0deg)'
-        }else if(camera_view == 'user'){
-            localstream.style.transform == 'rotate(180deg)'
-        }
+        applyMirroring(localstream , camera_view)
     stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: camera_view },
         audio: true
@@ -414,10 +416,6 @@ setAudioOutputToSpeaker();
 
 
 socket.on('cameraview' , async(cameraview)=>{
-    if(cameraview == 'user'){
-        remotestream.style.transform = 'rotate(180deg)'
-    }else if(cameraview == 'environment'){
-        remotestream.style.transform = 'rotate(0deg)'
-    }
+applyMirroring(remotestream , cameraview)
 })
 
