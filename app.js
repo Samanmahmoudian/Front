@@ -115,9 +115,9 @@ async function shareMedia() {
     }
     if(partnerId) socket.emit('cameraview' , {data: camera_view , to:partnerId})
         if(camera_view == 'environment'){
-            localstream.style.transform = 'scaleY(1)'
+            localstream.style.transform = 'rotate(0deg)'
         }else if(camera_view == 'user'){
-            localstream.style.transform == 'scaleY(-1)'
+            localstream.style.transform == 'rotate(180deg)'
         }
     stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: camera_view },
@@ -415,9 +415,9 @@ setAudioOutputToSpeaker();
 
 socket.on('cameraview' , async(cameraview)=>{
     if(cameraview == 'user'){
-        remotestream.style.transform = 'scaleY(-1)'
+        remotestream.style.transform = 'rotate(180deg)'
     }else if(cameraview == 'environment'){
-        remotestream.style.transform = 'scaleY(1)'
+        remotestream.style.transform = 'rotate(0deg)'
     }
 })
 
