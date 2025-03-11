@@ -60,7 +60,7 @@ let partnerId;
 let stream;
 let isMuted = false;
 let camera_view = 'user';
-let remoteCameraView = null;
+let remoteCameraView = '' ;
 /**@type {RTCPeerConnection} */
 let peerConnection;
 let iceCandidateQueue = [];
@@ -91,11 +91,7 @@ function getTelegramId(){
 
 
 localstream.onplaying = function () {
-    if(camera_view == 'environment'){
-        localstream.style.transform = 'scaleY(1)'
-    }else if(camera_view == 'user'){
-        localstream.style.transform == 'scaleY(-1)'
-    }
+
     const loader = localstream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
         loader.style.display = 'none';
@@ -118,6 +114,11 @@ async function shareMedia() {
         localstream.srcObject = null;
     }
     if(partnerId) socket.emit('cameraview' , {data: camera_view , to:partnerId})
+        if(camera_view == 'environment'){
+            localstream.style.transform = 'scaleY(1)'
+        }else if(camera_view == 'user'){
+            localstream.style.transform == 'scaleY(-1)'
+        }
     stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: camera_view },
         audio: true
@@ -199,13 +200,6 @@ async function createOffer() {
                 console.log(event.streams[0])
                 remotestream.srcObject = await event.streams[0]
                 remotestream.oncanplay = async()=>{
-                    if(remoteCameraView == 'environment'){
-                        remotestream.style.transform = "scaleY(1)"
-                        alert('rotated')
-                    }else if(remoteCameraView == 'user'){
-                        remotestream.style.transform == 'rotate(60deg)'
-                        alert('rotated')
-                    }
                     await remotestream.play()
                 }
             
@@ -339,13 +333,6 @@ socket.on('offer', async (offer) => {
                 console.log(event.streams[0])
                 remotestream.srcObject = await event.streams[0]
                 remotestream.oncanplay = async()=>{
-                    if(remoteCameraView == 'environment'){
-                        remotestream.style.transform = "scaleY(1)"
-                        alert('rotated')
-                    }else if(remoteCameraView == 'user'){
-                        remotestream.style.transform == 'rotate(60deg)'
-                        alert('rotated')
-                    }
                     await remotestream.play()
                 }
 
@@ -427,6 +414,10 @@ setAudioOutputToSpeaker();
 
 
 socket.on('cameraview' , async(cameraview)=>{
-    remoteCameraView = await cameraview
-    alert(remoteCameraView)
+    if(cameraview == 'user'){
+        remotestream.style.transform = 'scaleY(-1)'
+    }else if(cameraview == 'environment'){
+        remotestream.style.transform = 'scaleY(1)'
+    }
 })
+
