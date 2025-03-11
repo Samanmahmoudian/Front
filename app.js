@@ -201,7 +201,6 @@ async function createOffer() {
             if(!event.streams[0]) console.log('injas moshkel')
                 console.log(event.streams[0])
                 remotestream.srcObject = await event.streams[0]
-                applyMirroring(remotestream , remoteCameraView)
                 remotestream.oncanplay = async()=>{
                     await remotestream.play()
                 }
@@ -335,7 +334,6 @@ socket.on('offer', async (offer) => {
             if(!event.streams[0]) console.log('injas moshkel')
                 console.log(event.streams[0])
                 remotestream.srcObject = await event.streams[0]
-                applyMirroring(remotestream , remoteCameraView)
                 remotestream.oncanplay = async()=>{
                     await remotestream.play()
                 }
@@ -418,6 +416,8 @@ setAudioOutputToSpeaker();
 
 
 socket.on('cameraview' , async(cameraview)=>{
-    remoteCameraView = await cameraview
+    setTimeout(()=>{
+        applyMirroring(remotestream , cameraview)
+    },500)
 })
 
