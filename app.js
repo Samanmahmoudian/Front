@@ -119,13 +119,14 @@ async function shareMedia() {
         stream.getTracks().forEach(track => track.stop());
         localstream.srcObject = null;
     }
-    if(partnerId) socket.emit('cameraview' , {data: camera_view , to:partnerId})
+    
         applyMirroring(localstream , camera_view)
     stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: camera_view },
         audio: true
     });
     localstream.srcObject = stream;
+    if(partnerId) socket.emit('cameraview' , {data: camera_view , to:partnerId})
 
     // Manually play the local stream for WebView compatibility
     if (localstream.paused || localstream.ended) {
@@ -188,10 +189,12 @@ async function createOffer() {
     senders.forEach(track => {
         peerConnection.removeTrack(track);
     });
-    socket.emit('cameraview' , {data: camera_view , to:partnerId})
+    
     stream.getTracks().forEach(track => {
         peerConnection.addTrack(track, stream);
-    });
+    })
+
+    socket.emit('cameraview' , {data: camera_view , to:partnerId})
 
     peerConnection.ontrack = async(event) => {
         
@@ -321,11 +324,11 @@ socket.on('offer', async (offer) => {
     senders.forEach(track => {
         peerConnection.removeTrack(track);
     });
-    socket.emit('cameraview' , {data: camera_view , to:partnerId})
+    
     stream.getTracks().forEach(track => {
         peerConnection.addTrack(track, stream);
     });
-
+    socket.emit('cameraview' , {data: camera_view , to:partnerId})
     peerConnection.ontrack = async(event) => {
         
             if(!remotestream.paused){
