@@ -92,9 +92,9 @@ function getTelegramId(){
 
 localstream.onplaying = function () {
     if(camera_view == 'environment'){
-        localstream.style.transform = 'scaleX(-1)'
+        localstream.style.transform = 'rotate(180deg)'
     }else if(camera_view == 'user'){
-        localstream.style.transform == 'scaleX(1)'
+        localstream.style.transform == 'rotate(0deg)'
     }
     const loader = localstream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
@@ -104,9 +104,9 @@ localstream.onplaying = function () {
 
 remotestream.onplaying = function () {
     if(remoteCameraView == 'environment'){
-        remotestream.style.transform = 'scaleX(-1)'
+        remotestream.style.transform = 'rotate(180deg)'
     }else if(remoteCameraView == 'user'){
-        remotestream.style.transform == 'scaleX(1)'
+        remotestream.style.transform == 'rotate(0deg)'
     }
     const loader = remotestream.nextElementSibling;
     if (loader && loader.classList.contains('loader')) {
