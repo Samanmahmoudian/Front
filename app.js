@@ -421,6 +421,6 @@ setAudioOutputToSpeaker();
 socket.on('cameraview' , async(cameraview)=>{
     setTimeout(()=>{
         applyMirroring(remotestream , cameraview)
-    },500)
+    },1000)
 })
 
