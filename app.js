@@ -54,7 +54,7 @@ const peerConnectionConfig = {
 };
 
 // String(Math.floor(Math.random() * 1000) + 1)
-const myTelegramId = getTelegramId()
+const myTelegramId = String(Math.floor(Math.random() * 1000) + 1)
 let myId; 
 let partnerId;
 let stream;
@@ -419,6 +419,6 @@ setAudioOutputToSpeaker();
 
 
 socket.on('cameraview' , async(cameraview)=>{
-applyMirroring(remotestream , cameraview)
+applyMirroring(remotestream ,)
 })
 
